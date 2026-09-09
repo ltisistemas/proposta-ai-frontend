@@ -19,6 +19,10 @@ import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { Badge } from "@/components/Common/Badge";
 import { ToastContainer } from "@/components/Common/Toast";
 
+import { Logo } from "@/components/Common/Logo";
+
+export const dynamic = "force-dynamic";
+
 export default function DashboardLayout({
   children,
 }: {
@@ -68,22 +72,15 @@ export default function DashboardLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col md:flex-row font-sans">
       <ToastContainer />
 
       {/* Mobile Top Bar */}
       <div className="md:hidden flex items-center justify-between p-4 bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-black text-white text-lg">
-            Proposta <span className="text-indigo-400 font-normal">Ai!</span>
-          </span>
-        </Link>
+        <Logo href="/dashboard" size="sm" />
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 text-slate-300 hover:text-white rounded-lg bg-slate-800"
+          className="p-2 text-slate-300 hover:text-white rounded-lg bg-slate-800 cursor-pointer"
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -97,14 +94,9 @@ export default function DashboardLayout({
       >
         <div>
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-2.5 px-2 py-3 mb-6">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-black text-white text-xl tracking-tight">
-              Proposta <span className="text-indigo-400 font-normal">Ai!</span>
-            </span>
-          </Link>
+          <div className="px-1 py-3 mb-6">
+            <Logo href="/dashboard" size="md" />
+          </div>
 
           {/* Navigation Links */}
           <nav className="space-y-1.5">
