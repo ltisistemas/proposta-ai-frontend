@@ -1,0 +1,119 @@
+import { NextRequest, NextResponse } from "next/server";
+import { obterTokenDoHeader, obterUserIdDoToken } from "@/lib/auth/jwt";
+import {
+  obterPropostaPorId,
+  atualizarStatusProposta,
+  deletarProposta,
+} from "@/lib/db/propostas";
+import { query } from "@/lib/db/client";
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const token = obterTokenDoHeader(request.headers.get("Authorization"));
+    const userId = token ? obterUserIdDoToken(token) : undefined;
+
+    const proposta = await obterPropostaPorId(id, userId || undefined);
+
+    if (!proposta) {
+      return NextResponse.json(
+        { sucesso: false, erro: "Proposta não encontrada" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ sucesso: true, proposta });
+  } catch (error) {
+    console.error("Erro em GET /api/propostas/[id]:", error);
+    return NextResponse.json({ erro: "Erro ao buscar proposta" }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const token = obterTokenDoHeader(request.headers.get("Authorization"));
+    if (!token) {
+      return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
+    }
+
+    const userId = obterUserIdDoToken(token);
+    if (!userId) {
+      return NextResponse.json({ erro: "Token inválido" }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    if (body.status) {
+      const proposta = await atualizarStatusProposta(
+        id,
+        userId,
+        body.status
+      );
+      if (!proposta) {
+        return NextResponse.json(
+          { erro: "Proposta não encontrada ou não pertence ao usuário" },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json({ sucesso: true, proposta });
+    }
+
+    // Update general fields
+    if (body.conteudoHtml || body.observacoes) {
+      const result = await query(
+        `UPDATE propostas 
+         SET conteudo_html = COALESCE($1, conteudo_html),
+             observacoes = COALESCE($2, observacoes),
+             atualizado_em = CURRENT_TIMESTAMP
+         WHERE id = $3 AND usuario_id = $4 AND deletado_em IS NULL
+         RETURNING *`,
+        [body.conteudoHtml || null, body.observacoes || null, id, userId]
+      );
+      return NextResponse.json({ sucesso: true, proposta: result.rows[0] });
+    }
+
+    return NextResponse.json({ sucesso: true });
+  } catch (error) {
+    console.error("Erro em PATCH /api/propostas/[id]:", error);
+    return NextResponse.json({ erro: "Erro ao atualizar proposta" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const token = obterTokenDoHeader(request.headers.get("Authorization"));
+    if (!token) {
+      return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
+    }
+
+    const userId = obterUserIdDoToken(token);
+    if (!userId) {
+      return NextResponse.json({ erro: "Token inválido" }, { status: 401 });
+    }
+
+    const sucesso = await deletarProposta(id, userId);
+
+    if (!sucesso) {
+      return NextResponse.json(
+        { erro: "Proposta não encontrada ou não pôde ser excluída" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ sucesso: true, mensagem: "Proposta excluída com sucesso" });
+  } catch (error) {
+    console.error("Erro em DELETE /api/propostas/[id]:", error);
+    return NextResponse.json({ erro: "Erro ao deletar proposta" }, { status: 500 });
+  }
+}
