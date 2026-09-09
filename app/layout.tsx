@@ -21,7 +21,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Proposta AI | Crie Propostas Comerciais com IA em Minutos",
+  title: "Proposta Ai! | Crie Propostas Comerciais com IA em Minutos",
   description:
     "Gere propostas comerciais profissionais, personalizadas e altamente persuasivas com Inteligência Artificial e feche mais contratos.",
   keywords: [
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     "freelancer",
     "consultoria",
   ],
-  authors: [{ name: "Proposta AI" }],
+  authors: [{ name: "Proposta Ai!" }],
 };
 
 export default function RootLayout({

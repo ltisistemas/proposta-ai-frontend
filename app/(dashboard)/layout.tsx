@@ -78,7 +78,7 @@ export default function DashboardLayout({
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <span className="font-black text-white text-lg">
-            Proposta<span className="text-indigo-400">.ia</span>
+            Proposta <span className="text-indigo-400 font-normal">Ai!</span>
           </span>
         </Link>
         <button
@@ -102,7 +102,7 @@ export default function DashboardLayout({
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="font-black text-white text-xl tracking-tight">
-              Proposta<span className="text-indigo-400 font-normal">.ia</span>
+              Proposta <span className="text-indigo-400 font-normal">Ai!</span>
             </span>
           </Link>
 
@@ -146,7 +146,7 @@ export default function DashboardLayout({
               </p>
               <Link href="/config">
                 <button className="w-full py-1.5 px-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] transition-colors shadow-xs">
-                  Fazer Upgrade Pro (R$ 39)
+                  Fazer Upgrade Pro (R$ 45,90)
                 </button>
               </Link>
             </div>

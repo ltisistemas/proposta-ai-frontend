@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       customer_email: usuario.email,
       customer_name: usuario.nome,
       customer_tax_id: usuario.empresa_cnpj || undefined,
-      plan_id: "pro-39",
+      plan_id: "pro-45-90",
       payment_method: "credit_card" as const,
       auto_renew: true,
       idempotency_key: `sub_${userId}_${Date.now()}`,
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     await query(
       `INSERT INTO pagamentos (usuario_id, abacate_transaction_id, valor, status, tipo)
        VALUES ($1, $2, $3, 'pendente', 'assinatura_pro')`,
-      [userId, subscription.subscription_id, 39.0]
+      [userId, subscription.subscription_id, 45.9]
     );
 
     return NextResponse.json({

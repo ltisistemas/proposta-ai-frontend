@@ -25,7 +25,7 @@ async function testAbacate() {
   const sub = await criarAssinatura({
     customer_email: "test@propostaai.com",
     customer_name: "Cliente Teste",
-    plan_id: "pro-39",
+    plan_id: "pro-45-90",
   });
   console.log("✅ Create subscription test:", sub.subscription_id, sub.checkout_url);
 

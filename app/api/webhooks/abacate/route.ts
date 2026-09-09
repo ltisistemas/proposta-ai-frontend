@@ -3,6 +3,8 @@ import { validarAssinaturaWebhook } from "@/lib/abacate/client";
 import { atualizarUserPlano, obterUserPorAbacateId } from "@/lib/db/users";
 import { query } from "@/lib/db/client";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();

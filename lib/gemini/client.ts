@@ -227,7 +227,7 @@ export function gerarTemplateFallback(dados: DadosGeracaoProposta): string {
 
       <!-- Footer Note -->
       <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 16px;">
-        Proposta gerada via Proposta AI • Documento confidencial destinado exclusivamente ao cliente especificado.
+        Proposta gerada via Proposta Ai! • Documento confidencial destinado exclusivamente ao cliente especificado.
       </div>
     </div>
   </div>

@@ -136,7 +136,7 @@ export default function ConfigPage() {
           Configurações da Conta & Plano
         </h1>
         <p className="text-slate-400 text-sm mt-1">
-          Personalize os dados da sua empresa e gerencie sua assinatura do Proposta AI
+          Personalize os dados da sua empresa e gerencie sua assinatura do Proposta Ai!
         </p>
       </div>
 
@@ -248,7 +248,7 @@ export default function ConfigPage() {
               <div className="space-y-5">
                 <div>
                   <div className="text-3xl font-black text-white">
-                    R$ 39 <span className="text-xs text-slate-400 font-normal">/ mês</span>
+                    R$ 45,90 <span className="text-xs text-slate-400 font-normal">/ mês</span>
                   </div>
                   <p className="text-xs text-slate-400 mt-1">
                     Gere quantas propostas comerciais precisar sem nenhum limite.

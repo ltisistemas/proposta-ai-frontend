@@ -23,7 +23,7 @@ export default function AuthLayout({
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-black tracking-tight">
-            Proposta<span className="text-indigo-400 font-normal">.ia</span>
+            Proposta <span className="text-indigo-400 font-normal">Ai!</span>
           </span>
         </Link>
       </header>
@@ -35,7 +35,7 @@ export default function AuthLayout({
 
       {/* Footer */}
       <footer className="p-6 text-center text-xs text-slate-500 z-10">
-        © {new Date().getFullYear()} Proposta AI. Todos os direitos reservados.
+        © {new Date().getFullYear()} Proposta Ai!. Todos os direitos reservados.
       </footer>
     </div>
   );

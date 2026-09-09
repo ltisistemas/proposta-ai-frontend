@@ -38,7 +38,7 @@ export default function LandingPage() {
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-black text-white tracking-tight">
-                Proposta<span className="text-blue-400 font-normal">.ia</span>
+                Proposta <span className="text-blue-400 font-normal">Ai!</span>
               </span>
               <span className="text-[10px] text-slate-400 font-mono -mt-1 tracking-widest uppercase">
                 Plataforma Comercial
@@ -399,7 +399,7 @@ export default function LandingPage() {
               </p>
 
               <div className="text-4xl font-black text-white mb-8">
-                R$ 39 <span className="text-base text-slate-400 font-normal">/ mês</span>
+                R$ 45,90 <span className="text-base text-slate-400 font-normal">/ mês</span>
               </div>
 
               <ul className="space-y-3 text-sm text-slate-200">
@@ -475,10 +475,10 @@ export default function LandingPage() {
       <footer className="border-t border-slate-800/80 py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-blue-400" />
-          <span className="text-slate-400 font-semibold">Proposta AI</span> • Feito para o mercado brasileiro
+          <span className="text-slate-400 font-semibold">Proposta Ai!</span> • Feito para o mercado brasileiro
         </div>
         <div>
-          © {new Date().getFullYear()} Proposta AI. Todos os direitos reservados.
+          © {new Date().getFullYear()} Proposta Ai!. Todos os direitos reservados.
         </div>
       </footer>
     </div>

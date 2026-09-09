@@ -15,6 +15,9 @@ import {
 } from "@/lib/db/users";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+
 const itemSchema = z.object({
   descricao: z.string().min(1, "A descrição do item é obrigatória"),
   quantidade: z.number().min(1, "A quantidade deve ser de no mínimo 1"),
