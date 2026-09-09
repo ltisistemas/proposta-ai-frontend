@@ -5,6 +5,7 @@ import {
   atualizarStatusProposta,
   deletarProposta,
 } from "@/lib/db/propostas";
+import { obterUserPorId } from "@/lib/db/users";
 import { query } from "@/lib/db/client";
 
 export async function GET(
