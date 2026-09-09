@@ -20,12 +20,15 @@ import { Input } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
 import { Card } from "@/components/Common/Card";
 import { Badge } from "@/components/Common/Badge";
+import { UpgradeModal } from "@/components/Billing/UpgradeModal";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
 
 export default function ConfigPage() {
   const { user, token, updateUser } = useAuthStore();
   const { addToast } = useToast();
+
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   const [nome, setNome] = useState(user?.nome || "");
   const [empresaNome, setEmpresaNome] = useState(user?.empresa_nome || "");
@@ -165,38 +168,8 @@ export default function ConfigPage() {
     }
   };
 
-  const handleUpgradeCheckout = async () => {
-    if (!token) return;
-    setIsCheckingOut(true);
-
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
-
-      if (data.sucesso && data.checkoutUrl) {
-        addToast({
-          type: "info",
-          title: "Redirecionando para pagamento seguro...",
-        });
-        window.location.href = data.checkoutUrl;
-      } else {
-        addToast({
-          type: "error",
-          title: "Erro ao iniciar checkout",
-          message: data.erro || "Tente novamente mais tarde.",
-        });
-      }
-    } catch (err) {
-      console.error("Erro no checkout:", err);
-    } finally {
-      setIsCheckingOut(false);
-    }
+  const handleUpgradeCheckout = () => {
+    setUpgradeModalOpen(true);
   };
 
   return (
@@ -435,23 +408,28 @@ export default function ConfigPage() {
 
                 <Button
                   onClick={handleUpgradeCheckout}
-                  isLoading={isCheckingOut}
                   variant="primary"
                   size="md"
-                  className="w-full justify-center font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30"
+                  className="w-full justify-center font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25"
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
-                  Fazer Upgrade via Abacate Pay
+                  Fazer Upgrade com PIX (R$ 45,90/mês)
                 </Button>
 
                 <div className="text-center text-[11px] text-slate-400">
-                  Pagamento seguro via PIX ou Cartão (Abacate Pay)
+                  Pagamento instantâneo via PIX Transparente (Abacate Pay)
                 </div>
               </div>
             )}
           </Card>
         </div>
       </div>
+
+      <UpgradeModal
+        isOpen={upgradeModalOpen}
+        onClose={() => setUpgradeModalOpen(false)}
+        feature="logo"
+      />
     </div>
   );
 }
