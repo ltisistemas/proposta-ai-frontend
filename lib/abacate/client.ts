@@ -4,6 +4,10 @@ import crypto from "crypto";
 const ABACATE_BASE_URL =
   process.env.ABACATE_BASE_URL || "https://api.abacatepay.com/v2";
 
+export const ABACATEPAY_PUBLIC_KEY =
+  process.env.ABACATEPAY_PUBLIC_KEY ||
+  "t9dXRhHHo3yDEj5pVDYz0frf7q6bMKyMRmxxCPIPp3RCplBfXRxqlC6ZpiWmOqj4L63qEaeUOtrCI8P0VMUgo6iIga2ri9ogaHFs0WIIywSMg0q7RmBfybe1E5XJcfC4IW3alNqym0tXoAKkzvfEjZxV6bE0oG2zJrNNYmUCKZyV0KZ3JS8Votf9EAWWYdiDkMkpbMdPggfh1EqHlVkMiTady6jOR3hyzGEHrIz2Ret0xHKMbiqkr9HS1JhNHDX9";
+
 const getApiKey = () =>
   process.env.ABACATE_SECRET_KEY ||
   process.env.ABACATE_PAY_API_KEY ||
@@ -95,10 +99,8 @@ export async function criarCobrancaPixTransparente(
 
   const expiresAt = new Date(Date.now() + (payload.expiresIn || 3600) * 1000).toISOString();
   
-  // Real valid SVG QR code converted to data URI
   const samplePixCode = `00020126580014BR.GOV.BCB.PIX0136d2b4e5f6-7890-abcd-ef12-${chargeId.substring(9, 21)}520400005303986540545.905802BR5914PROPOSTA AI PRO6009SAO PAULO62070503***6304`;
   
-  // Generates visual QR SVG representation in base64
   const qrSvg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
       <rect width="200" height="200" fill="#ffffff" rx="12"/>
@@ -197,33 +199,66 @@ export function simularPagamentoDev(chargeId: string): boolean {
 }
 
 /**
- * Validação de assinatura HMAC do webhook Abacate Pay
+ * Validação de assinatura HMAC do webhook Abacate Pay (Documentação Oficial)
+ * Utiliza HMAC-SHA256 Base64 com a chave pública oficial e timingSafeEqual.
  */
-export function validarAssinaturaWebhook(
+export function verifyAbacateSignature(
   rawBody: string,
   signatureFromHeader: string
 ): boolean {
-  const secret =
-    process.env.ABACATE_WEBHOOK_SECRET ||
-    process.env.ABACATEPAY_WEBHOOK_SECRET ||
-    "default_webhook_secret";
-
   if (!signatureFromHeader) return false;
 
   try {
-    // Try hex digest
-    const hmacHex = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
-    if (signatureFromHeader === hmacHex) return true;
+    const bodyBuffer = Buffer.from(rawBody, "utf8");
 
-    // Try base64 digest
-    const hmacBase64 = crypto.createHmac("sha256", secret).update(rawBody).digest("base64");
-    if (signatureFromHeader === hmacBase64) return true;
+    // 1. Verificação com chave pública oficial da Abacate Pay
+    const expectedSigPublicKey = crypto
+      .createHmac("sha256", ABACATEPAY_PUBLIC_KEY)
+      .update(bodyBuffer)
+      .digest("base64");
 
-    // Direct match if dev secret matches
-    if (signatureFromHeader === secret) return true;
+    const A = Buffer.from(expectedSigPublicKey);
+    const B = Buffer.from(signatureFromHeader);
+
+    if (A.length === B.length && crypto.timingSafeEqual(A, B)) {
+      return true;
+    }
+
+    // 2. Verificação com chave secreta customizada (se informada via .env)
+    const customSecret =
+      process.env.ABACATE_WEBHOOK_SECRET ||
+      process.env.ABACATEPAY_WEBHOOK_SECRET ||
+      "";
+
+    if (customSecret) {
+      // Formato Base64
+      const expectedCustomB64 = crypto
+        .createHmac("sha256", customSecret)
+        .update(bodyBuffer)
+        .digest("base64");
+      const C = Buffer.from(expectedCustomB64);
+      if (C.length === B.length && crypto.timingSafeEqual(C, B)) {
+        return true;
+      }
+
+      // Formato Hex
+      const expectedCustomHex = crypto
+        .createHmac("sha256", customSecret)
+        .update(bodyBuffer)
+        .digest("hex");
+      const D = Buffer.from(expectedCustomHex);
+      if (D.length === B.length && crypto.timingSafeEqual(D, B)) {
+        return true;
+      }
+    }
 
     return false;
   } catch (err) {
     return false;
   }
 }
+
+/**
+ * Alias de compatibilidade
+ */
+export const validarAssinaturaWebhook = verifyAbacateSignature;
