@@ -1,6 +1,5 @@
--- Proposta AI: Database Schema Initialization
+-- Proposta AI: Database Schema
 
--- Enable pgcrypto / uuid-ossp for gen_random_uuid if not already enabled
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Users Table
@@ -61,13 +60,11 @@ CREATE TABLE IF NOT EXISTS propostas (
   deletado_em TIMESTAMP
 );
 
--- Ensure columns exist if table was already created
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinante_nome VARCHAR(255);
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinante_documento VARCHAR(50);
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinado_em TIMESTAMP;
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinatura_ip VARCHAR(50);
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinatura_hash VARCHAR(255);
-
 
 CREATE INDEX IF NOT EXISTS idx_propostas_usuario ON propostas(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_propostas_status ON propostas(status);
