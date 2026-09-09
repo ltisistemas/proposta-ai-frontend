@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Search,
   FileText,
-  ExternalLink,
   Trash2,
   Copy,
   PlusCircle,
@@ -90,9 +89,9 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-3xl overflow-hidden backdrop-blur-xl">
+    <div className="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-xs">
       {/* Table Header Controls */}
-      <div className="p-5 sm:p-6 border-b border-slate-800 flex flex-col sm:flex-row gap-4 items-center justify-between">
+      <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {statusOptions.map((opt) => (
             <button
@@ -100,8 +99,8 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
               onClick={() => setFiltroStatus(opt.value)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 filtroStatus === opt.value
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/80"
               }`}
             >
               {opt.label}
@@ -117,7 +116,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
             placeholder="Buscar por cliente, número..."
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-9 pr-3.5 py-1.5 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all"
           />
         </div>
       </div>
@@ -129,11 +128,11 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
         </div>
       ) : propostasFiltradas.length === 0 ? (
         <div className="p-12 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-4">
             <FileText className="w-6 h-6" />
           </div>
-          <h4 className="text-base font-bold text-white">Nenhuma proposta encontrada</h4>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+          <h4 className="text-base font-bold text-slate-900">Nenhuma proposta encontrada</h4>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
             {busca || filtroStatus !== "todos"
               ? "Tente ajustar os filtros de busca para encontrar o que procura."
               : "Você ainda não criou nenhuma proposta comercial. Gere sua primeira proposta com IA!"}
@@ -141,7 +140,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
           {!busca && filtroStatus === "todos" && (
             <div className="mt-5">
               <Link href="/propostas/nova">
-                <Button variant="gradient" size="sm" leftIcon={<PlusCircle className="w-4 h-4" />}>
+                <Button variant="primary" size="sm" leftIcon={<PlusCircle className="w-4 h-4" />}>
                   Criar Nova Proposta
                 </Button>
               </Link>
@@ -150,8 +149,8 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950/50 text-slate-400 uppercase font-semibold border-b border-slate-800">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50/80 text-slate-500 uppercase font-bold border-b border-slate-200 text-[11px] tracking-wider">
               <tr>
                 <th className="p-4 pl-6">Número</th>
                 <th className="p-4">Cliente / Empresa</th>
@@ -161,33 +160,33 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                 <th className="p-4 pr-6 text-right">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {propostasFiltradas.map((p) => (
                 <tr
                   key={p.id}
-                  className="hover:bg-slate-800/30 transition-colors group"
+                  className="hover:bg-slate-50/80 transition-colors group"
                 >
-                  <td className="p-4 pl-6 font-mono font-bold text-indigo-400">
+                  <td className="p-4 pl-6 font-mono font-bold text-blue-600">
                     <Link
                       href={`/propostas/${p.id}`}
                       className="hover:underline flex items-center gap-1.5"
                     >
-                      <FileText className="w-3.5 h-3.5 text-slate-500" />
+                      <FileText className="w-3.5 h-3.5 text-slate-400" />
                       {p.numero}
                     </Link>
                   </td>
                   <td className="p-4">
-                    <div className="font-bold text-white">{p.cliente_nome}</div>
+                    <div className="font-bold text-slate-900">{p.cliente_nome}</div>
                     {p.cliente_empresa && (
-                      <div className="text-[11px] text-slate-400">
+                      <div className="text-[11px] text-slate-500">
                         {p.cliente_empresa}
                       </div>
                     )}
                   </td>
-                  <td className="p-4 text-slate-400">
+                  <td className="p-4 text-slate-500">
                     {formatarData(p.criado_em)}
                   </td>
-                  <td className="p-4 text-right font-bold text-white">
+                  <td className="p-4 text-right font-bold text-slate-900">
                     {formatarMoeda(p.total)}
                   </td>
                   <td className="p-4 text-center">
@@ -198,7 +197,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                       <Link href={`/propostas/${p.id}`}>
                         <button
                           title="Visualizar Proposta"
-                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -207,10 +206,10 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                       <button
                         onClick={() => handleCopyLink(p.id)}
                         title="Copiar Link"
-                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-indigo-300 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
                       >
                         {copiadoId === p.id ? (
-                          <Check className="w-4 h-4 text-emerald-400" />
+                          <Check className="w-4 h-4 text-emerald-600" />
                         ) : (
                           <Copy className="w-4 h-4" />
                         )}
@@ -224,7 +223,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                             }
                           }}
                           title="Excluir"
-                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

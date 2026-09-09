@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, ArrowRight, CheckCircle } from "lucide-react";
+import { Mail, Lock, ArrowRight } from "lucide-react";
 import { Input } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
@@ -55,19 +55,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-8 shadow-xl shadow-slate-200/50">
       <ToastContainer />
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-black text-white tracking-tight">
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight">
           Acesse sua conta
         </h1>
-        <p className="text-slate-400 text-sm mt-2">
+        <p className="text-slate-500 text-sm mt-1.5">
           Entre para gerenciar suas propostas e fechar negócios
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-start gap-2.5">
+        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-2.5">
           <span>{error}</span>
         </div>
       )}
@@ -81,7 +81,6 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           leftIcon={<Mail className="w-4 h-4" />}
-          className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500"
         />
 
         <Input
@@ -92,15 +91,14 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           leftIcon={<Lock className="w-4 h-4" />}
-          className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500"
         />
 
         <div className="pt-2">
           <Button
             type="submit"
-            variant="gradient"
+            variant="primary"
             size="lg"
-            className="w-full justify-center"
+            className="w-full justify-center shadow-lg shadow-blue-600/20 font-bold"
             isLoading={isLoading}
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
@@ -109,12 +107,12 @@ export default function LoginPage() {
         </div>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-slate-800/80 text-center">
-        <p className="text-sm text-slate-400">
+      <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+        <p className="text-sm text-slate-600">
           Ainda não tem uma conta?{" "}
           <Link
             href="/signup"
-            className="text-indigo-400 font-semibold hover:text-indigo-300 underline underline-offset-4"
+            className="text-blue-600 font-bold hover:text-blue-700 underline underline-offset-4"
           >
             Cadastre-se grátis
           </Link>

@@ -2,28 +2,25 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Settings,
   Building2,
   FileText,
   Mail,
   Phone,
   User,
-  Shield,
   Zap,
   Check,
   ArrowRight,
-  ExternalLink,
   Sparkles,
 } from "lucide-react";
 import { Input } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/Common/Card";
+import { Card } from "@/components/Common/Card";
 import { Badge } from "@/components/Common/Badge";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
 
 export default function ConfigPage() {
-  const { user, token, updateUser, fetchMe } = useAuthStore();
+  const { user, token, updateUser } = useAuthStore();
   const { addToast } = useToast();
 
   const [nome, setNome] = useState(user?.nome || "");
@@ -132,10 +129,10 @@ export default function ConfigPage() {
     <div className="max-w-5xl mx-auto space-y-8 pb-16">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
           Configurações da Conta & Plano
         </h1>
-        <p className="text-slate-400 text-sm mt-1">
+        <p className="text-slate-600 text-sm mt-1">
           Personalize os dados da sua empresa e gerencie sua assinatura do Proposta Ai!
         </p>
       </div>
@@ -143,9 +140,9 @@ export default function ConfigPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left: Profile Form */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="bg-slate-900/80 border-slate-800 p-6 sm:p-8 rounded-3xl backdrop-blur-xl">
-            <div className="flex items-center gap-2.5 pb-4 mb-6 border-b border-slate-800 text-white font-bold text-base">
-              <Building2 className="w-5 h-5 text-indigo-400" />
+          <Card className="bg-white border-slate-200/90 p-6 sm:p-8 rounded-3xl shadow-xs">
+            <div className="flex items-center gap-2.5 pb-4 mb-6 border-b border-slate-100 text-slate-900 font-bold text-base">
+              <Building2 className="w-5 h-5 text-blue-600" />
               <span>Dados da Empresa Emissora</span>
             </div>
 
@@ -156,7 +153,6 @@ export default function ConfigPage() {
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 leftIcon={<User className="w-4 h-4" />}
-                className="bg-slate-950 border-slate-700 text-white"
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -166,7 +162,6 @@ export default function ConfigPage() {
                   value={empresaNome}
                   onChange={(e) => setEmpresaNome(e.target.value)}
                   leftIcon={<Building2 className="w-4 h-4" />}
-                  className="bg-slate-950 border-slate-700 text-white"
                 />
 
                 <Input
@@ -175,7 +170,6 @@ export default function ConfigPage() {
                   value={empresaCnpj}
                   onChange={(e) => setEmpresaCnpj(e.target.value)}
                   leftIcon={<FileText className="w-4 h-4" />}
-                  className="bg-slate-950 border-slate-700 text-white"
                 />
               </div>
 
@@ -187,7 +181,6 @@ export default function ConfigPage() {
                   value={empresaEmail}
                   onChange={(e) => setEmpresaEmail(e.target.value)}
                   leftIcon={<Mail className="w-4 h-4" />}
-                  className="bg-slate-950 border-slate-700 text-white"
                 />
 
                 <Input
@@ -196,7 +189,6 @@ export default function ConfigPage() {
                   value={empresaTelefone}
                   onChange={(e) => setEmpresaTelefone(e.target.value)}
                   leftIcon={<Phone className="w-4 h-4" />}
-                  className="bg-slate-950 border-slate-700 text-white"
                 />
               </div>
 
@@ -205,7 +197,6 @@ export default function ConfigPage() {
                 placeholder="https://suaempresa.com/logo.png"
                 value={empresaLogoUrl}
                 onChange={(e) => setEmpresaLogoUrl(e.target.value)}
-                className="bg-slate-950 border-slate-700 text-white"
                 helperText="O logo será incluído automaticamente no cabeçalho das propostas geradas."
               />
 
@@ -214,6 +205,7 @@ export default function ConfigPage() {
                   type="submit"
                   variant="primary"
                   isLoading={isSaving}
+                  className="shadow-md shadow-blue-600/20 font-bold"
                 >
                   Salvar Alterações
                 </Button>
@@ -224,10 +216,10 @@ export default function ConfigPage() {
 
         {/* Right: Plan Status & Billing */}
         <div className="space-y-6">
-          <Card className="bg-gradient-to-br from-slate-900 to-indigo-950/60 border-2 border-indigo-500/40 p-6 rounded-3xl backdrop-blur-xl relative overflow-hidden shadow-xl">
+          <Card className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 border-2 border-blue-600/40 p-6 rounded-3xl text-white relative overflow-hidden shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-400" />
+                <Sparkles className="w-5 h-5 text-blue-300" />
                 <span className="text-sm font-bold text-white">Plano Atual</span>
               </div>
               <Badge variant={user?.plano === "pro" ? "pro" : "free"}>
@@ -237,7 +229,7 @@ export default function ConfigPage() {
 
             {user?.plano === "pro" ? (
               <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-200 text-xs">
+                <div className="p-4 rounded-2xl bg-blue-500/20 border border-blue-400/30 text-blue-100 text-xs">
                   <p className="font-bold text-sm text-white flex items-center gap-1.5 mb-1">
                     <Check className="w-4 h-4 text-emerald-400" /> Assinatura Pro Ativa
                   </p>
@@ -248,45 +240,45 @@ export default function ConfigPage() {
               <div className="space-y-5">
                 <div>
                   <div className="text-3xl font-black text-white">
-                    R$ 45,90 <span className="text-xs text-slate-400 font-normal">/ mês</span>
+                    R$ 45,90 <span className="text-xs text-blue-200 font-normal">/ mês</span>
                   </div>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-xs text-slate-300 mt-1">
                     Gere quantas propostas comerciais precisar sem nenhum limite.
                   </p>
                 </div>
 
-                <ul className="space-y-2.5 text-xs text-slate-300">
+                <ul className="space-y-2.5 text-xs text-slate-200">
                   <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                    <span>Propostas ilimitadas com Gemini IA</span>
+                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    <span>Propostas ilimitadas com IA</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    <span>Logotipo e identidade personalizada</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                     <span>Sem marca d'água</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                    <span>Download e compartilhamento direto</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                    <span>Suporte prioritário</span>
+                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    <span>Suporte prioritário via WhatsApp</span>
                   </li>
                 </ul>
 
                 <Button
                   onClick={handleUpgradeCheckout}
                   isLoading={isCheckingOut}
-                  variant="gradient"
+                  variant="primary"
                   size="md"
-                  className="w-full justify-center font-bold"
+                  className="w-full justify-center font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30"
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
                   Fazer Upgrade via Abacate Pay
                 </Button>
 
-                <div className="text-center text-[11px] text-slate-500">
-                  Pagamento processado via Abacate Pay (Cartão & PIX)
+                <div className="text-center text-[11px] text-slate-400">
+                  Pagamento seguro via PIX ou Cartão (Abacate Pay)
                 </div>
               </div>
             )}

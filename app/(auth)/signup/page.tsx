@@ -70,19 +70,19 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-8 shadow-xl shadow-slate-200/50">
       <ToastContainer />
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-black text-white tracking-tight">
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight">
           Crie sua conta grátis
         </h1>
-        <p className="text-slate-400 text-sm mt-2">
+        <p className="text-slate-500 text-sm mt-1.5">
           Comece a gerar propostas comerciais profissionais com IA hoje
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-start gap-2.5">
+        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-2.5">
           <span>{error}</span>
         </div>
       )}
@@ -96,7 +96,6 @@ export default function SignupPage() {
           value={nome}
           onChange={(e) => setNome(e.target.value)}
           leftIcon={<User className="w-4 h-4" />}
-          className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500"
         />
 
         <Input
@@ -107,7 +106,6 @@ export default function SignupPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           leftIcon={<Mail className="w-4 h-4" />}
-          className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500"
         />
 
         <Input
@@ -118,7 +116,6 @@ export default function SignupPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           leftIcon={<Lock className="w-4 h-4" />}
-          className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500"
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -129,7 +126,6 @@ export default function SignupPage() {
             value={empresaNome}
             onChange={(e) => setEmpresaNome(e.target.value)}
             leftIcon={<Building2 className="w-4 h-4" />}
-            className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500"
           />
 
           <Input
@@ -139,21 +135,20 @@ export default function SignupPage() {
             value={empresaCnpj}
             onChange={(e) => setEmpresaCnpj(e.target.value)}
             leftIcon={<FileText className="w-4 h-4" />}
-            className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500"
           />
         </div>
 
-        <div className="p-3 bg-slate-950/40 rounded-xl border border-slate-800 flex items-center gap-2 text-xs text-slate-400">
-          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-100 flex items-center gap-2 text-xs text-blue-900">
+          <Check className="w-4 h-4 text-blue-600 shrink-0" />
           <span>Plano Grátis incluso: 3 propostas completas com IA todo mês.</span>
         </div>
 
         <div className="pt-2">
           <Button
             type="submit"
-            variant="gradient"
+            variant="primary"
             size="lg"
-            className="w-full justify-center"
+            className="w-full justify-center shadow-lg shadow-blue-600/20 font-bold"
             isLoading={isLoading}
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
@@ -162,12 +157,12 @@ export default function SignupPage() {
         </div>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-slate-800/80 text-center">
-        <p className="text-sm text-slate-400">
+      <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+        <p className="text-sm text-slate-600">
           Já possui cadastro?{" "}
           <Link
             href="/login"
-            className="text-indigo-400 font-semibold hover:text-indigo-300 underline underline-offset-4"
+            className="text-blue-600 font-bold hover:text-blue-700 underline underline-offset-4"
           >
             Fazer login
           </Link>

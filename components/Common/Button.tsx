@@ -38,13 +38,13 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary:
-      "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm hover:shadow-indigo-500/20 shadow-indigo-500/10 focus:ring-indigo-500 border border-transparent",
+      "bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-600/20 focus:ring-blue-500 border border-transparent",
     gradient:
-      "bg-gradient-to-r from-indigo-600 via-indigo-700 to-cyan-600 text-white hover:opacity-95 shadow-md shadow-indigo-500/20 focus:ring-indigo-500 border border-transparent",
+      "bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white hover:opacity-95 shadow-md shadow-blue-600/20 focus:ring-blue-500 border border-transparent",
     secondary:
-      "bg-slate-100 text-slate-800 hover:bg-slate-200 focus:ring-slate-400 border border-slate-200/60",
+      "bg-slate-100 text-slate-800 hover:bg-slate-200 focus:ring-slate-400 border border-slate-200/80",
     outline:
-      "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 focus:ring-indigo-500 shadow-xs",
+      "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 focus:ring-blue-500 shadow-xs",
     ghost:
       "bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:ring-slate-400",
     danger:

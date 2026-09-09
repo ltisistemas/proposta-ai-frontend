@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { PlusCircle, Sparkles, RefreshCw } from "lucide-react";
+import { PlusCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/Common/Button";
 import { StatsCards, MetricasDashboard } from "@/components/Dashboard/StatsCards";
 import { PropostasTable, PropostaItem } from "@/components/Dashboard/PropostasTable";
@@ -82,10 +82,10 @@ export default function DashboardPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Olá, {user?.nome?.split(" ")[0] || "Empreendedor"} 👋
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-600 text-sm mt-1">
             Aqui está o panorama comercial das suas propostas e oportunidades
           </p>
         </div>
@@ -94,16 +94,17 @@ export default function DashboardPage() {
           <button
             onClick={() => carregarDados()}
             title="Atualizar dados"
-            className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
           </button>
 
           <Link href="/propostas/nova">
             <Button
-              variant="gradient"
+              variant="primary"
               size="md"
               leftIcon={<PlusCircle className="w-4 h-4" />}
+              className="shadow-lg shadow-blue-600/20 font-bold"
             >
               Criar Proposta com IA
             </Button>
@@ -117,12 +118,12 @@ export default function DashboardPage() {
       {/* Proposals Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white tracking-tight">
+          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
             Propostas Recentes
           </h2>
           <Link
             href="/propostas"
-            className="text-xs font-semibold text-indigo-400 hover:text-indigo-300"
+            className="text-xs font-bold text-blue-600 hover:text-blue-700"
           >
             Ver todas →
           </Link>

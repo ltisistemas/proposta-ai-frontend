@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { PlusCircle, FileText, RefreshCw } from "lucide-react";
+import { PlusCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/Common/Button";
 import { PropostasTable, PropostaItem } from "@/components/Dashboard/PropostasTable";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
@@ -69,10 +69,10 @@ export default function PropostasListPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Minhas Propostas Comerciais
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-600 text-sm mt-1">
             Gerencie, compartilhe e acompanhe o status de todas as suas propostas
           </p>
         </div>
@@ -80,16 +80,17 @@ export default function PropostasListPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => carregarPropostas()}
-            className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
           </button>
 
           <Link href="/propostas/nova">
             <Button
-              variant="gradient"
+              variant="primary"
               size="md"
               leftIcon={<PlusCircle className="w-4 h-4" />}
+              className="shadow-lg shadow-blue-600/20 font-bold"
             >
               Nova Proposta
             </Button>

@@ -9,17 +9,12 @@ import {
   DollarSign,
   FileText,
   User,
-  Building,
-  Calendar,
   Clock,
-  Eye,
   ArrowRight,
-  CheckCircle,
-  AlertCircle,
 } from "lucide-react";
 import { Input, TextArea } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/Common/Card";
+import { Card } from "@/components/Common/Card";
 import { Modal } from "@/components/Common/Modal";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
@@ -32,7 +27,7 @@ interface ItemRow {
 
 export default function NovaPropostaPage() {
   const router = useRouter();
-  const { token, user } = useAuthStore();
+  const { token } = useAuthStore();
   const { addToast } = useToast();
 
   // Form states
@@ -41,13 +36,12 @@ export default function NovaPropostaPage() {
   const [clienteEmail, setClienteEmail] = useState("");
   const [clienteTelefone, setClienteTelefone] = useState("");
   const [descricao, setDescricao] = useState("");
-  const [prazoPagamento, setPrazoPagamento] = useState("50% de entrada + 50% na entrega");
+  const [prazoPagamento, setPrazoPagamento] = useState("À Vista");
   const [validadeDias, setValidadeDias] = useState(30);
   const [observacoes, setObservacoes] = useState("");
 
   const [itens, setItens] = useState<ItemRow[]>([
-    { descricao: "Diagnóstico e Planejamento Estratégico", quantidade: 1, valorUnitario: 2500 },
-    { descricao: "Desenvolvimento e Implementação da Solução", quantidade: 1, valorUnitario: 4500 },
+    { descricao: "", quantidade: 1, valorUnitario: 0 },
   ]);
 
   // Generation states
@@ -104,6 +98,15 @@ export default function NovaPropostaPage() {
       return;
     }
 
+    const itensValidos = itens.filter((i) => i.descricao.trim().length > 0);
+    if (itensValidos.length === 0) {
+      addToast({
+        type: "error",
+        title: "Adicione pelo menos um item com descrição",
+      });
+      return;
+    }
+
     setIsGenerating(true);
 
     try {
@@ -119,10 +122,10 @@ export default function NovaPropostaPage() {
           clienteEmail: clienteEmail || undefined,
           clienteTelefone: clienteTelefone || undefined,
           descricao,
-          itens: itens.map((item) => ({
-            descricao: item.descricao,
-            quantidade: Number(item.quantidade),
-            valorUnitario: Number(item.valorUnitario),
+          itens: itensValidos.map((item) => ({
+            descricao: item.descricao.trim(),
+            quantidade: Number(item.quantidade) || 1,
+            valorUnitario: Number(item.valorUnitario) || 0,
           })),
           prazoPagamento,
           validadeDias: Number(validadeDias),
@@ -183,20 +186,20 @@ export default function NovaPropostaPage() {
     <div className="max-w-5xl mx-auto space-y-8 pb-12">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
-          <Sparkles className="w-7 h-7 text-indigo-400" />
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <Sparkles className="w-7 h-7 text-blue-600" />
           Gerador de Proposta com IA
         </h1>
-        <p className="text-slate-400 text-sm mt-1">
-          Preencha os dados do cliente e escopo. O Gemini AI formatará a proposta comercial ideal.
+        <p className="text-slate-600 text-sm mt-1">
+          Preencha os dados do cliente e escopo. O motor de IA formatará a proposta comercial ideal.
         </p>
       </div>
 
       <form onSubmit={handleGerarProposta} className="space-y-6">
         {/* Step 1: Dados do Cliente */}
-        <Card className="bg-slate-900/80 border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
-          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-800 text-white font-bold text-base">
-            <User className="w-5 h-5 text-indigo-400" />
+        <Card className="bg-white border-slate-200/90 p-6 sm:p-8 rounded-3xl shadow-xs">
+          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
+            <User className="w-5 h-5 text-blue-600" />
             <span>1. Informações do Cliente</span>
           </div>
 
@@ -207,7 +210,6 @@ export default function NovaPropostaPage() {
               required
               value={clienteNome}
               onChange={(e) => setClienteNome(e.target.value)}
-              className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500"
             />
 
             <Input
@@ -215,7 +217,6 @@ export default function NovaPropostaPage() {
               placeholder="Ex: Nexus Logística Ltda"
               value={clienteEmpresa}
               onChange={(e) => setClienteEmpresa(e.target.value)}
-              className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500"
             />
 
             <Input
@@ -224,7 +225,6 @@ export default function NovaPropostaPage() {
               placeholder="carlos@nexuslog.com.br"
               value={clienteEmail}
               onChange={(e) => setClienteEmail(e.target.value)}
-              className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500"
             />
 
             <Input
@@ -232,15 +232,14 @@ export default function NovaPropostaPage() {
               placeholder="(11) 98765-4321"
               value={clienteTelefone}
               onChange={(e) => setClienteTelefone(e.target.value)}
-              className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500"
             />
           </div>
         </Card>
 
         {/* Step 2: Escopo e Descrição */}
-        <Card className="bg-slate-900/80 border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
-          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-800 text-white font-bold text-base">
-            <FileText className="w-5 h-5 text-cyan-400" />
+        <Card className="bg-white border-slate-200/90 p-6 sm:p-8 rounded-3xl shadow-xs">
+          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
+            <FileText className="w-5 h-5 text-sky-600" />
             <span>2. Escopo do Projeto & Necessidade do Cliente</span>
           </div>
 
@@ -251,21 +250,21 @@ export default function NovaPropostaPage() {
             placeholder="Ex: Consultoria técnica para modernização da infraestrutura em nuvem, migração de banco de dados e implementação de agentes de IA para atendimento ao cliente."
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
-            className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500 leading-relaxed"
+            className="leading-relaxed"
           />
         </Card>
 
         {/* Step 3: Itens e Investimento */}
-        <Card className="bg-slate-900/80 border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
-          <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800 text-white font-bold text-base">
+        <Card className="bg-white border-slate-200/90 p-6 sm:p-8 rounded-3xl shadow-xs">
+          <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
             <div className="flex items-center gap-2.5">
-              <DollarSign className="w-5 h-5 text-emerald-400" />
+              <DollarSign className="w-5 h-5 text-emerald-600" />
               <span>3. Entregáveis & Valores (R$)</span>
             </div>
             <button
               type="button"
               onClick={handleAddItem}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 text-xs font-semibold cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 text-xs font-bold cursor-pointer transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Adicionar Item</span>
@@ -276,7 +275,7 @@ export default function NovaPropostaPage() {
             {itens.map((item, idx) => (
               <div
                 key={idx}
-                className="grid grid-cols-12 gap-3 items-end bg-slate-950/40 p-3.5 rounded-2xl border border-slate-800/80"
+                className="grid grid-cols-12 gap-3 items-end bg-slate-50/70 p-3.5 rounded-2xl border border-slate-200/80"
               >
                 <div className="col-span-12 sm:col-span-6">
                   <Input
@@ -287,7 +286,6 @@ export default function NovaPropostaPage() {
                     onChange={(e) =>
                       handleUpdateItem(idx, "descricao", e.target.value)
                     }
-                    className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
                   />
                 </div>
 
@@ -301,7 +299,7 @@ export default function NovaPropostaPage() {
                     onChange={(e) =>
                       handleUpdateItem(idx, "quantidade", Number(e.target.value))
                     }
-                    className="bg-slate-900 border-slate-700 text-white text-center"
+                    className="text-center"
                   />
                 </div>
 
@@ -316,7 +314,7 @@ export default function NovaPropostaPage() {
                     onChange={(e) =>
                       handleUpdateItem(idx, "valorUnitario", Number(e.target.value))
                     }
-                    className="bg-slate-900 border-slate-700 text-white font-mono"
+                    className="font-mono"
                   />
                 </div>
 
@@ -325,7 +323,7 @@ export default function NovaPropostaPage() {
                     type="button"
                     onClick={() => handleRemoveItem(idx)}
                     title="Remover Item"
-                    className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
+                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -335,20 +333,20 @@ export default function NovaPropostaPage() {
           </div>
 
           {/* Subtotal Banner */}
-          <div className="mt-6 p-4 rounded-2xl bg-gradient-to-r from-indigo-950/60 to-slate-950 border border-indigo-500/20 flex items-center justify-between">
-            <span className="text-sm font-semibold text-slate-300">
+          <div className="mt-6 p-4 rounded-2xl bg-blue-50/80 border border-blue-200 flex items-center justify-between">
+            <span className="text-sm font-bold text-blue-900">
               Valor Total Calculado:
             </span>
-            <span className="text-2xl font-black text-indigo-400 font-mono">
+            <span className="text-2xl font-black text-blue-700 font-mono">
               {formatarMoeda(calcularTotal())}
             </span>
           </div>
         </Card>
 
         {/* Step 4: Prazos e Condições */}
-        <Card className="bg-slate-900/80 border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
-          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-800 text-white font-bold text-base">
-            <Clock className="w-5 h-5 text-amber-400" />
+        <Card className="bg-white border-slate-200/90 p-6 sm:p-8 rounded-3xl shadow-xs">
+          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
+            <Clock className="w-5 h-5 text-amber-600" />
             <span>4. Condições Comerciais</span>
           </div>
 
@@ -358,7 +356,6 @@ export default function NovaPropostaPage() {
               placeholder="Ex: 50% entrada + 50% na aprovação final"
               value={prazoPagamento}
               onChange={(e) => setPrazoPagamento(e.target.value)}
-              className="bg-slate-950/60 border-slate-700 text-white"
             />
 
             <Input
@@ -367,7 +364,6 @@ export default function NovaPropostaPage() {
               min="1"
               value={validadeDias}
               onChange={(e) => setValidadeDias(Number(e.target.value))}
-              className="bg-slate-950/60 border-slate-700 text-white"
             />
           </div>
 
@@ -378,7 +374,6 @@ export default function NovaPropostaPage() {
               placeholder="Ex: Não inclui custos de hospedagem de terceiros..."
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
-              className="bg-slate-950/60 border-slate-700 text-white placeholder:text-slate-500"
             />
           </div>
         </Card>
@@ -387,9 +382,9 @@ export default function NovaPropostaPage() {
         <div className="pt-2">
           <Button
             type="submit"
-            variant="gradient"
+            variant="primary"
             size="lg"
-            className="w-full justify-center text-base py-4 font-bold shadow-xl shadow-indigo-600/30"
+            className="w-full justify-center text-base py-4 font-bold shadow-xl shadow-blue-600/25 bg-blue-600 hover:bg-blue-700 text-white"
             isLoading={isGenerating}
             rightIcon={<Sparkles className="w-5 h-5" />}
           >
@@ -414,7 +409,7 @@ export default function NovaPropostaPage() {
         description="Confira a prévia do documento gerado pela Inteligência Artificial."
       >
         <div className="space-y-6">
-          <div className="border border-slate-200 rounded-2xl overflow-hidden max-h-[60vh] overflow-y-auto bg-slate-100 p-2 sm:p-4">
+          <div className="border border-slate-200 rounded-2xl overflow-hidden max-h-[60vh] overflow-y-auto bg-slate-50 p-2 sm:p-4">
             {generatedHtml && (
               <div
                 dangerouslySetInnerHTML={{ __html: generatedHtml }}
@@ -438,9 +433,10 @@ export default function NovaPropostaPage() {
 
             {propostaCriadaId && (
               <Button
-                variant="gradient"
+                variant="primary"
                 rightIcon={<ArrowRight className="w-4 h-4" />}
                 onClick={() => router.push(`/propostas/${propostaCriadaId}`)}
+                className="shadow-lg shadow-blue-600/20 font-bold"
               >
                 Ir para Página da Proposta & Enviar
               </Button>
