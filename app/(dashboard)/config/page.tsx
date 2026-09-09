@@ -1,16 +1,20 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Building2,
   FileText,
   Mail,
   Phone,
   User,
-  Zap,
   Check,
   ArrowRight,
   Sparkles,
+  Upload,
+  Trash2,
+  Lock,
+  Image as ImageIcon,
+  CheckCircle2,
 } from "lucide-react";
 import { Input } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
@@ -32,6 +36,9 @@ export default function ConfigPage() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isPro = user?.plano === "pro";
 
   useEffect(() => {
     if (user) {
@@ -43,6 +50,73 @@ export default function ConfigPage() {
       setEmpresaLogoUrl(user.empresa_logo_url || "");
     }
   }, [user]);
+
+  // Handle Logo Upload & Convert to Base64
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!isPro) {
+      addToast({
+        type: "warning",
+        title: "Recurso Exclusivo Pro",
+        message: "O upload de logotipo personalizado em Base64 está disponível apenas no Plano Pro.",
+      });
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      addToast({
+        type: "error",
+        title: "Arquivo inválido",
+        message: "Por favor selecione uma imagem (PNG, JPG, SVG ou WEBP).",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // Canvas compression / resize to max 400x400
+        const canvas = document.createElement("canvas");
+        const maxDim = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height && width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const base64String = canvas.toDataURL("image/png", 0.9);
+          setEmpresaLogoUrl(base64String);
+          addToast({
+            type: "success",
+            title: "Logo carregada!",
+            message: "Clique em 'Salvar Alterações' para confirmar a logo em Base64.",
+          });
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveLogo = () => {
+    setEmpresaLogoUrl("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +136,7 @@ export default function ConfigPage() {
           empresa_cnpj: empresaCnpj || null,
           empresa_email: empresaEmail || null,
           empresa_telefone: empresaTelefone || null,
-          empresa_logo_url: empresaLogoUrl || null,
+          empresa_logo_url: isPro ? (empresaLogoUrl || null) : null,
         }),
       });
 
@@ -133,7 +207,7 @@ export default function ConfigPage() {
           Configurações da Conta & Plano
         </h1>
         <p className="text-slate-600 text-sm mt-1">
-          Personalize os dados da sua empresa e gerencie sua assinatura do Proposta Ai!
+          Personalize os dados da sua empresa, logotipo e gerencie sua assinatura do Proposta Ai!
         </p>
       </div>
 
@@ -146,7 +220,7 @@ export default function ConfigPage() {
               <span>Dados da Empresa Emissora</span>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="space-y-4">
+            <form onSubmit={handleSaveProfile} className="space-y-5">
               <Input
                 label="Seu Nome Completo *"
                 required
@@ -192,13 +266,102 @@ export default function ConfigPage() {
                 />
               </div>
 
-              <Input
-                label="URL do Logotipo da Empresa (Opcional)"
-                placeholder="https://suaempresa.com/logo.png"
-                value={empresaLogoUrl}
-                onChange={(e) => setEmpresaLogoUrl(e.target.value)}
-                helperText="O logo será incluído automaticamente no cabeçalho das propostas geradas."
-              />
+              {/* Logo Section (Pro feature) */}
+              <div className="pt-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center justify-between">
+                  <span>Logotipo da Empresa (Base64)</span>
+                  {!isPro && (
+                    <span className="flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                      <Lock className="w-3 h-3" /> Exclusivo Plano Pro
+                    </span>
+                  )}
+                </label>
+
+                {isPro ? (
+                  <div className="p-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-blue-300 transition-all bg-slate-50/60">
+                    {empresaLogoUrl ? (
+                      <div className="flex items-center gap-4">
+                        <div className="w-20 h-20 bg-white rounded-xl border border-slate-200 flex items-center justify-center p-2 shrink-0 overflow-hidden shadow-xs">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={empresaLogoUrl}
+                            alt="Logo preview"
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            Logotipo carregada em Base64
+                          </p>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            A logo será renderizada no topo de todas as propostas executivas Pro.
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="text-xs text-rose-600 border-rose-200 hover:bg-rose-50"
+                              onClick={handleRemoveLogo}
+                              leftIcon={<Trash2 className="w-3 h-3" />}
+                            >
+                              Remover
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="cursor-pointer flex flex-col items-center justify-center py-4 text-center"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
+                          <Upload className="w-5 h-5" />
+                        </div>
+                        <p className="text-xs font-bold text-slate-800">
+                          Clique para fazer upload da sua logo
+                        </p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          PNG, JPG ou SVG (salvo diretamente em Base64)
+                        </p>
+                      </div>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleLogoUpload}
+                    />
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
+                        <ImageIcon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-slate-700">
+                          Personalização de Logo em Base64
+                        </p>
+                        <p className="text-[11px] text-slate-500">
+                          Faça upgrade para o Pro para adicionar sua marca oficial nas propostas.
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleUpgradeCheckout}
+                      className="text-xs font-bold text-blue-700 border-blue-200 hover:bg-blue-50 shrink-0"
+                    >
+                      Desbloquear Logo
+                    </Button>
+                  </div>
+                )}
+              </div>
 
               <div className="pt-4 flex justify-end">
                 <Button
@@ -233,7 +396,7 @@ export default function ConfigPage() {
                   <p className="font-bold text-sm text-white flex items-center gap-1.5 mb-1">
                     <Check className="w-4 h-4 text-emerald-400" /> Assinatura Pro Ativa
                   </p>
-                  Você possui propostas ilimitadas com IA e todas as funcionalidades liberadas.
+                  Você possui propostas executivas ilimitadas com IA, assinatura eletrônica, exportação em PDF, logo em Base64 e link público liberados.
                 </div>
               </div>
             ) : (
@@ -243,26 +406,30 @@ export default function ConfigPage() {
                     R$ 45,90 <span className="text-xs text-blue-200 font-normal">/ mês</span>
                   </div>
                   <p className="text-xs text-slate-300 mt-1">
-                    Gere quantas propostas comerciais precisar sem nenhum limite.
+                    Eleve o nível das suas vendas com recursos comerciais de alto valor.
                   </p>
                 </div>
 
                 <ul className="space-y-2.5 text-xs text-slate-200">
                   <li className="flex items-center gap-2">
                     <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    <span>Assinatura Eletrônica com certificado</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    <span>Exportação e Impressão em PDF</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    <span>Link público e envio direto via WhatsApp</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    <span>Logotipo em Base64 & Propostas Executivas</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                     <span>Propostas ilimitadas com IA</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                    <span>Logotipo e identidade personalizada</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                    <span>Sem marca d'água</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                    <span>Suporte prioritário via WhatsApp</span>
                   </li>
                 </ul>
 

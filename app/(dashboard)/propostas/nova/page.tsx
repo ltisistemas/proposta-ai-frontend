@@ -16,6 +16,7 @@ import {
   Check,
   CheckCircle2,
   ExternalLink,
+  Lock,
 } from "lucide-react";
 import { Input, TextArea } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
@@ -23,6 +24,7 @@ import { Card } from "@/components/Common/Card";
 import { Modal } from "@/components/Common/Modal";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
+import { UpgradeModal, UpgradeFeatureType } from "@/components/Billing/UpgradeModal";
 
 interface ItemRow {
   descricao: string;
@@ -32,8 +34,12 @@ interface ItemRow {
 
 export default function NovaPropostaPage() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const { addToast } = useToast();
+
+  const isPro = user?.plano === "pro";
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<"pdf" | "link" | "general">("general");
 
   // Form states
   const [clienteNome, setClienteNome] = useState("");
@@ -184,19 +190,29 @@ export default function NovaPropostaPage() {
   };
 
   const handleCopyLink = () => {
+    if (!isPro) {
+      setUpgradeFeature("link");
+      setUpgradeModalOpen(true);
+      return;
+    }
     if (!propostaCriadaId) return;
-    const url = `${window.location.origin}/propostas/${propostaCriadaId}`;
+    const url = `${window.location.origin}/p/${propostaCriadaId}`;
     navigator.clipboard.writeText(url);
     setCopiadoLink(true);
     addToast({
       type: "success",
-      title: "Link copiado!",
+      title: "Link público copiado!",
       message: "Link da proposta pronto para enviar ao cliente.",
     });
     setTimeout(() => setCopiadoLink(false), 2500);
   };
 
   const handlePrint = () => {
+    if (!isPro) {
+      setUpgradeFeature("pdf");
+      setUpgradeModalOpen(true);
+      return;
+    }
     const printWindow = window.open("", "_blank");
     if (printWindow && generatedHtml) {
       printWindow.document.write(generatedHtml);
@@ -216,17 +232,44 @@ export default function NovaPropostaPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-12">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-          <Sparkles className="w-7 h-7 text-blue-600" />
-          Gerador de Proposta com IA
-        </h1>
-        <p className="text-slate-600 text-sm mt-1">
-          Preencha os dados do cliente e escopo. O motor de IA formatará a proposta comercial ideal.
-        </p>
-      </div>
+    <>
+      <UpgradeModal
+        isOpen={upgradeModalOpen}
+        onClose={() => setUpgradeModalOpen(false)}
+        feature={upgradeFeature}
+      />
+
+      <div className="max-w-5xl mx-auto space-y-8 pb-12">
+        {/* Header */}
+        <div>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                <Sparkles className="w-7 h-7 text-blue-600" />
+                Gerador de Proposta com IA
+              </h1>
+              <p className="text-slate-600 text-sm mt-1">
+                Preencha os dados do cliente e escopo. O motor de IA formatará a proposta comercial ideal.
+              </p>
+            </div>
+
+            {!isPro && (
+              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-2xl text-xs text-amber-900">
+                <span className="font-bold">Modo Free:</span> Estilo Notepad Monocromático.
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUpgradeFeature("general");
+                    setUpgradeModalOpen(true);
+                  }}
+                  className="font-bold text-blue-700 hover:underline ml-1 cursor-pointer"
+                >
+                  Fazer Upgrade Pro
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
 
       <form onSubmit={handleGerarProposta} className="space-y-6">
         {/* Step 1: Dados do Cliente */}
@@ -529,5 +572,6 @@ export default function NovaPropostaPage() {
         </div>
       </Modal>
     </div>
+    </>
   );
 }

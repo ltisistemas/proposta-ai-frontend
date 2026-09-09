@@ -25,6 +25,11 @@ export interface PropostaRow {
   observacoes?: string | null;
   status: "rascunho" | "enviada" | "aceita" | "recusada";
   data_envio?: Date | null;
+  assinante_nome?: string | null;
+  assinante_documento?: string | null;
+  assinado_em?: Date | null;
+  assinatura_ip?: string | null;
+  assinatura_hash?: string | null;
   criado_em: Date;
   atualizado_em: Date;
   itens?: any[];
@@ -217,3 +222,33 @@ export async function obterMetricasDashboard(usuarioId: string) {
     taxaConversao: `${taxaConversao}%`,
   };
 }
+
+export async function assinarProposta(dados: {
+  propostaId: string;
+  assinanteNome: string;
+  assinanteDocumento: string;
+  assinaturaIp?: string;
+  assinaturaHash: string;
+}): Promise<PropostaRow | null> {
+  const result = await query(
+    `UPDATE propostas 
+     SET status = 'aceita',
+         assinante_nome = $1,
+         assinante_documento = $2,
+         assinado_em = CURRENT_TIMESTAMP,
+         assinatura_ip = $3,
+         assinatura_hash = $4,
+         atualizado_em = CURRENT_TIMESTAMP
+     WHERE id = $5 AND deletado_em IS NULL
+     RETURNING *`,
+    [
+      dados.assinanteNome,
+      dados.assinanteDocumento,
+      dados.assinaturaIp || null,
+      dados.assinaturaHash,
+      dados.propostaId,
+    ]
+  );
+  return result.rows[0] || null;
+}
+

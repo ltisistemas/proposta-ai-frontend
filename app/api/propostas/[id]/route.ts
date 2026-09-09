@@ -48,9 +48,25 @@ export async function PATCH(
       return NextResponse.json({ erro: "Token inválido" }, { status: 401 });
     }
 
+    const user = await obterUserPorId(userId);
+    if (!user) {
+      return NextResponse.json({ erro: "Usuário não encontrado" }, { status: 404 });
+    }
+
     const body = await request.json();
 
     if (body.status) {
+      if ((body.status === "aceita" || body.status === "recusada") && user.plano !== "pro") {
+        return NextResponse.json(
+          {
+            sucesso: false,
+            erro: "A alteração de status para Aceita/Recusada é exclusiva do Plano Pro.",
+            precisaUpgrade: true,
+          },
+          { status: 403 }
+        );
+      }
+
       const proposta = await atualizarStatusProposta(
         id,
         userId,

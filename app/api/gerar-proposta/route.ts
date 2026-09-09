@@ -103,6 +103,7 @@ export async function POST(request: NextRequest) {
       empresaCNPJ: dados.empresaCNPJ || user.empresa_cnpj || undefined,
       empresaEmail: dados.empresaEmail || user.empresa_email || user.email,
       empresaTelefone: dados.empresaTelefone || user.empresa_telefone || undefined,
+      empresaLogoUrl: user.plano === "pro" ? (user.empresa_logo_url || undefined) : undefined,
     };
 
     const htmlContent = await gerarPropostacComIA({
@@ -117,6 +118,7 @@ export async function POST(request: NextRequest) {
       validade: dados.validadeDias,
       observacoes: dados.observacoes,
       template: dados.templateId,
+      plano: (user.plano as "free" | "pro") || "free",
     });
 
     // 5. Generate proposal number and calculate totals
