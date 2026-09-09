@@ -59,16 +59,16 @@ export function gerarTemplateFallback(dados: DadosGeracaoProposta): string {
       <tr style="border-bottom: 1px solid #e2e8f0; background: ${
         idx % 2 === 0 ? "#ffffff" : "#f8fafc"
       };">
-        <td style="padding: 12px 16px; color: #1e293b; font-size: 14px;">${
+        <td style="padding: 14px 18px; color: #0f172a; font-size: 14px; font-weight: 500;">${
           item.descricao
         }</td>
-        <td style="padding: 12px 16px; text-align: center; color: #475569; font-size: 14px;">${
+        <td style="padding: 14px 18px; text-align: center; color: #475569; font-size: 14px;">${
           item.quantidade
         }</td>
-        <td style="padding: 12px 16px; text-align: right; color: #475569; font-size: 14px;">${formatarMoeda(
+        <td style="padding: 14px 18px; text-align: right; color: #475569; font-size: 14px;">${formatarMoeda(
           item.valorUnitario
         )}</td>
-        <td style="padding: 12px 16px; text-align: right; font-weight: 600; color: #0f172a; font-size: 14px;">${formatarMoeda(
+        <td style="padding: 14px 18px; text-align: right; font-weight: 700; color: #1e293b; font-size: 14px;">${formatarMoeda(
           item.quantidade * item.valorUnitario
         )}</td>
       </tr>
@@ -81,51 +81,51 @@ export function gerarTemplateFallback(dados: DadosGeracaoProposta): string {
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Proposta Comercial - ${dados.clienteNome}</title>
+  <title>Proposta Comercial Consultiva - ${dados.clienteNome}</title>
   <style>
     @media print {
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
-<body style="font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f1f5f9; margin: 0; padding: 32px 16px; color: #0f172a;">
-  <div style="max-width: 800px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); overflow: hidden; border: 1px solid #e2e8f0;">
+<body style="font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 36px 16px; color: #0f172a;">
+  <div style="max-width: 820px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.04); overflow: hidden; border: 1px solid #e2e8f0;">
     
     <!-- Top Header Bar -->
-    <div style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); padding: 36px 40px; color: #ffffff;">
+    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%); padding: 40px; color: #ffffff;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
         <div>
-          <span style="display: inline-block; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px;">
-            Proposta Comercial
+          <span style="display: inline-block; background: rgba(37, 99, 235, 0.3); border: 1px solid rgba(96, 165, 250, 0.4); padding: 4px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; color: #93c5fd;">
+            Proposta Comercial & Plano Estratégico
           </span>
-          <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em;">
-            ${dados.empresaNome || "Proposta de Serviços"}
+          <h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; color: #ffffff;">
+            ${dados.empresaNome || "Proposta Comercial Especializada"}
           </h1>
-          <p style="margin: 6px 0 0 0; font-size: 14px; opacity: 0.9;">
+          <p style="margin: 8px 0 0 0; font-size: 13px; color: #cbd5e1; line-height: 1.4;">
             ${dados.empresaCNPJ ? `CNPJ: ${dados.empresaCNPJ}` : ""} 
             ${dados.empresaEmail ? `• ${dados.empresaEmail}` : ""}
             ${dados.empresaTelefone ? `• ${dados.empresaTelefone}` : ""}
           </p>
         </div>
         <div style="text-align: right;">
-          <div style="font-size: 13px; opacity: 0.8;">Número da Proposta</div>
-          <div style="font-size: 18px; font-weight: 700; letter-spacing: 0.05em;">${numeroProposta}</div>
-          <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">Data: ${dataHoje}</div>
+          <div style="font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Código da Proposta</div>
+          <div style="font-size: 18px; font-weight: 800; letter-spacing: 0.05em; color: #60a5fa; font-family: monospace;">${numeroProposta}</div>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Emitida em: ${dataHoje}</div>
         </div>
       </div>
     </div>
 
     <div style="padding: 40px;">
       <!-- Client & Overview Grid -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; background: #f8fafc; padding: 22px; border-radius: 12px; border: 1px solid #e2e8f0;">
         <div>
-          <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Preparado Para:</div>
-          <div style="font-size: 16px; font-weight: 700; color: #0f172a;">${
+          <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">Apresentado a:</div>
+          <div style="font-size: 16px; font-weight: 800; color: #0f172a;">${
             dados.clienteNome
           }</div>
           ${
             dados.clienteEmpresa
-              ? `<div style="font-size: 14px; color: #475569; margin-top: 2px;">${dados.clienteEmpresa}</div>`
+              ? `<div style="font-size: 14px; font-weight: 600; color: #334155; margin-top: 2px;">${dados.clienteEmpresa}</div>`
               : ""
           }
           ${
@@ -140,39 +140,39 @@ export function gerarTemplateFallback(dados: DadosGeracaoProposta): string {
           }
         </div>
         <div>
-          <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Validade & Prazos:</div>
-          <div style="font-size: 14px; color: #334155;"><strong>Validade da Proposta:</strong> ${
+          <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">Condições Comerciais:</div>
+          <div style="font-size: 13px; color: #334155; margin-bottom: 4px;"><strong>Validade da Oferta:</strong> ${
             dados.validade || 30
-          } dias</div>
-          <div style="font-size: 14px; color: #334155; margin-top: 4px;"><strong>Condições de Pagamento:</strong> ${
-            dados.prazoPagamento === "0" ? "À Vista" : dados.prazoPagamento || "À Vista"
+          } dias corridos</div>
+          <div style="font-size: 13px; color: #334155;"><strong>Condição de Pagamento:</strong> ${
+            dados.prazoPagamento === "0" ? "À Vista com Prioridade" : dados.prazoPagamento || "À Vista"
           }</div>
         </div>
       </div>
 
       <!-- Scope Section -->
       <div style="margin-bottom: 32px;">
-        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 12px 0; border-left: 4px solid #4f46e5; padding-left: 10px;">
-          1. Escopo e Objetivos do Projeto
+        <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; border-left: 4px solid #2563eb; padding-left: 12px; text-transform: uppercase; letter-spacing: 0.03em;">
+          1. Diagnóstico, Escopo & Metodologia de Entrega
         </h3>
-        <div style="font-size: 14px; line-height: 1.65; color: #334155; background: #ffffff; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; white-space: pre-line;">
+        <div style="font-size: 14px; line-height: 1.7; color: #334155; background: #ffffff; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0; white-space: pre-line;">
           ${dados.descricao}
         </div>
       </div>
 
       <!-- Items Table -->
       <div style="margin-bottom: 32px;">
-        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 12px 0; border-left: 4px solid #4f46e5; padding-left: 10px;">
-          2. Investimento e Entregáveis
+        <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; border-left: 4px solid #2563eb; padding-left: 12px; text-transform: uppercase; letter-spacing: 0.03em;">
+          2. Investimento & Entregáveis
         </h3>
-        <div style="border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;">
+        <div style="border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0;">
           <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
               <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
-                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Descrição</th>
-                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; text-align: center; width: 80px;">Qtd</th>
-                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; text-align: right; width: 140px;">Valor Unit.</th>
-                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; text-align: right; width: 140px;">Total</th>
+                <th style="padding: 12px 18px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em;">Descrição do Entregável</th>
+                <th style="padding: 12px 18px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; text-align: center; width: 80px;">Qtd</th>
+                <th style="padding: 12px 18px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; text-align: right; width: 140px;">Valor Unit.</th>
+                <th style="padding: 12px 18px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; text-align: right; width: 140px;">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -183,50 +183,50 @@ export function gerarTemplateFallback(dados: DadosGeracaoProposta): string {
 
         <!-- Total Box -->
         <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-          <div style="width: 280px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px;">
-            <div style="display: flex; justify-content: space-between; font-size: 14px; color: #64748b; margin-bottom: 6px;">
-              <span>Subtotal:</span>
+          <div style="width: 300px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; color: #64748b; margin-bottom: 6px;">
+              <span>Subtotal dos Serviços:</span>
               <span>${formatarMoeda(subtotal)}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: #4f46e5; border-top: 2px solid #e2e8f0; padding-top: 8px;">
-              <span>Total Geral:</span>
+            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: #1e3a8a; border-top: 2px solid #e2e8f0; padding-top: 10px;">
+              <span>Investimento Total:</span>
               <span>${formatarMoeda(total)}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Observations -->
+      <!-- Observations & Guarantees -->
       ${
         dados.observacoes
           ? `
-      <div style="margin-bottom: 32px; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 16px;">
-        <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 700; color: #92400e;">Observações Importantes:</h4>
-        <p style="margin: 0; font-size: 13px; color: #78350f; line-height: 1.5;">${dados.observacoes}</p>
+      <div style="margin-bottom: 32px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 18px;">
+        <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 800; color: #1e40af; text-transform: uppercase; letter-spacing: 0.04em;">Garantias & Alinhamentos Comerciais:</h4>
+        <p style="margin: 0; font-size: 13px; color: #1e3a8a; line-height: 1.6;">${dados.observacoes}</p>
       </div>`
           : ""
       }
 
       <!-- Signatures -->
-      <div style="margin-top: 48px; padding-top: 32px; border-top: 2px dashed #e2e8f0; display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+      <div style="margin-top: 48px; padding-top: 32px; border-top: 2px dashed #cbd5e1; display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
         <div style="text-align: center;">
-          <div style="height: 50px; border-bottom: 1px solid #94a3b8; margin-bottom: 8px;"></div>
-          <div style="font-size: 13px; font-weight: 700; color: #1e293b;">${
+          <div style="height: 48px; border-bottom: 1px solid #94a3b8; margin-bottom: 8px;"></div>
+          <div style="font-size: 13px; font-weight: 700; color: #0f172a;">${
             dados.empresaNome || "Contratada"
           }</div>
-          <div style="font-size: 12px; color: #64748b;">Assinatura do Responsável</div>
+          <div style="font-size: 11px; color: #64748b;">Emissor / Responsável Comercial</div>
         </div>
         <div style="text-align: center;">
-          <div style="height: 50px; border-bottom: 1px solid #94a3b8; margin-bottom: 8px;"></div>
-          <div style="font-size: 13px; font-weight: 700; color: #1e293b;">${
+          <div style="height: 48px; border-bottom: 1px solid #94a3b8; margin-bottom: 8px;"></div>
+          <div style="font-size: 13px; font-weight: 700; color: #0f172a;">${
             dados.clienteNome
           }</div>
-          <div style="font-size: 12px; color: #64748b;">De Acordo / Aceite</div>
+          <div style="font-size: 11px; color: #64748b;">De Acordo / Aceite da Proposta</div>
         </div>
       </div>
 
       <!-- Footer Note -->
-      <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+      <div style="margin-top: 40px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 16px;">
         Proposta gerada via Proposta Ai! • Documento confidencial destinado exclusivamente ao cliente especificado.
       </div>
     </div>
@@ -253,7 +253,17 @@ export async function gerarPropostacComIA(
     0
   );
 
-  const prompt = `Você é um especialista sênior em copywriting comercial e fechamento de vendas de alto valor. Gere uma proposta comercial completa em formato HTML profissional, moderna, altamente persuasiva, bem formatada com CSS inline elegante e pronta para o cliente assinar.
+  const prompt = `VOCÊ É O DIRETOR COMERCIAL & ESTRATEGISTA SÊNIOR DE VENDAS (VP of Sales & Closing Strategist) com mais de 25 anos de carreira fechando contratos de alto valor no mercado brasileiro. Você domina vendas consultivas, metodologia SPIN Selling, precificação de valor e fechamento com quebra antecipada de objeções.
+
+SUA MISSÃO:
+Transformar os dados brutos recebidos em uma PROPOSTA COMERCIAL CONSULTIVA COMPLETA, PERSUASIVA, ELEGANTE E COM ALTA TAXA DE CONVERSÃO em formato HTML profissional, pronta para o cliente assinar e aprovar.
+
+DIRETRIZES DE COPYWRITING COMERCIAL:
+1. DIAGNÓSTICO & ENTENDIMENTO: Comece demonstrando que entendeu com profundidade a dor e o objetivo estratégico do cliente. Enquadre o projeto como uma solução de alto retorno (ROI), não apenas como tarefas técnicas.
+2. METODOLOGIA E SEGURANÇA: Apresente o escopo em fases lógicas e entregáveis concretos que eliminem qualquer sensação de risco do comprador.
+3. VALOR & TRANSPARÊNCIA: A tabela financeira deve ser cristalina, formatada no padrão contábil brasileiro em Real (R$).
+4. CLÁUSULAS & REVERSÃO DE RISCO: Reforce prazos, garantias de entrega, termos de pagamento e o valor da agilidade na contratação.
+5. FORMALIDADE & FECHAMENTO: Conclua com espaço claro de aceite formal e assinaturas bilaterais.
 
 DADOS DA EMPRESA EMISSORA:
 - Nome: ${dados.empresaNome || "Empresa Especializada"}
@@ -267,7 +277,7 @@ DADOS DO CLIENTE:
 - Email: ${dados.clienteEmail || ""}
 - Telefone: ${dados.clienteTelefone || ""}
 
-DESCRIÇÃO E ESCOPO DO PROJETO:
+DESCRIÇÃO E ESCOPO DO PROJETO INFORMADO:
 ${dados.descricao}
 
 ITENS E INVESTIMENTO:
@@ -278,14 +288,20 @@ VALOR TOTAL: R$ ${total.toFixed(2)}
 CONDIÇÕES E PRAZOS:
 - Prazo de Pagamento: ${dados.prazoPagamento || "À Vista"}
 - Validade: ${dados.validade || 30} dias
-- Observações: ${dados.observacoes || "Nenhuma"}
+- Observações / Alinhamentos: ${dados.observacoes || "Nenhuma"}
 
-REQUISITOS ESTRUTURAIS DO HTML:
+REQUISITOS ESTRUTURAIS DO CÓDIGO HTML:
 1. Comece diretamente com <!DOCTYPE html> e termine com </html>.
 2. NUNCA inclua marcações de markdown, crases triplas (\`\`\`html) ou comentários fora do código HTML.
-3. Use CSS inline refinado, paleta profissional (Indigo #4F46E5, Slate #0F172A, Cinza neutro #64748B, fundo suave #F8FAFC).
+3. Use CSS inline refinado, paleta profissional de autoridade executiva (Azul Royal #2563EB, Slate #0F172A, Cinza neutro #64748B, fundo suave #F8FAFC, bordas #E2E8F0).
 4. Tipografia limpa baseada em fontes do sistema ('Inter', -apple-system, system-ui, sans-serif).
-5. Inclua seções claras: Cabeçalho da Empresa, Dados do Cliente, Contexto & Diagnóstico da Solução, Metodologia & Escopo de Entregas, Tabela Estruturada de Preços/Itens, Cronograma & Prazos, Termos Comerciais e Espaço Formal de Assinaturas.`;
+5. Inclua as seções numeradas e bem destacadas:
+   - Cabeçalho da Empresa Emissora & Dados do Cliente
+   - 1. Diagnóstico do Cenário & Objetivos Estratégicos
+   - 2. Metodologia & Escopo de Entregas
+   - 3. Tabela Estruturada de Investimento & Itens (com soma total em destaque)
+   - 4. Cronograma & Condições Comerciais
+   - 5. Garantias, Validade & Termo Formal de Aceite / Assinaturas.`;
 
   const modelsToTry = [
     process.env.GEMINI_MODEL,
