@@ -21,6 +21,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://proposta-ai-pra-mim.vercel.app"
+  ),
   title: "Proposta Ai! | Crie Propostas Comerciais com IA em Minutos",
   description:
     "Gere propostas comerciais profissionais, personalizadas e altamente persuasivas com Inteligência Artificial e feche mais contratos.",
