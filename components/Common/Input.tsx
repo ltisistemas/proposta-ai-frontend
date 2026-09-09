@@ -61,7 +61,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={inputId}
-            className={`w-full border rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`w-full border rounded-[4px] px-3.5 py-2.5 text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed ${
               leftIcon ? "pl-10" : ""
             } ${rightIcon ? "pr-10" : ""} ${
               error ? errorStyles : baseStyles
@@ -142,7 +142,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         <textarea
           ref={ref}
           id={inputId}
-          className={`w-full border rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`w-full border rounded-[4px] px-3.5 py-2.5 text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed ${
             error ? errorStyles : baseStyles
           } ${className}`}
           {...props}

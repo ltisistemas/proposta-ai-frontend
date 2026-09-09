@@ -14,6 +14,7 @@ export interface ModalProps {
   size?: "sm" | "md" | "lg" | "xl" | "full" | "screen";
   headerActions?: React.ReactNode;
   bodyClassName?: string;
+  hideDefaultCloseButton?: boolean;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -27,6 +28,7 @@ export const Modal: React.FC<ModalProps> = ({
   size = "md",
   headerActions,
   bodyClassName = "",
+  hideDefaultCloseButton = false,
 }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -47,28 +49,41 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: "max-w-md h-auto",
-    md: "max-w-xl h-auto",
-    lg: "max-w-3xl h-auto",
-    xl: "max-w-5xl h-auto",
-    full: "w-[96vw] max-w-7xl h-[92vh]",
-    screen: "w-screen h-screen rounded-none max-w-none m-0",
+    sm: "w-full max-w-md max-h-[90vh]",
+    md: "w-full max-w-xl max-h-[90vh]",
+    lg: "w-full max-w-3xl max-h-[90vh]",
+    xl: "w-full max-w-5xl max-h-[90vh]",
+    full: "w-[96vw] max-w-7xl h-[92vh] max-h-[92vh]",
+    screen: "w-screen h-screen rounded-none max-w-none m-0 max-h-screen",
   };
 
+  const hasHeader = Boolean(title || description || icon);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
       <div
-        className={`relative ${sizeClasses[size]} bg-white rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden z-10 transition-all transform animate-in zoom-in-95 duration-200 flex flex-col`}
+        className={`relative ${sizeClasses[size]} bg-white rounded-[4px] shadow-2xl border border-slate-200/90 overflow-hidden z-10 transition-all transform animate-in zoom-in-95 duration-200 flex flex-col my-auto`}
       >
+        {/* Floating Close Button for Headerless Modals */}
+        {!hasHeader && !hideDefaultCloseButton && (
+          <button
+            onClick={onClose}
+            title="Fechar modal"
+            className="absolute top-3.5 right-3.5 z-30 p-1.5 rounded-[4px] text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+
         {/* Modal Header */}
-        {(title || description || icon) && (
+        {hasHeader && (
           <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-200/80 bg-white shrink-0 z-20">
             <div className="flex items-center gap-3.5 min-w-0">
               {icon && <div className="shrink-0">{icon}</div>}
@@ -88,19 +103,25 @@ export const Modal: React.FC<ModalProps> = ({
 
             <div className="flex items-center gap-2 shrink-0">
               {headerActions}
-              <button
-                onClick={onClose}
-                title="Fechar modal"
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              {!hideDefaultCloseButton && (
+                <button
+                  onClick={onClose}
+                  title="Fechar modal"
+                  className="p-1.5 rounded-[4px] text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
             </div>
           </div>
         )}
 
-        {/* Modal Body */}
-        <div className={`flex-1 overflow-y-auto ${bodyClassName}`}>
+        {/* Modal Body with clean scroll and padding */}
+        <div
+          className={`flex-1 overflow-y-auto ${
+            bodyClassName || (hasHeader ? "p-6" : "p-6 sm:p-7")
+          }`}
+        >
           {children}
         </div>
 

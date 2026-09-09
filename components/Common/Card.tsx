@@ -12,7 +12,7 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`rounded-2xl border transition-all ${
+      className={`rounded-[4px] border transition-all ${
         glass
           ? "bg-white/80 backdrop-blur-xl border-slate-200/80 shadow-sm"
           : "bg-white border-slate-200/80 shadow-xs hover:border-slate-300"

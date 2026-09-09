@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { PenTool, ShieldCheck, Check, User, FileText, Lock } from "lucide-react";
+import { PenTool, ShieldCheck, Check, User, FileText } from "lucide-react";
 import { Modal } from "@/components/Common/Modal";
 import { Input } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
@@ -102,11 +102,11 @@ export function SignatureModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
-      <div className="text-left space-y-5 pt-1">
+    <Modal isOpen={isOpen} onClose={onClose} size="md" bodyClassName="p-6 sm:p-7">
+      <div className="text-left space-y-5">
         {/* Header */}
-        <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
-          <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-xs">
+        <div className="flex items-center gap-3 pb-3 border-b border-slate-100 pr-6">
+          <div className="w-10 h-10 rounded-[4px] bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-2xs shrink-0">
             <PenTool className="w-5 h-5" />
           </div>
           <div>
@@ -141,13 +141,13 @@ export function SignatureModal({
           />
 
           {/* Legal agreement checkbox */}
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+          <div className="p-4 rounded-[4px] bg-slate-50 border border-slate-200/90 space-y-2">
             <label className="flex items-start gap-3 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={concordoTermos}
                 onChange={(e) => setConcordoTermos(e.target.checked)}
-                className="mt-0.5 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                className="mt-0.5 w-4 h-4 text-blue-600 rounded-[2px] border-slate-300 focus:ring-blue-500 cursor-pointer"
               />
               <span className="text-xs text-slate-700 leading-relaxed">
                 Declaro que li e concordo integralmente com o escopo, cronograma, valores e condições comerciais apresentadas neste documento.
@@ -155,7 +155,7 @@ export function SignatureModal({
             </label>
           </div>
 
-          <div className="flex items-center gap-2 text-[11px] text-slate-500 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100">
+          <div className="flex items-center gap-2 text-[11px] text-slate-600 bg-blue-50/60 p-3 rounded-[4px] border border-blue-100">
             <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
             <span>Assinatura registrada com data, hora, endereço IP e hash criptográfico SHA-256.</span>
           </div>
@@ -166,7 +166,7 @@ export function SignatureModal({
               variant="ghost"
               size="md"
               onClick={onClose}
-              className="text-slate-600"
+              className="text-slate-600 rounded-[4px]"
             >
               Cancelar
             </Button>
@@ -175,7 +175,7 @@ export function SignatureModal({
               variant="primary"
               size="md"
               isLoading={isSubmitting}
-              className="font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/20"
+              className="font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm rounded-[4px]"
               leftIcon={<Check className="w-4 h-4" />}
             >
               Confirmar & Assinar

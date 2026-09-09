@@ -505,7 +505,7 @@ export default function NovaPropostaPage() {
         }}
         size="full"
         icon={
-          <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-[4px] bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center">
             <Sparkles className="w-5 h-5" />
           </div>
         }
