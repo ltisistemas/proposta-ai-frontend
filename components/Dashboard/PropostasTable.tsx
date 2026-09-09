@@ -147,7 +147,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
         />
       )}
 
-      <div className="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-xs">
+      <div className="bg-white border border-slate-200/90 rounded-[4px] overflow-hidden shadow-2xs">
         {/* Table Header Controls */}
         <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
@@ -155,9 +155,9 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
               <button
                 key={opt.value}
                 onClick={() => setFiltroStatus(opt.value)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-[4px] text-xs font-semibold transition-all cursor-pointer ${
                   filtroStatus === opt.value
-                    ? "bg-blue-600 text-white shadow-xs"
+                    ? "bg-blue-600 text-white shadow-2xs"
                     : "bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/80"
                 }`}
               >
@@ -174,7 +174,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
               placeholder="Buscar por cliente, número..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all"
+              className="w-full bg-slate-50 border border-slate-200 rounded-[4px] pl-9 pr-3.5 py-2 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all"
             />
           </div>
         </div>
@@ -186,7 +186,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
           </div>
         ) : propostasFiltradas.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 rounded-[4px] bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-4">
               <FileText className="w-6 h-6" />
             </div>
             <h4 className="text-base font-bold text-slate-900">Nenhuma proposta encontrada</h4>
@@ -255,7 +255,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                         <Link href={`/propostas/${p.id}`}>
                           <button
                             title="Visualizar Proposta"
-                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-[4px] bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -264,7 +264,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                         <button
                           onClick={() => handleOpenWhatsApp(p)}
                           title="Enviar / Copiar Texto WhatsApp"
-                          className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-[4px] bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors cursor-pointer"
                         >
                           <MessageCircle className="w-4 h-4" />
                         </button>
@@ -272,7 +272,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                         <button
                           onClick={() => handleCopyLink(p.id)}
                           title="Copiar Link Público"
-                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-[4px] bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
                         >
                           {copiadoId === p.id ? (
                             <Check className="w-4 h-4 text-emerald-600" />
@@ -289,7 +289,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                             }
                           }}
                           title="Excluir"
-                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-[4px] bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
