@@ -253,7 +253,7 @@ export default function NovaPropostaPage() {
             empresaNome: user?.empresa_nome || user?.nome,
             empresaTelefone: clienteTelefone || user?.empresa_telefone,
             descricao,
-            total,
+            total: calcularTotal(),
             prazoPagamento,
             validadeDias,
             itens,
