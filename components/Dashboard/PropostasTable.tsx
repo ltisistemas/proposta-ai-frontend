@@ -10,12 +10,15 @@ import {
   PlusCircle,
   Eye,
   Check,
+  MessageCircle,
 } from "lucide-react";
 import { Badge, BadgeVariant } from "@/components/Common/Badge";
 import { Button } from "@/components/Common/Button";
 import { useToast } from "@/components/Common/Toast";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { UpgradeModal, UpgradeFeatureType } from "@/components/Billing/UpgradeModal";
+import { WhatsAppModal } from "@/components/Proposta/WhatsAppModal";
+import { DadosWhatsApp } from "@/lib/utils/whatsapp";
 
 export interface PropostaItem {
   id: string;
@@ -63,6 +66,9 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeatureType>("link");
 
+  const [whatsAppData, setWhatsAppData] = useState<DadosWhatsApp | null>(null);
+  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
+
   const isPro = user?.plano === "pro";
 
   const statusOptions = [
@@ -102,6 +108,26 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
     setTimeout(() => setCopiadoId(null), 2500);
   };
 
+  const handleOpenWhatsApp = (p: PropostaItem) => {
+    if (!isPro) {
+      setUpgradeFeature("link");
+      setUpgradeModalOpen(true);
+      return;
+    }
+
+    const publicUrl = `${window.location.origin}/p/${p.id}`;
+    setWhatsAppData({
+      numero: p.numero,
+      clienteNome: p.cliente_nome,
+      clienteEmpresa: p.cliente_empresa,
+      empresaNome: user?.empresa_nome || user?.nome,
+      empresaTelefone: user?.empresa_telefone,
+      total: p.total,
+      publicUrl,
+    });
+    setWhatsAppModalOpen(true);
+  };
+
   return (
     <>
       <UpgradeModal
@@ -109,6 +135,17 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
         onClose={() => setUpgradeModalOpen(false)}
         feature={upgradeFeature}
       />
+
+      {whatsAppData && (
+        <WhatsAppModal
+          isOpen={whatsAppModalOpen}
+          onClose={() => {
+            setWhatsAppModalOpen(false);
+            setWhatsAppData(null);
+          }}
+          dados={whatsAppData}
+        />
+      )}
 
       <div className="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-xs">
         {/* Table Header Controls */}
@@ -223,6 +260,14 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                             <Eye className="w-4 h-4" />
                           </button>
                         </Link>
+
+                        <button
+                          onClick={() => handleOpenWhatsApp(p)}
+                          title="Enviar / Copiar Texto WhatsApp"
+                          className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors cursor-pointer"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                        </button>
 
                         <button
                           onClick={() => handleCopyLink(p.id)}

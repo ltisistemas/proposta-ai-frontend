@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   ExternalLink,
   Lock,
+  MessageCircle,
 } from "lucide-react";
 import { Input, TextArea } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
@@ -25,6 +26,7 @@ import { Modal } from "@/components/Common/Modal";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
 import { UpgradeModal, UpgradeFeatureType } from "@/components/Billing/UpgradeModal";
+import { WhatsAppModal } from "@/components/Proposta/WhatsAppModal";
 
 interface ItemRow {
   descricao: string;
@@ -40,6 +42,7 @@ export default function NovaPropostaPage() {
   const isPro = user?.plano === "pro";
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState<"pdf" | "link" | "general">("general");
+  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
 
   // Form states
   const [clienteNome, setClienteNome] = useState("");
@@ -238,6 +241,26 @@ export default function NovaPropostaPage() {
         onClose={() => setUpgradeModalOpen(false)}
         feature={upgradeFeature}
       />
+
+      {propostaCriadaId && (
+        <WhatsAppModal
+          isOpen={whatsAppModalOpen}
+          onClose={() => setWhatsAppModalOpen(false)}
+          dados={{
+            numero: propostaNumero || "PROP-NOVA",
+            clienteNome,
+            clienteEmpresa,
+            empresaNome: user?.empresa_nome || user?.nome,
+            empresaTelefone: clienteTelefone || user?.empresa_telefone,
+            descricao,
+            total,
+            prazoPagamento,
+            validadeDias,
+            itens,
+            publicUrl: `${typeof window !== "undefined" ? window.location.origin : ""}/p/${propostaCriadaId}`,
+          }}
+        />
+      )}
 
       <div className="max-w-5xl mx-auto space-y-8 pb-12">
         {/* Header */}
@@ -508,6 +531,23 @@ export default function NovaPropostaPage() {
               className="text-xs"
             >
               {copiadoLink ? "Copiado!" : "Copiar Link"}
+            </Button>
+
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                if (!isPro) {
+                  setUpgradeFeature("link");
+                  setUpgradeModalOpen(true);
+                  return;
+                }
+                setWhatsAppModalOpen(true);
+              }}
+              leftIcon={<MessageCircle className="w-4 h-4 text-emerald-600" />}
+              className="text-xs"
+            >
+              WhatsApp
             </Button>
 
             <Button

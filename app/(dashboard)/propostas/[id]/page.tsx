@@ -17,6 +17,7 @@ import {
   PenTool,
   Lock,
   MessageCircle,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/Common/Button";
 import { Badge, BadgeVariant } from "@/components/Common/Badge";
@@ -25,6 +26,7 @@ import { useToast } from "@/components/Common/Toast";
 import { UpgradeModal, UpgradeFeatureType } from "@/components/Billing/UpgradeModal";
 import { SignatureModal } from "@/components/Proposta/SignatureModal";
 import { DigitalCertificate } from "@/components/Proposta/DigitalCertificate";
+import { WhatsAppModal } from "@/components/Proposta/WhatsAppModal";
 
 export default function VisualizarPropostaPage({
   params,
@@ -45,6 +47,7 @@ export default function VisualizarPropostaPage({
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeatureType>("general");
   const [signatureModalOpen, setSignatureModalOpen] = useState(false);
+  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
 
   const isPro = user?.plano === "pro";
 
@@ -156,18 +159,13 @@ export default function VisualizarPropostaPage({
     setTimeout(() => setCopiado(false), 2500);
   };
 
-  const handleShareWhatsApp = () => {
+  const handleOpenWhatsAppModal = () => {
     if (!isPro) {
       setUpgradeFeature("link");
       setUpgradeModalOpen(true);
       return;
     }
-
-    const publicUrl = `${window.location.origin}/p/${proposta.id}`;
-    const texto = encodeURIComponent(
-      `Olá ${proposta.cliente_nome}, segue a proposta comercial da ${user?.empresa_nome || "nossa empresa"} para sua apreciação e assinatura eletrônica:\n\n${publicUrl}`
-    );
-    window.open(`https://api.whatsapp.com/send?text=${texto}`, "_blank");
+    setWhatsAppModalOpen(true);
   };
 
   const handlePrint = () => {
@@ -230,6 +228,7 @@ export default function VisualizarPropostaPage({
   if (!proposta) return null;
 
   const isAssinada = proposta.status === "aceita" && proposta.assinante_nome;
+  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/p/${proposta.id}` : "";
 
   return (
     <>
@@ -253,6 +252,24 @@ export default function VisualizarPropostaPage({
         }}
       />
 
+      <WhatsAppModal
+        isOpen={whatsAppModalOpen}
+        onClose={() => setWhatsAppModalOpen(false)}
+        dados={{
+          numero: proposta.numero,
+          clienteNome: proposta.cliente_nome,
+          clienteEmpresa: proposta.cliente_empresa,
+          empresaNome: user?.empresa_nome || user?.nome,
+          empresaTelefone: proposta.cliente_telefone || user?.empresa_telefone,
+          descricao: proposta.descricao,
+          total: proposta.total,
+          prazoPagamento: proposta.prazo_pagamento,
+          validadeDias: proposta.validade_dias,
+          itens: proposta.itens,
+          publicUrl,
+        }}
+      />
+
       <div className="space-y-6 max-w-6xl mx-auto pb-16">
         {/* Breadcrumbs & Navigation */}
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -268,7 +285,7 @@ export default function VisualizarPropostaPage({
         </div>
 
         {/* Top Executive Header Card */}
-        <div className="bg-white border border-slate-200/90 p-5 sm:p-6 rounded-3xl shadow-xs space-y-4">
+        <div className="bg-white border border-slate-200/90 p-4 sm:p-6 rounded-3xl shadow-xs space-y-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
               <div className="flex flex-wrap items-center gap-3">
@@ -301,7 +318,7 @@ export default function VisualizarPropostaPage({
             </div>
 
             {/* Action Group */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-2 lg:pt-0">
+            <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0">
               {/* Electronic Signature Trigger */}
               {!isAssinada ? (
                 <Button
@@ -366,14 +383,14 @@ export default function VisualizarPropostaPage({
                 {!isPro && <Lock className="w-3 h-3 text-slate-400 ml-1" />}
               </Button>
 
-              {/* WhatsApp Share */}
+              {/* WhatsApp Formatted Share */}
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleShareWhatsApp}
+                onClick={handleOpenWhatsAppModal}
                 leftIcon={<MessageCircle className="w-4 h-4 text-emerald-600" />}
                 className="text-xs font-bold"
-                title="Compartilhar no WhatsApp"
+                title="Abrir prévia e envio formatado no WhatsApp"
               >
                 WhatsApp
                 {!isPro && <Lock className="w-3 h-3 text-slate-400 ml-1" />}
@@ -425,14 +442,14 @@ export default function VisualizarPropostaPage({
           />
         )}
 
-        {/* Document Reader Container (Executive Canvas) */}
-        <div className="bg-[#F1F5F9] border border-slate-200/90 rounded-3xl p-4 sm:p-8 md:p-10 shadow-sm flex flex-col items-center">
-          <div className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-200/80 min-h-[90vh]">
+        {/* Document Reader Container (Executive Canvas with Mobile Optimization) */}
+        <div className="bg-[#F1F5F9] border border-slate-200/90 rounded-3xl p-2 sm:p-6 md:p-10 shadow-sm flex flex-col items-center overflow-x-hidden">
+          <div className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-200/80 min-h-[85vh]">
             <iframe
               srcDoc={proposta.conteudo_html}
               title={`Proposta Comercial ${proposta.numero}`}
-              className="w-full min-h-[90vh] h-full border-0 block"
-              style={{ minHeight: "90vh" }}
+              className="w-full min-h-[85vh] h-full border-0 block"
+              style={{ minHeight: "85vh" }}
             />
           </div>
         </div>

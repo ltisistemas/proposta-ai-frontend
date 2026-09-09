@@ -247,13 +247,13 @@ export default function PublicProposalPage({
         )}
 
         {/* Document Viewer Container */}
-        <div className="bg-[#F1F5F9] border border-slate-200/90 rounded-3xl p-4 sm:p-8 md:p-10 shadow-sm flex flex-col items-center">
-          <div className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-200/80 min-h-[90vh]">
+        <div className="bg-[#F1F5F9] border border-slate-200/90 rounded-3xl p-2 sm:p-6 md:p-10 shadow-sm flex flex-col items-center overflow-x-hidden">
+          <div className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-200/80 min-h-[85vh]">
             <iframe
               srcDoc={proposta.conteudo_html}
               title={`Proposta Comercial ${proposta.numero}`}
-              className="w-full min-h-[90vh] h-full border-0 block"
-              style={{ minHeight: "90vh" }}
+              className="w-full min-h-[85vh] h-full border-0 block"
+              style={{ minHeight: "85vh" }}
             />
           </div>
         </div>

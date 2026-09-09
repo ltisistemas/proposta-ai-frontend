@@ -72,19 +72,30 @@ export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Proposta Comercial - ${dados.clienteNome}</title>
   <style>
+    body { font-family: 'Courier New', Courier, monospace, system-ui, sans-serif; background-color: #ffffff; margin: 0; padding: 24px 12px; color: #111827; line-height: 1.5; }
+    .notepad-container { max-width: 760px; margin: 0 auto; border: 1px solid #111827; padding: 24px; background: #ffffff; box-sizing: border-box; }
+    @media (max-width: 640px) {
+      body { padding: 8px !important; }
+      .notepad-container { padding: 14px !important; }
+      .header-flex { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+      .signatures-flex { flex-direction: column !important; gap: 20px !important; }
+      .signatures-flex > div { width: 100% !important; }
+      .table-responsive { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    }
     @media print {
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
-<body style="font-family: 'Courier New', Courier, monospace, system-ui, sans-serif; background-color: #ffffff; margin: 0; padding: 24px; color: #111827; line-height: 1.5;">
-  <div style="max-width: 760px; margin: 0 auto; border: 1px solid #111827; padding: 28px; background: #ffffff;">
+<body>
+  <div class="notepad-container">
     
     <!-- Notepad Header (Monochrome) -->
     <div style="border-bottom: 2px solid #111827; padding-bottom: 16px; margin-bottom: 20px;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+      <div class="header-flex" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
         <div>
           <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: bold; margin-bottom: 4px;">[ DOCUMENTO COMERCIAL / PROPOSTA ]</div>
           <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: #111827;">
@@ -128,19 +139,21 @@ export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
       <div style="font-size: 13px; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #111827; padding-bottom: 4px; margin-bottom: 10px;">
         2. Itens e Valores
       </div>
-      <table style="width: 100%; border-collapse: collapse; text-align: left;">
-        <thead>
-          <tr style="border-bottom: 2px solid #111827; background: #f3f4f6;">
-            <th style="padding: 8px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase;">Item / Descrição</th>
-            <th style="padding: 8px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: center; width: 60px;">Qtd</th>
-            <th style="padding: 8px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: right; width: 120px;">Unitário</th>
-            <th style="padding: 8px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: right; width: 120px;">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rowsHtml}
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 480px;">
+          <thead>
+            <tr style="border-bottom: 2px solid #111827; background: #f3f4f6;">
+              <th style="padding: 8px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase;">Item / Descrição</th>
+              <th style="padding: 8px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: center; width: 60px;">Qtd</th>
+              <th style="padding: 8px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: right; width: 120px;">Unitário</th>
+              <th style="padding: 8px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: right; width: 120px;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
 
       <!-- Total -->
       <div style="margin-top: 14px; text-align: right; font-size: 15px; font-weight: bold; border-top: 1px solid #111827; padding-top: 8px;">
@@ -160,7 +173,7 @@ export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
     }
 
     <!-- Simple Signatures -->
-    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px dashed #6b7280; display: flex; justify-content: space-between; gap: 24px;">
+    <div class="signatures-flex" style="margin-top: 40px; padding-top: 20px; border-top: 1px dashed #6b7280; display: flex; justify-content: space-between; gap: 24px;">
       <div style="width: 45%; text-align: center;">
         <div style="border-top: 1px solid #111827; padding-top: 6px; font-size: 12px;">
           <strong>${dados.empresaNome || "Emissor"}</strong><br/>
@@ -177,7 +190,7 @@ export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
 
     <!-- Free Tier Footer -->
     <div style="margin-top: 32px; text-align: center; font-size: 11px; color: #6b7280; border-top: 1px dotted #9ca3af; padding-top: 12px;">
-      Proposta gerada no plano gratuito do Proposta Ai! • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF e assinatura eletrônica.
+      Proposta gerada no plano gratuito do Proposta Ai! • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF, versão mobile e assinatura eletrônica.
     </div>
 
   </div>
@@ -229,25 +242,41 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Proposta Comercial Consultiva - ${dados.clienteNome}</title>
   <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 32px 12px; color: #0f172a; line-height: 1.5; }
+    .pro-card-container { max-width: 820px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.04); overflow: hidden; border: 1px solid #e2e8f0; box-sizing: border-box; }
+    
+    @media (max-width: 640px) {
+      body { padding: 8px !important; }
+      .pro-card-container { border-radius: 12px !important; }
+      .header-content { padding: 24px 16px !important; }
+      .body-content { padding: 20px 16px !important; }
+      .grid-responsive { grid-template-columns: 1fr !important; gap: 16px !important; }
+      .flex-responsive { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+      .table-responsive-wrapper { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .total-box-wrapper { width: 100% !important; }
+      .signatures-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+    }
     @media print {
-      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #ffffff; padding: 0; }
+      .pro-card-container { box-shadow: none; border: none; }
     }
   </style>
 </head>
-<body style="font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 36px 16px; color: #0f172a;">
-  <div style="max-width: 820px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.04); overflow: hidden; border: 1px solid #e2e8f0;">
+<body>
+  <div class="pro-card-container">
     
     <!-- Top Header Bar -->
-    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%); padding: 40px; color: #ffffff;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+    <div class="header-content" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%); padding: 40px; color: #ffffff;">
+      <div class="flex-responsive" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
         <div>
           ${logoHtml}
           <span style="display: inline-block; background: rgba(37, 99, 235, 0.3); border: 1px solid rgba(96, 165, 250, 0.4); padding: 4px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; color: #93c5fd;">
             Proposta Comercial & Plano Estratégico
           </span>
-          <h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; color: #ffffff;">
+          <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: #ffffff;">
             ${dados.empresaNome || "Proposta Comercial Especializada"}
           </h1>
           <p style="margin: 8px 0 0 0; font-size: 13px; color: #cbd5e1; line-height: 1.4;">
@@ -264,9 +293,9 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
       </div>
     </div>
 
-    <div style="padding: 40px;">
+    <div class="body-content" style="padding: 40px;">
       <!-- Client & Overview Grid -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; background: #f8fafc; padding: 22px; border-radius: 12px; border: 1px solid #e2e8f0;">
+      <div class="grid-responsive" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; background: #f8fafc; padding: 22px; border-radius: 12px; border: 1px solid #e2e8f0;">
         <div>
           <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">Apresentado a:</div>
           <div style="font-size: 16px; font-weight: 800; color: #0f172a;">${
@@ -314,8 +343,8 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
         <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; border-left: 4px solid #2563eb; padding-left: 12px; text-transform: uppercase; letter-spacing: 0.03em;">
           2. Investimento & Entregáveis
         </h3>
-        <div style="border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0;">
-          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <div class="table-responsive-wrapper" style="border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;">
             <thead>
               <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
                 <th style="padding: 12px 18px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em;">Descrição do Entregável</th>
@@ -332,7 +361,7 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
 
         <!-- Total Box -->
         <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-          <div style="width: 300px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px;">
+          <div class="total-box-wrapper" style="width: 300px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px;">
             <div style="display: flex; justify-content: space-between; font-size: 13px; color: #64748b; margin-bottom: 6px;">
               <span>Subtotal dos Serviços:</span>
               <span>${formatarMoeda(subtotal)}</span>
@@ -357,7 +386,7 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
       }
 
       <!-- Signatures -->
-      <div style="margin-top: 48px; padding-top: 32px; border-top: 2px dashed #cbd5e1; display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+      <div class="signatures-grid" style="margin-top: 48px; padding-top: 32px; border-top: 2px dashed #cbd5e1; display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
         <div style="text-align: center;">
           <div style="height: 48px; border-bottom: 1px solid #94a3b8; margin-bottom: 8px;"></div>
           <div style="font-size: 13px; font-weight: 700; color: #0f172a;">${
@@ -447,17 +476,18 @@ VALOR TOTAL: R$ ${total.toFixed(2)}
 DIRETRIZES OBRIGATÓRIAS DO FORMATO NOTEPAD (PLANO FREE):
 1. Comece diretamente com <!DOCTYPE html> e termine com </html>.
 2. NUNCA inclua markdown ou crases triplas (\`\`\`html).
-3. ESTILO MONOCROMÁTICO PURO: Apenas tons de preto, cinza e branco (#000000, #111827, #374151, #ffffff). NÃO use cores vibrantes, azul, verde ou gradientes.
-4. Tipografia limpa baseada em fonte monoespaçada ou sistema ('Courier New', monospace, sans-serif).
-5. Estrutura em caixa simples com bordas sólidas finas (1px solid #111827).
-6. Tabela simples de itens com cabeçalho cinza claro e total destacado.
-7. Seção de termos e assinaturas simples.
-8. No rodapé, inclua a nota: "Proposta gerada no plano gratuito do Proposta Ai! • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF e assinatura eletrônica."`;
+3. Inclua a tag <meta name="viewport" content="width=device-width, initial-scale=1.0"> no <head>.
+4. ESTILO MONOCROMÁTICO PURO: Apenas tons de preto, cinza e branco (#000000, #111827, #374151, #ffffff). NÃO use cores vibrantes, azul, verde ou gradientes.
+5. Tipografia limpa baseada em fonte monoespaçada ou sistema ('Courier New', monospace, sans-serif).
+6. Estrutura em caixa simples com bordas sólidas finas (1px solid #111827).
+7. Tabela simples de itens com cabeçalho cinza claro e total destacado.
+8. Seção de termos e assinaturas simples.
+9. No rodapé, inclua a nota: "Proposta gerada no plano gratuito do Proposta Ai! • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF e assinatura eletrônica."`;
   } else {
     prompt = `VOCÊ É O DIRETOR COMERCIAL & ESTRATEGISTA SÊNIOR DE VENDAS (VP of Sales & Closing Strategist) com mais de 25 anos de carreira fechando contratos de alto valor no mercado brasileiro. Você domina vendas consultivas, metodologia SPIN Selling, precificação de valor e fechamento com quebra antecipada de objeções.
 
 SUA MISSÃO:
-Transformar os dados brutos recebidos em uma PROPOSTA COMERCIAL CONSULTIVA COMPLETA, PERSUASIVA, ELEGANTE E COM ALTA TAXA DE CONVERSÃO em formato HTML profissional executivo (PLANO PRO).
+Transformar os dados brutos recebidos em uma PROPOSTA COMERCIAL CONSULTIVA COMPLETA, PERSUASIVA, ELEGANTE E COM ALTA TAXA DE CONVERSÃO em formato HTML profissional executivo adaptado para dispositivos móveis e desktop (PLANO PRO).
 
 DIRETRIZES DE COPYWRITING COMERCIAL:
 1. DIAGNÓSTICO & ENTENDIMENTO: Comece demonstrando que entendeu com profundidade a dor e o objetivo estratégico do cliente. Enquadre o projeto como uma solução de alto retorno (ROI), não apenas como tarefas técnicas.
@@ -494,14 +524,16 @@ ${itensFormatados}
 
 VALOR TOTAL: R$ ${total.toFixed(2)}
 
-REQUISITOS ESTRUTURAIS DO CÓDIGO HTML:
+REQUISITOS ESTRUTURAIS DO CÓDIGO HTML & ADAPTAÇÃO MOBILE:
 1. Comece diretamente com <!DOCTYPE html> e termine com </html>.
 2. NUNCA inclua marcações de markdown, crases triplas (\`\`\`html) ou comentários fora do código HTML.
-3. Utilize estritamente a Data de Emissão (${new Date().toLocaleDateString("pt-BR")}) e o Código da Proposta informados.
-4. Use CSS inline refinado, paleta profissional de autoridade executiva (Azul Royal #2563EB, Slate #0F172A, Cinza neutro #64748B, fundo suave #F8FAFC, bordas #E2E8F0).
-${dados.empresaLogoUrl ? `5. Se houver logo, inclua a imagem no topo do cabeçalho.` : ""}
-6. Tipografia limpa baseada em fontes do sistema ('Inter', -apple-system, system-ui, sans-serif).
-7. Inclua as seções numeradas e bem destacadas:
+3. Inclua a tag <meta name="viewport" content="width=device-width, initial-scale=1.0"> no <head>.
+4. Inclua no <style> regras responsivas com @media (max-width: 640px) para que em smartphones o documento se adapte com padding suave, colunas empilhadas, tabelas com scroll horizontal suave e visual perfeito em telas touch.
+5. Utilize estritamente a Data de Emissão (${new Date().toLocaleDateString("pt-BR")}) e o Código da Proposta informados.
+6. Use CSS inline refinado, paleta profissional de autoridade executiva (Azul Royal #2563EB, Slate #0F172A, Cinza neutro #64748B, fundo suave #F8FAFC, bordas #E2E8F0).
+${dados.empresaLogoUrl ? `7. Se houver logo, inclua a imagem no topo do cabeçalho.` : ""}
+8. Tipografia limpa baseada em fontes do sistema ('Inter', -apple-system, system-ui, sans-serif).
+9. Inclua as seções numeradas e bem destacadas:
    - Cabeçalho da Empresa Emissora (com logo se informada) & Dados do Cliente
    - 1. Diagnóstico do Cenário & Objetivos Estratégicos
    - 2. Metodologia & Escopo de Entregas
