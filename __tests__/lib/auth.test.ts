@@ -165,4 +165,32 @@ describe("lib/auth/useAuthStore", () => {
     expect(state.isAuthenticated).toBe(false);
     expect(state.user).toBeNull();
   });
+
+  it("should handle fetchMe from localStorage and handle fetch exception", async () => {
+    // Empty token
+    useAuthStore.setState({ token: null });
+    localStorage.removeItem("proposta_ai_token");
+    await useAuthStore.getState().fetchMe();
+    expect(useAuthStore.getState().isAuthenticated).toBe(false);
+
+    // Token from localStorage
+    localStorage.setItem("proposta_ai_token", "local_tok_123");
+    global.fetch = vi.fn().mockResolvedValue({
+      json: async () => ({
+        sucesso: true,
+        usuario: { id: "u_local", email: "local@test.com", nome: "Local", plano: "free" },
+      }),
+    } as any);
+    await useAuthStore.getState().fetchMe();
+    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+
+    // Fetch throw exception
+    global.fetch = vi.fn().mockRejectedValueOnce(new Error("Network Down"));
+    await useAuthStore.getState().fetchMe();
+
+    // updateUser when user is null
+    useAuthStore.setState({ user: null });
+    useAuthStore.getState().updateUser({ nome: "Noop" });
+    expect(useAuthStore.getState().user).toBeNull();
+  });
 });

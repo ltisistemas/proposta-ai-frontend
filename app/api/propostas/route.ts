@@ -5,6 +5,7 @@ import {
   salvarProposta,
   ItemPropostaInput,
 } from "@/lib/db/propostas";
+import { obterUserPorId } from "@/lib/db/users";
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,6 +47,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ erro: "Token inválido" }, { status: 401 });
     }
 
+    const user = await obterUserPorId(userId);
+    const forwarded = request.headers.get("x-forwarded-for");
+    const emissorIp = forwarded
+      ? forwarded.split(",")[0].trim()
+      : request.headers.get("x-real-ip") || "127.0.0.1";
+
     const dados = await request.json();
     const subtotal = (dados.itens || []).reduce(
       (acc: number, item: any) => acc + (item.quantidade || 1) * (item.valorUnitario || 0),
@@ -72,6 +79,10 @@ export async function POST(request: NextRequest) {
       validadeDias: dados.validadeDias || 30,
       observacoes: dados.observacoes,
       status: dados.status || "rascunho",
+      emissorNome: user?.nome || user?.empresa_nome || "Emissor Autorizado",
+      emissorEmail: user?.email || user?.empresa_email || "",
+      emissorDocumento: user?.empresa_cnpj || undefined,
+      emissorIp,
       itens: (dados.itens || []) as ItemPropostaInput[],
     });
 

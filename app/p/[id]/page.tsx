@@ -18,6 +18,7 @@ import { Logo } from "@/components/Common/Logo";
 import { ToastContainer, useToast } from "@/components/Common/Toast";
 import { SignatureModal } from "@/components/Proposta/SignatureModal";
 import { DigitalCertificate } from "@/components/Proposta/DigitalCertificate";
+import { SignatureManifesto, gerarManifestoHTML } from "@/components/Proposta/SignatureManifesto";
 
 export default function PublicProposalPage({
   params,
@@ -65,7 +66,26 @@ export default function PublicProposalPage({
   const handlePrint = () => {
     const printWindow = window.open("", "_blank");
     if (printWindow && proposta?.conteudo_html) {
-      printWindow.document.write(proposta.conteudo_html);
+      const manifestoHtml = gerarManifestoHTML(proposta, emissor);
+      const htmlCompleto = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Proposta Comercial ${proposta.numero}</title>
+          <style>
+            @media print {
+              body { margin: 0; padding: 0; }
+              .signature-manifesto-container { page-break-before: always; break-before: page; }
+            }
+          </style>
+        </head>
+        <body>
+          ${proposta.conteudo_html}
+          ${manifestoHtml}
+        </body>
+        </html>
+      `;
+      printWindow.document.write(htmlCompleto);
       printWindow.document.close();
       printWindow.focus();
       setTimeout(() => {
@@ -257,6 +277,9 @@ export default function PublicProposalPage({
             />
           </div>
         </div>
+
+        {/* Dedicated Signature Manifesto (Printed on final page) */}
+        <SignatureManifesto proposta={proposta} emissor={emissor} />
       </main>
 
       {/* Footer */}

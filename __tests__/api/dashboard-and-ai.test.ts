@@ -147,4 +147,56 @@ describe("API /api/gerar-proposta", () => {
     expect(json.proposta.conteudoHtml).toContain("Proposta Gerada");
     expect(incrementarContadorPropostas).toHaveBeenCalledWith("u_ai");
   });
+
+  it("should return 401 for invalid token in /api/dashboard/stats and /api/gerar-proposta", async () => {
+    const reqStats = new NextRequest("http://localhost:3000/api/dashboard/stats", {
+      headers: { Authorization: "Bearer bad_tok" },
+    });
+    const resStats = await getStatsRoute(reqStats);
+    expect(resStats.status).toBe(401);
+
+    const reqGen = new NextRequest("http://localhost:3000/api/gerar-proposta", {
+      method: "POST",
+      headers: { Authorization: "Bearer bad_tok" },
+      body: JSON.stringify({}),
+    });
+    const resGen = await gerarPropostaRoute(reqGen);
+    expect(resGen.status).toBe(401);
+  });
+
+  it("should return 400 for validation failure in /api/gerar-proposta", async () => {
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({ id: "u_ai", plano: "pro" } as any);
+    vi.mocked(verificarLimiteProposta).mockResolvedValueOnce(true);
+
+    const req = new NextRequest("http://localhost:3000/api/gerar-proposta", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ clienteNome: "A" }), // invalid schema
+    });
+    const res = await gerarPropostaRoute(req);
+    expect(res.status).toBe(400);
+  });
+
+  it("should return 500 when /api/dashboard/stats or /api/gerar-proposta encounters an unexpected error", async () => {
+    vi.mocked(obterMetricasDashboard).mockRejectedValueOnce(new Error("Fatal DB Error"));
+    const reqStats = new NextRequest("http://localhost:3000/api/dashboard/stats", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const resStats = await getStatsRoute(reqStats);
+    expect(resStats.status).toBe(500);
+
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({ id: "u_ai", plano: "pro" } as any);
+    vi.mocked(verificarLimiteProposta).mockRejectedValueOnce(new Error("Fatal AI Error"));
+    const reqGen = new NextRequest("http://localhost:3000/api/gerar-proposta", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        clienteNome: "Cliente Erro",
+        descricao: "Descrição completa do projeto com mais de 10 caracteres",
+        itens: [{ descricao: "Item 1", quantidade: 1, valorUnitario: 100 }],
+      }),
+    });
+    const resGen = await gerarPropostaRoute(reqGen);
+    expect(resGen.status).toBe(500);
+  });
 });

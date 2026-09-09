@@ -3,11 +3,12 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { Button } from "@/components/Common/Button";
 import { Input, TextArea } from "@/components/Common/Input";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/Common/Card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/Common/Card";
 import { Badge } from "@/components/Common/Badge";
 import { Modal } from "@/components/Common/Modal";
 import { LoadingSpinner } from "@/components/Common/LoadingSpinner";
 import { ToastContainer, useToast } from "@/components/Common/Toast";
+import { Logo } from "@/components/Common/Logo";
 
 describe("components/Common/Button", () => {
   it("should render button text and handle click", () => {
@@ -34,6 +35,12 @@ describe("components/Common/Button", () => {
 
     rerender(<Button variant="outline" size="sm">Cancelar</Button>);
     expect(screen.getByRole("button")).toHaveClass("bg-white");
+
+    rerender(<Button variant="ghost" size="md">Voltar</Button>);
+    expect(screen.getByRole("button")).toHaveClass("bg-transparent");
+
+    rerender(<Button variant="gradient" size="md">Assinar</Button>);
+    expect(screen.getByRole("button")).toHaveClass("bg-gradient-to-r");
   });
 });
 
@@ -57,44 +64,87 @@ describe("components/Common/Input", () => {
     expect(handleChange).toHaveBeenCalled();
   });
 
-  it("should display error message when error prop is provided", () => {
-    render(<Input label="Email" error="Email inválido" />);
-    expect(screen.getByText("Email inválido")).toBeInTheDocument();
+  it("should render dark variant with left and right icons", () => {
+    const { rerender } = render(
+      <Input
+        variant="dark"
+        leftIcon={<span data-testid="left-icon">Left</span>}
+        rightIcon={<span data-testid="right-icon">Right</span>}
+        helperText="Texto auxiliar escuro"
+      />
+    );
+    expect(screen.getByTestId("left-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("right-icon")).toBeInTheDocument();
+    expect(screen.getByText("Texto auxiliar escuro")).toBeInTheDocument();
+
+    rerender(<Input variant="dark" error="Erro escuro" />);
+    expect(screen.getByText("Erro escuro")).toBeInTheDocument();
   });
 
   it("should render TextArea with label and error state", () => {
-    render(<TextArea label="Observações" error="Campo obrigatório" rows={4} />);
+    const { rerender } = render(<TextArea label="Observações" error="Campo obrigatório" rows={4} />);
     expect(screen.getByText("Observações")).toBeInTheDocument();
     expect(screen.getByText("Campo obrigatório")).toBeInTheDocument();
+
+    rerender(<TextArea variant="dark" helperText="Ajuda escura" />);
+    expect(screen.getByText("Ajuda escura")).toBeInTheDocument();
+
+    rerender(<TextArea variant="dark" error="Erro área escura" />);
+    expect(screen.getByText("Erro área escura")).toBeInTheDocument();
   });
 });
 
 describe("components/Common/Card", () => {
-  it("should render card structure with header and content", () => {
-    render(
-      <Card>
+  it("should render card structure with header, description, footer, and content", () => {
+    const { rerender } = render(
+      <Card glass className="custom-card">
         <CardHeader>
           <CardTitle>Título do Card</CardTitle>
+          <CardDescription>Subtítulo do Card</CardDescription>
         </CardHeader>
         <CardContent>Conteúdo Interno</CardContent>
+        <CardFooter>Rodapé do Card</CardFooter>
       </Card>
     );
 
     expect(screen.getByText("Título do Card")).toBeInTheDocument();
+    expect(screen.getByText("Subtítulo do Card")).toBeInTheDocument();
     expect(screen.getByText("Conteúdo Interno")).toBeInTheDocument();
+    expect(screen.getByText("Rodapé do Card")).toBeInTheDocument();
+
+    rerender(<Card glass={false}>Normal</Card>);
+    expect(screen.getByText("Normal")).toBeInTheDocument();
   });
 });
 
 describe("components/Common/Badge", () => {
-  it("should render different badge variants and sizes", () => {
-    const { rerender } = render(<Badge variant="success">Aceita</Badge>);
+  it("should render all badge variants and sizes", () => {
+    const { rerender } = render(<Badge variant="rascunho" />);
+    expect(screen.getByText("Rascunho")).toBeInTheDocument();
+
+    rerender(<Badge variant="enviada" />);
+    expect(screen.getByText("Enviada")).toBeInTheDocument();
+
+    rerender(<Badge variant="aceita" />);
     expect(screen.getByText("Aceita")).toBeInTheDocument();
 
-    rerender(<Badge variant="pro">PRO</Badge>);
+    rerender(<Badge variant="recusada" />);
+    expect(screen.getByText("Recusada")).toBeInTheDocument();
+
+    rerender(<Badge variant="pro" />);
     expect(screen.getByText("PRO")).toBeInTheDocument();
 
-    rerender(<Badge variant="danger">Recusada</Badge>);
-    expect(screen.getByText("Recusada")).toBeInTheDocument();
+    rerender(<Badge variant="free" />);
+    expect(screen.getByText("FREE")).toBeInTheDocument();
+
+    rerender(<Badge variant="warning">Atenção</Badge>);
+    expect(screen.getByText("Atenção")).toBeInTheDocument();
+
+    rerender(<Badge variant="info">Novidade</Badge>);
+    expect(screen.getByText("Novidade")).toBeInTheDocument();
+
+    rerender(<Badge variant="default">Padrão</Badge>);
+    expect(screen.getByText("Padrão")).toBeInTheDocument();
   });
 });
 
@@ -125,10 +175,28 @@ describe("components/Common/Modal", () => {
   });
 });
 
+describe("components/Common/Logo", () => {
+  it("should render logo with variants, sizes, and links", () => {
+    const { rerender } = render(<Logo size="md" variant="light" showSubtitle={true} />);
+    expect(screen.getByText("Proposta")).toBeInTheDocument();
+    expect(screen.getByText("Ai!")).toBeInTheDocument();
+
+    rerender(<Logo size="sm" variant="dark" href="/dashboard" />);
+    expect(screen.getByRole("link")).toBeInTheDocument();
+
+    rerender(<Logo size="lg" />);
+    expect(screen.getByText("Ai!")).toBeInTheDocument();
+
+    rerender(<Logo size="xl" />);
+    expect(screen.getByText("Ai!")).toBeInTheDocument();
+  });
+});
+
 describe("components/Common/LoadingSpinner & ToastContainer", () => {
   it("should render LoadingSpinner with text", () => {
-    render(<LoadingSpinner size="md" />);
+    render(<LoadingSpinner size="md" text="Carregando dados..." />);
     expect(document.querySelector("svg")).toBeInTheDocument();
+    expect(screen.getByText("Carregando dados...")).toBeInTheDocument();
   });
 
   it("should render Toast notification and trigger close", () => {

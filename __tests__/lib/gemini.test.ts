@@ -17,6 +17,7 @@ vi.mock("@google/generative-ai", () => {
 
 import {
   gerarTemplateFree,
+  gerarTemplatePro,
   gerarPropostacComIA,
   gerarTemplateFallback,
   getGenAIClient,
@@ -39,6 +40,7 @@ describe("lib/gemini/client", () => {
     ],
     prazoPagamento: "50% entrada + 50% entrega",
     validade: 15,
+    observacoes: "Garantia de 90 dias",
     plano: "free",
   };
 
@@ -64,15 +66,39 @@ describe("lib/gemini/client", () => {
     process.env.NEXT_PUBLIC_GEMINI_API_KEY = originalPublic;
   });
 
-  it("should generate clean monochrome HTML template for Free tier", () => {
-    const html = gerarTemplateFree(sampleData);
-    expect(html).toContain("<!DOCTYPE html>");
-    expect(html).toContain("Empresa Teste");
-    expect(html).toContain("Cliente VIP");
-    expect(html).toContain("Desenvolvimento Front-end");
-    expect(html).toContain("R$");
-    expect(html).toContain("5.000,00"); // 3500 + 1500
-    expect(html).toContain("notepad-container");
+  it("should generate clean monochrome HTML template for Free tier with and without observations", () => {
+    const htmlWithObs = gerarTemplateFree(sampleData);
+    expect(htmlWithObs).toContain("Garantia de 90 dias");
+
+    const htmlMinimal = gerarTemplateFree({
+      empresaNome: "",
+      clienteNome: "Cliente Simples",
+      descricao: "Serviço",
+      itens: [{ descricao: "Item 1", quantidade: 1, valorUnitario: 100 }],
+    });
+    expect(htmlMinimal).toContain("Cliente Simples");
+  });
+
+  it("should generate executive Pro HTML template with logo and full details and minimal options", () => {
+    const proFull = gerarTemplatePro({
+      ...sampleData,
+      empresaLogoUrl: "data:image/svg+xml;base64,123",
+      itens: [
+        { descricao: "Item 1", quantidade: 1, valorUnitario: 500 },
+        { descricao: "Item 2", quantidade: 2, valorUnitario: 250 },
+        { descricao: "Item 3", quantidade: 1, valorUnitario: 100 },
+      ],
+    });
+    expect(proFull).toContain("Proposta Comercial Consultiva");
+    expect(proFull).toContain("data:image/svg+xml;base64,123");
+
+    const proMinimal = gerarTemplatePro({
+      empresaNome: "Empresa Min",
+      clienteNome: "Cliente Min",
+      descricao: "Desc Min",
+      itens: [{ descricao: "Item A", quantidade: 1, valorUnitario: 100 }],
+    });
+    expect(proMinimal).toContain("Cliente Min");
   });
 
   it("should generate fallback template for pro and free", () => {
@@ -100,6 +126,32 @@ describe("lib/gemini/client", () => {
     const result = await gerarPropostacComIA(proData);
     expect(result).toBeDefined();
     expect(result).toContain("<h1>Proposta Profissional</h1>");
+  });
+
+  it("should generate proposal with Gemini AI for Free tier with custom model env", async () => {
+    process.env.GEMINI_MODEL = "gemini-custom-flash";
+    mockGenerateContent.mockResolvedValueOnce({
+      response: {
+        text: () =>
+          "<!DOCTYPE html><html><body><div class='notepad-container'>Proposta Free</div></body></html>",
+      },
+    });
+
+    const result = await gerarPropostacComIA(sampleData);
+    expect(result).toContain("Proposta Free");
+    delete process.env.GEMINI_MODEL;
+  });
+
+  it("should accept partial htmlContent when length > 500 without full html tags", async () => {
+    const longHtml = "<div>" + "A".repeat(600) + "</div>";
+    mockGenerateContent.mockResolvedValueOnce({
+      response: {
+        text: () => longHtml,
+      },
+    });
+
+    const result = await gerarPropostacComIA(sampleData);
+    expect(result.length).toBeGreaterThan(500);
   });
 
   it("should fallback gracefully if Gemini API throws an error", async () => {

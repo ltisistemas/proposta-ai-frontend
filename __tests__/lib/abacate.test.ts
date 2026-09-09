@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import crypto from "crypto";
+import axios from "axios";
 import {
   criarCobrancaPixTransparente,
   obterCobrancaPix,
@@ -99,5 +100,75 @@ describe("lib/abacate/client", () => {
     const rawBody = JSON.stringify({ event: "checkout.completed" });
     expect(verifyAbacateSignature(rawBody, "invalid-sig-here")).toBe(false);
     expect(verifyAbacateSignature(rawBody, "")).toBe(false);
+  });
+
+  it("should handle direct API call via axios when API key is set", async () => {
+    process.env.ABACATE_SECRET_KEY = "live_prod_api_key_123";
+    const mockClientInstance = {
+      post: vi.fn().mockResolvedValue({
+        data: {
+          data: {
+            id: "pix_live_999",
+            amount: 4590,
+            status: "PENDING",
+            devMode: false,
+            brCode: "BR.GOV.BCB.PIX...",
+            brCodeBase64: "data:image/svg+xml;base64,123",
+            expiresAt: "2026-09-09T23:00:00Z",
+          },
+        },
+      }),
+      get: vi.fn().mockResolvedValue({
+        data: {
+          data: {
+            id: "pix_live_999",
+            status: "PAID",
+            devMode: false,
+          },
+        },
+      }),
+      defaults: {
+        baseURL: "https://api.abacatepay.com/v2",
+        headers: { "Content-Type": "application/json" },
+      },
+    };
+    const createSpy = vi.spyOn(axios, "create").mockReturnValue(mockClientInstance as any);
+
+    const created = await criarCobrancaPixTransparente({
+      amount: 4590,
+      customer: { name: "Live Customer", email: "live@cust.com" },
+    });
+    expect(created.id).toBe("pix_live_999");
+
+    const status = await obterCobrancaPix("pix_live_999");
+    expect(status.status).toBe("PAID");
+
+    createSpy.mockRestore();
+    delete process.env.ABACATE_SECRET_KEY;
+  });
+
+  it("should safely handle errors during direct API call and fallback to dev store", async () => {
+    process.env.ABACATE_SECRET_KEY = "live_prod_api_key_123";
+    const mockFailingClient = {
+      post: vi.fn().mockRejectedValue(new Error("Network Timeout")),
+      get: vi.fn().mockRejectedValue(new Error("Timeout")),
+      defaults: {
+        baseURL: "https://api.abacatepay.com/v2",
+        headers: { "Content-Type": "application/json" },
+      },
+    };
+    const createSpy = vi.spyOn(axios, "create").mockReturnValue(mockFailingClient as any);
+
+    const fallbackCharge = await criarCobrancaPixTransparente({
+      amount: 4590,
+      customer: { name: "Fallback", email: "fb@cust.com" },
+    });
+    expect(fallbackCharge.devMode).toBe(true);
+
+    const fallbackStatus = await obterCobrancaPix(fallbackCharge.id);
+    expect(fallbackStatus.status).toBe("PENDING");
+
+    createSpy.mockRestore();
+    delete process.env.ABACATE_SECRET_KEY;
   });
 });

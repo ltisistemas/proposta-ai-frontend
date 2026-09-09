@@ -1,5 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { gerarTextoWhatsApp, DadosWhatsApp } from "@/lib/utils/whatsapp";
+import { describe, it, expect, vi } from "vitest";
+import {
+  gerarTextoWhatsApp,
+  abrirWhatsAppWeb,
+  DadosWhatsApp,
+} from "@/lib/utils/whatsapp";
 
 describe("lib/utils/whatsapp", () => {
   it("should generate structured executive WhatsApp message", () => {
@@ -42,5 +46,24 @@ describe("lib/utils/whatsapp", () => {
     expect(texto).toContain("Ana Paula");
     expect(texto).toContain("PROP-2026-1002");
     expect(texto).toContain("1.200,00");
+  });
+
+  it("should open WhatsApp Web with formatted url and phone number", () => {
+    const originalOpen = window.open;
+    window.open = vi.fn();
+
+    abrirWhatsAppWeb("Olá mundo", "(11) 98765-4321");
+    expect(window.open).toHaveBeenCalledWith(
+      expect.stringContaining("https://api.whatsapp.com/send?phone=5511987654321&text=Ol"),
+      "_blank"
+    );
+
+    abrirWhatsAppWeb("Olá mundo", "");
+    expect(window.open).toHaveBeenCalledWith(
+      expect.stringContaining("https://api.whatsapp.com/send?text=Ol"),
+      "_blank"
+    );
+
+    window.open = originalOpen;
   });
 });

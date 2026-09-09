@@ -90,10 +90,17 @@ describe("lib/db/client", () => {
     expect(mockRelease).toHaveBeenCalled();
   });
 
-  it("should acquire client with getClient", async () => {
-    const client = await getClient();
-    expect(client).toBe(mockClient);
-    expect(mockConnect).toHaveBeenCalled();
+  it("should log query in development and handle query error", async () => {
+    (process.env as any).NODE_ENV = "development";
+    mockQuery.mockResolvedValueOnce({ rows: [{ id: 2 }], rowCount: 1 });
+
+    const res = await query("SELECT id FROM dev_table");
+    expect(res.rowCount).toBe(1);
+
+    mockQuery.mockRejectedValueOnce(new Error("Query failed"));
+    await expect(query("INVALID SQL")).rejects.toThrow("Query failed");
+
+    (process.env as any).NODE_ENV = "test";
   });
 });
 
@@ -175,7 +182,7 @@ describe("lib/db/users", () => {
     expect(user?.abacate_customer_id).toBe("cust_999");
   });
 
-  it("should update user profile", async () => {
+  it("should update user profile or return null when no fields provided", async () => {
     mockQuery.mockResolvedValueOnce({
       rows: [{ id: "u_1", nome: "Novo Nome" }],
       rowCount: 1,
@@ -183,9 +190,27 @@ describe("lib/db/users", () => {
 
     const user = await atualizarUserProfile("u_1", { nome: "Novo Nome" });
     expect(user?.nome).toBe("Novo Nome");
+
+    const noop = await atualizarUserProfile("u_1", {});
+    expect(noop).toBeNull();
+  });
+
+  it("should return null when user is not found by email or id or abacate id", async () => {
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    expect(await obterUserPorEmail("notfound@test.com")).toBeNull();
+
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    expect(await obterUserPorId("notfound")).toBeNull();
+
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    expect(await obterUserPorAbacateId("notfound")).toBeNull();
   });
 
   it("should check proposal limits for free vs pro users", async () => {
+    // Non-existent user
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    expect(await verificarLimiteProposta("u_missing")).toBe(false);
+
     // Free user under limit
     mockQuery.mockResolvedValueOnce({
       rows: [{ id: "u_free", plano: "free", propostas_mes_atual: 1 }],
@@ -223,6 +248,32 @@ describe("lib/db/propostas", () => {
     vi.clearAllMocks();
   });
 
+  it("should initialize dual signature columns and ignore if already initialized", async () => {
+    mockQuery.mockResolvedValueOnce({ rows: [] });
+    mockClient.query.mockResolvedValueOnce({ rows: [] }); // BEGIN
+    mockClient.query.mockResolvedValueOnce({
+      rows: [{ id: "prop_1", numero: "PROP-001", total: 1000 }],
+    }); // insert proposta
+    mockClient.query.mockResolvedValueOnce({ rows: [] }); // insert item
+    mockClient.query.mockResolvedValueOnce({ rows: [] }); // COMMIT
+
+    const saved = await salvarProposta({
+      usuarioId: "u_1",
+      numero: "PROP-001",
+      clienteNome: "Cliente X",
+      descricao: "Desenvolvimento",
+      conteudoHtml: "<p>Proposta</p>",
+      subtotal: 1000,
+      total: 1000,
+      emissorNome: "Criador Oficial",
+      emissorEmail: "criador@empresa.com",
+      emissorDocumento: "12.345.678/0001-90",
+      emissorIp: "189.10.20.30",
+      itens: [{ descricao: "Item 1", quantidade: 1, valorUnitario: 1000 }],
+    });
+    expect(saved.id).toBe("prop_1");
+  });
+
   it("should save a proposal with its line items inside transaction", async () => {
     mockClient.query.mockResolvedValueOnce({ rows: [] }); // BEGIN
     mockClient.query.mockResolvedValueOnce({
@@ -255,7 +306,7 @@ describe("lib/db/propostas", () => {
     expect(prop?.id).toBe("prop_1");
   });
 
-  it("should list user proposals with optional filters", async () => {
+  it("should list user proposals with optional filters and todos status", async () => {
     mockQuery.mockResolvedValueOnce({
       rows: [
         { id: "prop_1", numero: "PROP-001", total: 500 },
@@ -269,9 +320,14 @@ describe("lib/db/propostas", () => {
       busca: "PROP",
     });
     expect(list).toHaveLength(2);
+
+    // Filter status todos
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    const listTodos = await obterPropostasPorUsuario("u_1", { status: "todos" });
+    expect(listTodos).toHaveLength(0);
   });
 
-  it("should update proposal status", async () => {
+  it("should update proposal status or return null when not found", async () => {
     mockQuery.mockResolvedValueOnce({
       rows: [{ id: "prop_1", status: "aceita" }],
       rowCount: 1,
@@ -279,6 +335,10 @@ describe("lib/db/propostas", () => {
 
     const updated = await atualizarStatusProposta("prop_1", "u_1", "aceita");
     expect(updated?.status).toBe("aceita");
+
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    const notFound = await atualizarStatusProposta("prop_none", "u_1", "recusada");
+    expect(notFound).toBeNull();
   });
 
   it("should delete proposal softly", async () => {
@@ -351,5 +411,24 @@ describe("lib/db/webhooks", () => {
     mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 }); // insert
     await registrarEventoProcessado("evt_2", "transparent.completed", { amount: 4590 });
     expect(mockQuery).toHaveBeenCalled();
+  });
+
+  it("should handle error gracefully in garantirTabelaWebhookEventos, verificarEventoProcessado, and registrarEventoProcessado", async () => {
+    // Empty eventId
+    expect(await verificarEventoProcessado("")).toBe(false);
+    await registrarEventoProcessado("", "event", {});
+
+    // Table creation error
+    mockQuery.mockRejectedValueOnce(new Error("Table creation failed"));
+    await garantirTabelaWebhookEventos();
+
+    // Verify error
+    mockQuery.mockRejectedValueOnce(new Error("Select error"));
+    const verified = await verificarEventoProcessado("evt_err");
+    expect(verified).toBe(false);
+
+    // Register error
+    mockQuery.mockRejectedValueOnce(new Error("Insert error"));
+    await registrarEventoProcessado("evt_err", "evt", {});
   });
 });

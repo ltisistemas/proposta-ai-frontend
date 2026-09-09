@@ -62,12 +62,12 @@ export async function POST(
       );
     }
 
-    // 3. Extract IP and generate audit hash
+    // 3. Extract IP and generate audit hash linked to document integrity
     const forwarded = request.headers.get("x-forwarded-for");
     const ip = forwarded ? forwarded.split(",")[0].trim() : request.headers.get("x-real-ip") || "127.0.0.1";
     const timestamp = new Date().toISOString();
     
-    const hashData = `${proposta.id}:${nome}:${documento}:${ip}:${timestamp}`;
+    const hashData = `${proposta.id}:${nome}:${documento}:${ip}:${timestamp}:${proposta.documento_hash || ""}`;
     const assinaturaHash = crypto.createHash("sha256").update(hashData).digest("hex");
 
     // 4. Save signature in database
@@ -89,6 +89,12 @@ export async function POST(
         assinadoEm: timestamp,
         assinaturaIp: ip,
         assinaturaHash,
+        documentoHash: proposta.documento_hash,
+        emissorNome: proposta.emissor_nome,
+        emissorEmail: proposta.emissor_email,
+        emissorAssinadoEm: proposta.emissor_assinado_em,
+        emissorAssinaturaIp: proposta.emissor_assinatura_ip,
+        emissorAssinaturaHash: proposta.emissor_assinatura_hash,
       },
     });
   } catch (error: any) {

@@ -31,9 +31,18 @@ export async function GET(
       );
     }
 
+    const propostaCompleta = {
+      ...proposta,
+      emissor_nome: proposta.emissor_nome || criador.nome || criador.empresa_nome || "Emissor Autorizado",
+      emissor_email: proposta.emissor_email || criador.email || criador.empresa_email || "",
+      emissor_documento: proposta.emissor_documento || criador.empresa_cnpj || null,
+      emissor_assinado_em: proposta.emissor_assinado_em || proposta.criado_em,
+      emissor_assinatura_ip: proposta.emissor_assinatura_ip || "127.0.0.1",
+    };
+
     return NextResponse.json({
       sucesso: true,
-      proposta,
+      proposta: propostaCompleta,
       emissor: {
         nome: criador.nome,
         empresaNome: criador.empresa_nome || criador.nome,

@@ -132,7 +132,12 @@ export async function POST(request: NextRequest) {
     );
     const total = subtotal;
 
-    // 6. Save in database
+    // 6. Extract IP and save in database
+    const forwarded = request.headers.get("x-forwarded-for");
+    const emissorIp = forwarded
+      ? forwarded.split(",")[0].trim()
+      : request.headers.get("x-real-ip") || "127.0.0.1";
+
     const proposta = await salvarProposta({
       usuarioId,
       numero: numeroProposta,
@@ -149,6 +154,10 @@ export async function POST(request: NextRequest) {
       validadeDias: dados.validadeDias,
       observacoes: dados.observacoes,
       status: "rascunho",
+      emissorNome: user.nome || user.empresa_nome || "Emissor Autorizado",
+      emissorEmail: user.email || user.empresa_email || "",
+      emissorDocumento: user.empresa_cnpj || undefined,
+      emissorIp,
       itens: dados.itens as ItemPropostaInput[],
     });
 

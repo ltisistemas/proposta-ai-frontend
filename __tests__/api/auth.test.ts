@@ -201,7 +201,39 @@ describe("API /api/auth/me", () => {
     expect(json.usuario.id).toBe("u123");
   });
 
-  it("should update user profile via PUT when authenticated", async () => {
+  it("should return 401 for invalid token in meGetHandler and mePutHandler", async () => {
+    const reqGet = new NextRequest("http://localhost:3000/api/auth/me", {
+      headers: { Authorization: "Bearer invalid_tok" },
+    });
+    const resGet = await meGetHandler(reqGet);
+    expect(resGet.status).toBe(401);
+
+    const reqPut = new NextRequest("http://localhost:3000/api/auth/me", {
+      method: "PUT",
+      headers: { Authorization: "Bearer invalid_tok" },
+      body: JSON.stringify({ nome: "Test" }),
+    });
+    const resPut = await mePutHandler(reqPut);
+    expect(resPut.status).toBe(401);
+  });
+
+  it("should return 404 in meGetHandler if user not found", async () => {
+    const token = gerarToken({
+      userId: "u_missing",
+      email: "missing@test.com",
+      nome: "Missing",
+      plano: "free",
+    });
+    vi.mocked(obterUserPorId).mockResolvedValueOnce(null);
+
+    const req = new NextRequest("http://localhost:3000/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const res = await meGetHandler(req);
+    expect(res.status).toBe(404);
+  });
+
+  it("should update user profile on PUT /api/auth/me", async () => {
     const token = gerarToken({
       userId: "u123",
       email: "me@test.com",
@@ -212,21 +244,63 @@ describe("API /api/auth/me", () => {
     vi.mocked(atualizarUserProfile).mockResolvedValueOnce({
       id: "u123",
       email: "me@test.com",
-      nome: "Updated Me",
-      empresa_nome: "My Corp",
+      nome: "Updated Name",
       plano: "pro",
     } as any);
 
     const req = new NextRequest("http://localhost:3000/api/auth/me", {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ nome: "Updated Me", empresa_nome: "My Corp" }),
+      body: JSON.stringify({ nome: "Updated Name" }),
     });
 
     const res = await mePutHandler(req);
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.sucesso).toBe(true);
-    expect(json.usuario.nome).toBe("Updated Me");
+    expect(json.usuario.nome).toBe("Updated Name");
+  });
+
+  it("should return 500 when GET /api/auth/me or PUT /api/auth/me throws", async () => {
+    const token = gerarToken({
+      userId: "u123",
+      email: "me@test.com",
+      nome: "Me User",
+      plano: "pro",
+    });
+
+    vi.mocked(obterUserPorId).mockRejectedValueOnce(new Error("DB Error"));
+    const reqGet = new NextRequest("http://localhost:3000/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const resGet = await meGetHandler(reqGet);
+    expect(resGet.status).toBe(500);
+
+    vi.mocked(atualizarUserProfile).mockRejectedValueOnce(new Error("DB Error"));
+    const reqPut = new NextRequest("http://localhost:3000/api/auth/me", {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ nome: "Test" }),
+    });
+    const resPut = await mePutHandler(reqPut);
+    expect(resPut.status).toBe(500);
+  });
+
+  it("should return 500 when loginHandler or signupHandler throws unexpected error", async () => {
+    vi.mocked(obterUserPorEmail).mockRejectedValueOnce(new Error("DB Fatal"));
+    const reqLogin = new NextRequest("http://localhost:3000/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email: "error@test.com", password: "Password123" }),
+    });
+    const resLogin = await loginHandler(reqLogin);
+    expect(resLogin.status).toBe(500);
+
+    vi.mocked(obterUserPorEmail).mockRejectedValueOnce(new Error("DB Fatal"));
+    const reqSignup = new NextRequest("http://localhost:3000/api/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ email: "error@test.com", password: "Password123", nome: "Err" }),
+    });
+    const resSignup = await signupHandler(reqSignup);
+    expect(resSignup.status).toBe(500);
   });
 });

@@ -1,4 +1,5 @@
 import { query, transaction } from "./client";
+import crypto from "crypto";
 
 export interface ItemPropostaInput {
   descricao: string;
@@ -25,6 +26,15 @@ export interface PropostaRow {
   observacoes?: string | null;
   status: "rascunho" | "enviada" | "aceita" | "recusada";
   data_envio?: Date | null;
+  // Creator / Issuer signature fields
+  documento_hash?: string | null;
+  emissor_nome?: string | null;
+  emissor_email?: string | null;
+  emissor_documento?: string | null;
+  emissor_assinado_em?: Date | null;
+  emissor_assinatura_ip?: string | null;
+  emissor_assinatura_hash?: string | null;
+  // Client acceptance signature fields
   assinante_nome?: string | null;
   assinante_documento?: string | null;
   assinado_em?: Date | null;
@@ -33,6 +43,27 @@ export interface PropostaRow {
   criado_em: Date;
   atualizado_em: Date;
   itens?: any[];
+}
+
+let isColumnsInitialized = false;
+
+export async function garantirColunasDualSignature(): Promise<void> {
+  if (isColumnsInitialized) return;
+
+  try {
+    await query(`
+      ALTER TABLE propostas ADD COLUMN IF NOT EXISTS documento_hash VARCHAR(64);
+      ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_nome VARCHAR(255);
+      ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_email VARCHAR(255);
+      ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_documento VARCHAR(50);
+      ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_assinado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+      ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_assinatura_ip VARCHAR(50);
+      ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_assinatura_hash VARCHAR(64);
+    `);
+    isColumnsInitialized = true;
+  } catch (err) {
+    console.warn("Aviso ao inicializar colunas de dual signature:", err);
+  }
 }
 
 export async function salvarProposta(dados: {
@@ -52,15 +83,37 @@ export async function salvarProposta(dados: {
   validadeDias?: number;
   observacoes?: string;
   status?: "rascunho" | "enviada" | "aceita" | "recusada";
+  emissorNome?: string;
+  emissorEmail?: string;
+  emissorDocumento?: string;
+  emissorIp?: string;
   itens: ItemPropostaInput[];
 }): Promise<PropostaRow> {
+  await garantirColunasDualSignature();
+
+  // Compute document integrity hash
+  const docHashPayload = `${dados.numero}:${dados.clienteNome}:${dados.total}:${dados.subtotal}:${dados.usuarioId}`;
+  const documentoHash = crypto.createHash("sha256").update(docHashPayload).digest("hex");
+
+  // Compute creator digital signature hash
+  const emissorNome = dados.emissorNome || "Emissor Autorizado";
+  const emissorEmail = dados.emissorEmail || "";
+  const emissorDocumento = dados.emissorDocumento || null;
+  const emissorIp = dados.emissorIp || "127.0.0.1";
+  const agora = new Date();
+
+  const emissorSigPayload = `${dados.numero}:${emissorNome}:${emissorEmail}:${emissorIp}:${agora.toISOString()}:${documentoHash}`;
+  const emissorAssinaturaHash = crypto.createHash("sha256").update(emissorSigPayload).digest("hex");
+
   return transaction(async (client) => {
     const propResult = await client.query(
       `INSERT INTO propostas (
         usuario_id, numero, cliente_nome, cliente_empresa, cliente_email, 
         cliente_telefone, descricao, conteudo_html, template_id, subtotal, 
-        desconto_valor, total, prazo_pagamento, validade_dias, observacoes, status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        desconto_valor, total, prazo_pagamento, validade_dias, observacoes, status,
+        documento_hash, emissor_nome, emissor_email, emissor_documento,
+        emissor_assinado_em, emissor_assinatura_ip, emissor_assinatura_hash
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
       RETURNING *`,
       [
         dados.usuarioId,
@@ -79,6 +132,13 @@ export async function salvarProposta(dados: {
         dados.validadeDias || 30,
         dados.observacoes || null,
         dados.status || "rascunho",
+        documentoHash,
+        emissorNome,
+        emissorEmail,
+        emissorDocumento,
+        agora,
+        emissorIp,
+        emissorAssinaturaHash,
       ]
     );
 
