@@ -59,7 +59,7 @@ export const StatsCards: React.FC<{ metricas?: MetricasDashboard | null }> = ({
       {stats.map((stat, idx) => (
         <Card
           key={idx}
-          className="bg-white border-slate-200/90 p-5 rounded-2xl shadow-xs hover:border-blue-300 transition-all"
+          className="bg-white border-slate-200/90 p-5 rounded-[4px] shadow-xs hover:border-blue-300 transition-all"
         >
           <div className="flex items-start justify-between">
             <div>
@@ -71,7 +71,7 @@ export const StatsCards: React.FC<{ metricas?: MetricasDashboard | null }> = ({
               </div>
             </div>
             <div
-              className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${stat.bgIcon}`}
+              className={`w-10 h-10 rounded-[4px] border flex items-center justify-center shrink-0 ${stat.bgIcon}`}
             >
               {stat.icon}
             </div>
