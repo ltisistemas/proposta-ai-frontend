@@ -70,7 +70,7 @@ export default function DashboardLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-slate-900 flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-[#FBFBFA] text-slate-900 flex flex-col md:flex-row font-sans antialiased">
       <ToastContainer />
 
       {/* Mobile Top Bar */}
@@ -86,13 +86,13 @@ export default function DashboardLayout({
 
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed md:sticky top-0 left-0 z-40 h-screen w-64 bg-white border-r border-slate-200/90 flex flex-col justify-between p-5 transition-transform md:translate-x-0 ${
+        className={`fixed md:sticky top-0 left-0 z-40 h-screen w-64 bg-white border-r border-slate-200/90 flex flex-col justify-between p-4 sm:p-5 overflow-y-auto shrink-0 transition-transform md:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div>
+        <div className="space-y-6">
           {/* Logo */}
-          <div className="px-1 py-3 mb-6">
+          <div className="px-1 pt-1">
             <Logo href="/dashboard" size="md" variant="light" />
           </div>
 
@@ -132,14 +132,14 @@ export default function DashboardLayout({
         </div>
 
         {/* User Card & Upgrade Prompt */}
-        <div className="space-y-4 pt-4 border-t border-slate-200/80">
+        <div className="space-y-3 pt-4 border-t border-slate-200/80 mt-6 shrink-0">
           {user?.plano === "free" && (
-            <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-50/80 to-indigo-50/40 border border-blue-100 text-xs">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-100 text-xs">
               <div className="flex items-center justify-between font-bold text-slate-900 mb-1">
                 <span>Plano Free</span>
                 <Zap className="w-3.5 h-3.5 text-blue-600" />
               </div>
-              <p className="text-slate-600 text-[11px] leading-relaxed mb-3">
+              <p className="text-slate-600 text-[11px] leading-relaxed mb-2.5">
                 {user.propostas_mes_atual || 0}/3 propostas usadas este mês.
               </p>
               <Link href="/config">
@@ -172,7 +172,7 @@ export default function DashboardLayout({
                 logout();
                 router.push("/login");
               }}
-              title="Sair"
+              title="Sair da conta"
               className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
@@ -182,7 +182,7 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main App Content Area */}
-      <main className="flex-1 bg-[#FBFBFA] min-h-screen p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto w-full overflow-y-auto">
+      <main className="flex-1 bg-[#FBFBFA] min-h-screen p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
         {children}
       </main>
     </div>

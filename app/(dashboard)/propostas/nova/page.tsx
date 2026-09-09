@@ -11,6 +11,11 @@ import {
   User,
   Clock,
   ArrowRight,
+  Printer,
+  Copy,
+  Check,
+  CheckCircle2,
+  ExternalLink,
 } from "lucide-react";
 import { Input, TextArea } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
@@ -49,6 +54,8 @@ export default function NovaPropostaPage() {
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [propostaCriadaId, setPropostaCriadaId] = useState<string | null>(null);
+  const [propostaNumero, setPropostaNumero] = useState<string | null>(null);
+  const [copiadoLink, setCopiadoLink] = useState(false);
 
   // Math Calculations
   const calcularTotal = () => {
@@ -157,6 +164,7 @@ export default function NovaPropostaPage() {
 
       setGeneratedHtml(data.proposta.conteudoHtml);
       setPropostaCriadaId(data.proposta.id);
+      setPropostaNumero(data.proposta.numero);
       setPreviewModalOpen(true);
       addToast({
         type: "success",
@@ -172,6 +180,31 @@ export default function NovaPropostaPage() {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (!propostaCriadaId) return;
+    const url = `${window.location.origin}/propostas/${propostaCriadaId}`;
+    navigator.clipboard.writeText(url);
+    setCopiadoLink(true);
+    addToast({
+      type: "success",
+      title: "Link copiado!",
+      message: "Link da proposta pronto para enviar ao cliente.",
+    });
+    setTimeout(() => setCopiadoLink(false), 2500);
+  };
+
+  const handlePrint = () => {
+    const printWindow = window.open("", "_blank");
+    if (printWindow && generatedHtml) {
+      printWindow.document.write(generatedHtml);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
     }
   };
 
@@ -395,7 +428,7 @@ export default function NovaPropostaPage() {
         </div>
       </form>
 
-      {/* Modal Preview after generation */}
+      {/* Fullscreen Document Preview Modal */}
       <Modal
         isOpen={previewModalOpen}
         onClose={() => {
@@ -404,44 +437,95 @@ export default function NovaPropostaPage() {
             router.push(`/propostas/${propostaCriadaId}`);
           }
         }}
-        size="xl"
-        title="Proposta Gerada com Sucesso!"
-        description="Confira a prévia do documento gerado pela Inteligência Artificial."
-      >
-        <div className="space-y-6">
-          <div className="border border-slate-200 rounded-2xl overflow-hidden max-h-[60vh] overflow-y-auto bg-slate-50 p-2 sm:p-4">
-            {generatedHtml && (
-              <div
-                dangerouslySetInnerHTML={{ __html: generatedHtml }}
-                className="bg-white rounded-xl shadow-xs"
-              />
-            )}
+        size="full"
+        icon={
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center">
+            <Sparkles className="w-5 h-5" />
           </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+        }
+        title="Proposta Gerada com Sucesso!"
+        description={
+          propostaNumero
+            ? `Código: ${propostaNumero} • Documento formatado em padrão executivo.`
+            : "Confira a prévia do documento gerado pela Inteligência Artificial."
+        }
+        headerActions={
+          <div className="flex items-center gap-2">
             <Button
               variant="secondary"
-              onClick={() => {
-                setPreviewModalOpen(false);
-                if (propostaCriadaId) {
-                  router.push(`/propostas/${propostaCriadaId}`);
-                }
-              }}
+              size="sm"
+              onClick={handleCopyLink}
+              leftIcon={
+                copiadoLink ? (
+                  <Check className="w-4 h-4 text-emerald-600" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )
+              }
+              className="text-xs"
             >
-              Fechar Prévia
+              {copiadoLink ? "Copiado!" : "Copiar Link"}
             </Button>
 
-            {propostaCriadaId && (
-              <Button
-                variant="primary"
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-                onClick={() => router.push(`/propostas/${propostaCriadaId}`)}
-                className="shadow-lg shadow-blue-600/20 font-bold"
-              >
-                Ir para Página da Proposta & Enviar
-              </Button>
-            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handlePrint}
+              leftIcon={<Printer className="w-4 h-4" />}
+              className="text-xs"
+            >
+              Imprimir / PDF
+            </Button>
           </div>
+        }
+        bodyClassName="bg-slate-100/80 p-4 sm:p-6 md:p-8 flex justify-center items-start min-h-0"
+        footer={
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>
+                Documento salvo automaticamente em <strong>Minhas Propostas</strong>.
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => {
+                  setPreviewModalOpen(false);
+                  if (propostaCriadaId) {
+                    router.push(`/propostas/${propostaCriadaId}`);
+                  }
+                }}
+              >
+                Fechar Prévia
+              </Button>
+
+              {propostaCriadaId && (
+                <Button
+                  variant="primary"
+                  size="md"
+                  rightIcon={<ArrowRight className="w-4 h-4" />}
+                  onClick={() => router.push(`/propostas/${propostaCriadaId}`)}
+                  className="shadow-lg shadow-blue-600/25 font-bold"
+                >
+                  Ir para Página da Proposta & Enviar
+                </Button>
+              )}
+            </div>
+          </div>
+        }
+      >
+        <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200/90 min-h-[68vh]">
+          {generatedHtml && (
+            <iframe
+              srcDoc={generatedHtml}
+              title="Visualização da Proposta Comercial"
+              className="w-full min-h-[68vh] h-full border-0 block"
+              style={{ minHeight: "68vh" }}
+            />
+          )}
         </div>
       </Modal>
     </div>

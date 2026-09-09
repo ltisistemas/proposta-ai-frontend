@@ -265,13 +265,20 @@ DIRETRIZES DE COPYWRITING COMERCIAL:
 4. CLÁUSULAS & REVERSÃO DE RISCO: Reforce prazos, garantias de entrega, termos de pagamento e o valor da agilidade na contratação.
 5. FORMALIDADE & FECHAMENTO: Conclua com espaço claro de aceite formal e assinaturas bilaterais.
 
-DADOS DA EMPRESA EMISSORA:
+DADOS DA PROPOSTA:
+- Data de Emissão: ${new Date().toLocaleDateString("pt-BR")}
+- Código da Proposta: PROP-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}
+- Validade da Proposta: ${dados.validade || 30} dias corridos
+- Condição de Pagamento: ${dados.prazoPagamento || "À Vista"}
+- Observações / Garantias: ${dados.observacoes || "Nenhuma"}
+
+DADOS DA EMPRESA EMISSORA (PRESTADOR):
 - Nome: ${dados.empresaNome || "Empresa Especializada"}
 - CNPJ: ${dados.empresaCNPJ || "Não informado"}
 - Email: ${dados.empresaEmail || "Não informado"}
 - Telefone: ${dados.empresaTelefone || "Não informado"}
 
-DADOS DO CLIENTE:
+DADOS DO CLIENTE (CONTRATANTE):
 - Nome: ${dados.clienteNome}
 - Empresa: ${dados.clienteEmpresa || "Cliente"}
 - Email: ${dados.clienteEmail || ""}
@@ -285,17 +292,13 @@ ${itensFormatados}
 
 VALOR TOTAL: R$ ${total.toFixed(2)}
 
-CONDIÇÕES E PRAZOS:
-- Prazo de Pagamento: ${dados.prazoPagamento || "À Vista"}
-- Validade: ${dados.validade || 30} dias
-- Observações / Alinhamentos: ${dados.observacoes || "Nenhuma"}
-
 REQUISITOS ESTRUTURAIS DO CÓDIGO HTML:
 1. Comece diretamente com <!DOCTYPE html> e termine com </html>.
 2. NUNCA inclua marcações de markdown, crases triplas (\`\`\`html) ou comentários fora do código HTML.
-3. Use CSS inline refinado, paleta profissional de autoridade executiva (Azul Royal #2563EB, Slate #0F172A, Cinza neutro #64748B, fundo suave #F8FAFC, bordas #E2E8F0).
-4. Tipografia limpa baseada em fontes do sistema ('Inter', -apple-system, system-ui, sans-serif).
-5. Inclua as seções numeradas e bem destacadas:
+3. Utilize estritamente a Data de Emissão (${new Date().toLocaleDateString("pt-BR")}) e o Código da Proposta informados. NUNCA utilize datas antigas (como 2023).
+4. Use CSS inline refinado, paleta profissional de autoridade executiva (Azul Royal #2563EB, Slate #0F172A, Cinza neutro #64748B, fundo suave #F8FAFC, bordas #E2E8F0).
+5. Tipografia limpa baseada em fontes do sistema ('Inter', -apple-system, system-ui, sans-serif).
+6. Inclua as seções numeradas e bem destacadas:
    - Cabeçalho da Empresa Emissora & Dados do Cliente
    - 1. Diagnóstico do Cenário & Objetivos Estratégicos
    - 2. Metodologia & Escopo de Entregas
