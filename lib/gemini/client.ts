@@ -62,63 +62,69 @@ export function injetarOuAtualizarLogoHtml(
     return conteudoHtml.replace(logoDivRegex, "");
   }
 
+  // When logo is present, remove the strategic proposal tarja / badge if found
+  const badgeRegex = /<span\s+(?:data-badge-estrategica="true"[^>]*|style="[^"]*(?:background:\s*rgba\(37,\s*99,\s*235|#93c5fd)[^"]*")[^>]*>[\s\S]*?<\/span>\s*/gi;
+  const textBadgeRegex = /<span[^>]*>(?:\s*Proposta\s+Comercial\s+&\s+Plano\s+Estratégico\s*|\s*Proposta\s+Estratégica\s*|\s*Plano\s+Estratégico\s*)<\/span>\s*/gi;
+
+  let cleanedHtml = conteudoHtml.replace(badgeRegex, "").replace(textBadgeRegex, "");
+
   const logoMarkup = renderizarMarkupLogo(logoUrl, empresaNome);
 
   // Case 1: Existing data-empresa-logo container found -> replace it
-  if (logoDivRegex.test(conteudoHtml)) {
-    return conteudoHtml.replace(logoDivRegex, logoMarkup);
+  if (logoDivRegex.test(cleanedHtml)) {
+    return cleanedHtml.replace(logoDivRegex, logoMarkup);
   }
 
   // Case 2: Legacy <img> with alt or logo styles inside header without data attribute
   const legacyLogoRegex = /<div style="margin-bottom:\s*14px;"><img src="data:image\/[^"]+"[^>]*><\/div>/i;
-  if (legacyLogoRegex.test(conteudoHtml)) {
-    return conteudoHtml.replace(legacyLogoRegex, logoMarkup);
+  if (legacyLogoRegex.test(cleanedHtml)) {
+    return cleanedHtml.replace(legacyLogoRegex, logoMarkup);
   }
 
   // Case 3: Insert before badge or header title inside header-content
-  const headerContentMatch = /<div class="header-content"[^>]*>/i.exec(conteudoHtml);
+  const headerContentMatch = /<div class="header-content"[^>]*>/i.exec(cleanedHtml);
   if (headerContentMatch) {
     const insertPos = headerContentMatch.index + headerContentMatch[0].length;
     // Check if there's an inner div inside flex-responsive
-    const flexMatch = /<div class="flex-responsive"[^>]*>\s*<div>/i.exec(conteudoHtml);
+    const flexMatch = /<div class="flex-responsive"[^>]*>\s*<div>/i.exec(cleanedHtml);
     if (flexMatch && flexMatch.index >= insertPos) {
       const innerInsertPos = flexMatch.index + flexMatch[0].length;
       return (
-        conteudoHtml.slice(0, innerInsertPos) +
+        cleanedHtml.slice(0, innerInsertPos) +
         `\n          ${logoMarkup}` +
-        conteudoHtml.slice(innerInsertPos)
+        cleanedHtml.slice(innerInsertPos)
       );
     }
     return (
-      conteudoHtml.slice(0, insertPos) +
+      cleanedHtml.slice(0, insertPos) +
       `\n        ${logoMarkup}` +
-      conteudoHtml.slice(insertPos)
+      cleanedHtml.slice(insertPos)
     );
   }
 
   // Case 4: Insert before the first <h1>
-  const h1Match = /<h1[^>]*>/i.exec(conteudoHtml);
+  const h1Match = /<h1[^>]*>/i.exec(cleanedHtml);
   if (h1Match) {
     return (
-      conteudoHtml.slice(0, h1Match.index) +
+      cleanedHtml.slice(0, h1Match.index) +
       `${logoMarkup}\n          ` +
-      conteudoHtml.slice(h1Match.index)
+      cleanedHtml.slice(h1Match.index)
     );
   }
 
   // Case 5: Insert after <body> tag
-  const bodyMatch = /<body[^>]*>/i.exec(conteudoHtml);
+  const bodyMatch = /<body[^>]*>/i.exec(cleanedHtml);
   if (bodyMatch) {
     const insertPos = bodyMatch.index + bodyMatch[0].length;
     return (
-      conteudoHtml.slice(0, insertPos) +
+      cleanedHtml.slice(0, insertPos) +
       `\n  ${logoMarkup}` +
-      conteudoHtml.slice(insertPos)
+      cleanedHtml.slice(insertPos)
     );
   }
 
   // Fallback: prepend
-  return `${logoMarkup}\n${conteudoHtml}`;
+  return `${logoMarkup}\n${cleanedHtml}`;
 }
 
 export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
@@ -315,6 +321,12 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
     ? renderizarMarkupLogo(dados.empresaLogoUrl, dados.empresaNome)
     : "";
 
+  const badgeHtml = dados.empresaLogoUrl
+    ? ""
+    : `<span data-badge-estrategica="true" style="display: inline-block; background: rgba(37, 99, 235, 0.3); border: 1px solid rgba(96, 165, 250, 0.4); padding: 4px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; color: #93c5fd;">
+            Proposta Comercial & Plano Estratégico
+          </span>`;
+
   return `
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -355,9 +367,7 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
       <div class="flex-responsive" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
         <div>
           ${logoHtml}
-          <span style="display: inline-block; background: rgba(37, 99, 235, 0.3); border: 1px solid rgba(96, 165, 250, 0.4); padding: 4px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; color: #93c5fd;">
-            Proposta Comercial & Plano Estratégico
-          </span>
+          ${badgeHtml}
           <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: #ffffff;">
             ${dados.empresaNome || "Proposta Comercial Especializada"}
           </h1>
@@ -612,8 +622,11 @@ REQUISITOS ESTRUTURAIS DO CÓDIGO HTML & ADAPTAÇÃO MOBILE:
 3. Inclua a tag <meta name="viewport" content="width=device-width, initial-scale=1.0"> no <head>.
 4. Inclua no <style> regras responsivas com @media (max-width: 640px) para que em smartphones o documento se adapte com padding suave, colunas empilhadas, tabelas com scroll horizontal suave e visual perfeito em telas touch.
 5. Utilize estritamente a Data de Emissão (${new Date().toLocaleDateString("pt-BR")}) e o Código da Proposta informados.
-6. Use CSS inline refinado, paleta profissional de autoridade executiva (Azul Royal #2563EB, Slate #0F172A, Cinza neutro #64748B, fundo suave #F8FAFC, bordas #E2E8F0).
-${dados.empresaLogoUrl ? `7. Se houver logo, inclua a imagem no topo do cabeçalho.` : ""}
+${
+  dados.empresaLogoUrl
+    ? `7. Como o prestador possui logomarca cadastrada, insira o logotipo no topo do cabeçalho (<div data-empresa-logo="true">...</div>) e NÃO inclua a tarja/badge ("Proposta Comercial & Plano Estratégico" ou "Proposta Estratégica"), deixando o cabeçalho limpo com a marca em destaque.`
+    : `7. Como o prestador NÃO possui logomarca cadastrada, inclua uma tarja/badge elegante e discreta no topo do cabeçalho (<span style="display: inline-block; background: rgba(37, 99, 235, 0.3); border: 1px solid rgba(96, 165, 250, 0.4); padding: 4px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; color: #93c5fd;">Proposta Comercial & Plano Estratégico</span>).`
+}
 8. Tipografia limpa baseada em fontes do sistema ('Inter', -apple-system, system-ui, sans-serif).
 9. Inclua as seções numeradas e bem destacadas:
    - Cabeçalho da Empresa Emissora (com logo se informada) & Dados do Cliente

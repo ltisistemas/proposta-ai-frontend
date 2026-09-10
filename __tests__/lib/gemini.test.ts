@@ -81,7 +81,7 @@ describe("lib/gemini/client", () => {
     expect(htmlMinimal).toContain("Cliente Simples");
   });
 
-  it("should generate executive Pro HTML template with logo and full details and minimal options", () => {
+  it("should generate executive Pro HTML template with logo and full details, omitting the strategic tarja when logo is present", () => {
     const proFull = gerarTemplatePro({
       ...sampleData,
       empresaLogoUrl: "data:image/svg+xml;base64,123",
@@ -93,14 +93,20 @@ describe("lib/gemini/client", () => {
     });
     expect(proFull).toContain("Proposta Comercial Consultiva");
     expect(proFull).toContain("data:image/svg+xml;base64,123");
+    // Badge/tarja should NOT be displayed when logo is present
+    expect(proFull).not.toContain("data-badge-estrategica");
+    expect(proFull).not.toContain("Proposta Comercial & Plano Estratégico");
 
-    const proMinimal = gerarTemplatePro({
+    const proWithoutLogo = gerarTemplatePro({
       empresaNome: "Empresa Min",
       clienteNome: "Cliente Min",
       descricao: "Desc Min",
       itens: [{ descricao: "Item A", quantidade: 1, valorUnitario: 100 }],
     });
-    expect(proMinimal).toContain("Cliente Min");
+    expect(proWithoutLogo).toContain("Cliente Min");
+    // Badge/tarja SHOULD be displayed when logo is NOT present
+    expect(proWithoutLogo).toContain("data-badge-estrategica");
+    expect(proWithoutLogo).toContain("Proposta Comercial & Plano Estratégico");
   });
 
   it("should generate fallback template for pro and free", () => {
@@ -224,6 +230,14 @@ describe("lib/gemini/client", () => {
       const snippet = `<section><p>Snippet apenas</p></section>`;
       const result = injetarOuAtualizarLogoHtml(snippet, sampleLogo);
       expect(result.startsWith('<div data-empresa-logo="true"')).toBe(true);
+    });
+
+    it("should strip strategic proposal badge when injecting logo into html containing the badge", () => {
+      const htmlWithBadge = `<html><body><div class="header-content"><div class="flex-responsive"><div><span data-badge-estrategica="true" style="background: rgba(37, 99, 235, 0.3);">Proposta Comercial & Plano Estratégico</span><h1>Empresa Pro</h1></div></div></div></body></html>`;
+      const result = injetarOuAtualizarLogoHtml(htmlWithBadge, sampleLogo, "Empresa Pro");
+      expect(result).toContain('data-empresa-logo="true"');
+      expect(result).not.toContain("data-badge-estrategica");
+      expect(result).not.toContain("Proposta Comercial & Plano Estratégico");
     });
 
     it("should generate valid markup in renderizarMarkupLogo", () => {
