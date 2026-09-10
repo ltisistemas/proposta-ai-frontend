@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import VisualizarPropostaPage from "@/app/(dashboard)/propostas/[id]/page";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 
@@ -50,7 +50,7 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
       return Promise.resolve({ ok: true, json: async () => ({}) } as any);
     });
 
-    render(<VisualizarPropostaPage params={Promise.resolve({ id: "prop-test-123" })} />);
+    render(<VisualizarPropostaPage params={{ id: "prop-test-123" } as any} />);
 
     await waitFor(() => {
       expect(screen.getByText("Cliente Estratégico")).toBeInTheDocument();
@@ -64,8 +64,10 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
 
     // Click button to open ConfirmModal
     fireEvent.click(regerarBtn);
-    expect(screen.getByText(/reescrever proposta com ia consultiva\?/i)).toBeInTheDocument();
-    expect(screen.getByText(/restam 2 de 3 tentativas para esta proposta/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/reescrever proposta com ia consultiva\?/i)).toBeInTheDocument();
+      expect(screen.getByText(/restam 2 de 3 tentativas para esta proposta/i)).toBeInTheDocument();
+    });
   });
 
   it("should disable Regerar com IA button when quota is exhausted (0 remaining)", async () => {
@@ -87,7 +89,7 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
       return Promise.resolve({ ok: true, json: async () => ({}) } as any);
     });
 
-    render(<VisualizarPropostaPage params={Promise.resolve({ id: "prop-exhausted" })} />);
+    render(<VisualizarPropostaPage params={{ id: "prop-exhausted" } as any} />);
 
     await waitFor(() => {
       expect(screen.getByText("Cliente Estratégico")).toBeInTheDocument();
@@ -118,7 +120,7 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
       return Promise.resolve({ ok: true, json: async () => ({}) } as any);
     });
 
-    render(<VisualizarPropostaPage params={Promise.resolve({ id: "prop-accepted" })} />);
+    render(<VisualizarPropostaPage params={{ id: "prop-accepted" } as any} />);
 
     await waitFor(() => {
       expect(screen.getByText("Cliente Estratégico")).toBeInTheDocument();
@@ -126,5 +128,56 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
 
     const regerarBtn = screen.getByRole("button", { name: /regerar com ia/i });
     expect(regerarBtn).toBeDisabled();
+  });
+
+  it("should execute AI regeneration on modal confirm and update proposal", async () => {
+    global.fetch = vi.fn().mockImplementation((url: string, options: any) => {
+      if (url.includes("/api/propostas/prop-test-123/regerar-ia") && options?.method === "POST") {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            sucesso: true,
+            proposta: {
+              ...mockProposta,
+              regeneracoes_ia: 2,
+              regeneracoes_restantes: 1,
+              conteudo_html: "<html><body><h1>Proposta Regenerada com SPIN</h1></body></html>",
+            },
+          }),
+        } as any);
+      }
+      if (url.includes("/api/propostas/prop-test-123")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            sucesso: true,
+            proposta: mockProposta,
+          }),
+        } as any);
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) } as any);
+    });
+
+    render(<VisualizarPropostaPage params={{ id: "prop-test-123" } as any} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Cliente Estratégico")).toBeInTheDocument();
+    });
+
+    const regerarBtn = screen.getByRole("button", { name: /regerar com ia/i });
+    fireEvent.click(regerarBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/reescrever proposta com ia consultiva\?/i)).toBeInTheDocument();
+    });
+
+    const confirmBtn = screen.getByRole("button", { name: /sim, regerar proposta/i });
+    await act(async () => {
+      fireEvent.click(confirmBtn);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/1 restantes/i)).toBeInTheDocument();
+    });
   });
 });

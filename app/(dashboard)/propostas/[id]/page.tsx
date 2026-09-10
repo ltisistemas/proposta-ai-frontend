@@ -41,7 +41,7 @@ export default function VisualizarPropostaPage({
     params && typeof (params as any).then === "function" ? use(params) : (params as any);
   const router = useRouter();
   const { token, user } = useAuthStore();
-  const { addToast } = useToast();
+  const addToast = useToast((state) => state.addToast);
 
   const [proposta, setProposta] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);

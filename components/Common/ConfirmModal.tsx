@@ -30,13 +30,22 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 }) => {
   const [internalLoading, setInternalLoading] = useState(false);
   const isLoading = externalLoading || internalLoading;
+  const isMountedRef = React.useRef(true);
+  React.useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const handleConfirm = async () => {
     try {
       setInternalLoading(true);
       await onConfirm();
     } finally {
-      setInternalLoading(false);
+      if (isMountedRef.current) {
+        setInternalLoading(false);
+      }
     }
   };
 
