@@ -135,7 +135,93 @@ export interface ConteudoConsultivoIA {
     titulo: string;
     descricao: string;
   }>;
+  diferenciais?: Array<{
+    titulo: string;
+    descricao: string;
+  }>;
+  diferenciaisHtml?: string;
   garantiasHtml?: string;
+  proximosPassosHtml?: string;
+}
+
+/**
+ * Gera copywriting consultivo de alta conversão de fallback quando IA não estiver disponível
+ */
+export function gerarCopywritingFallback(dados: DadosGeracaoProposta): ConteudoConsultivoIA {
+  const cliente = dados.clienteNome || "Cliente";
+  const clienteEmpresa = dados.clienteEmpresa ? ` (${dados.clienteEmpresa})` : "";
+  const escopo = dados.descricao || "implementação dos serviços especializados contratados";
+
+  const diagnosticoHtml = `
+    <p style="margin: 0 0 12px 0;">
+      Para acelerar o posicionamento de mercado e gerar resultados consistentes para <strong>${cliente}</strong>${clienteEmpresa}, estruturamos este plano executivo sob medida com foco absoluto em eficiência e retorno sobre o investimento.
+    </p>
+    <p style="margin: 0 0 12px 0;">
+      <strong>O Desafio & Oportunidade:</strong> No cenário atual, a ausência de processos estruturados ou soluções descentralizadas gera custos invisíveis, perda de produtividade e oportunidades desperdiçadas. O objetivo deste projeto é eliminar gargalos e estabelecer um padrão de excelência previsível.
+    </p>
+    <p style="margin: 0;">
+      <strong>A Solução Estratégica:</strong> Por meio de <em>${escopo}</em>, entregamos uma metodologia robusta que integra tecnologia, governança e foco direto no crescimento escalável do seu negócio.
+    </p>
+  `.trim();
+
+  const fases = [
+    {
+      titulo: "Fase 01: Planejamento, Diagnóstico & Alinhamento",
+      descricao: "Mapeamento detalhado dos objetivos, definição de cronograma executivo e alinhamento inicial de entregáveis com a equipe.",
+    },
+    {
+      titulo: "Fase 02: Execução Técnica & Desenvolvimento Especializado",
+      descricao: "Construção dos módulos e serviços contratados seguindo padrões rígidos de qualidade, segurança e eficiência técnica.",
+    },
+    {
+      titulo: "Fase 03: Homologação, Validação & Entrega Definitiva",
+      descricao: "Testes integrados, validação assistida junto ao cliente, capacitação da equipe e disponibilização para operação em produção.",
+    },
+  ];
+
+  const diferenciais = [
+    {
+      titulo: "Foco em Retorno sobre Investimento (ROI)",
+      descricao: "Soluções projetadas para gerar impacto tangível, otimizar tempo e maximizar a lucratividade da sua operação.",
+    },
+    {
+      titulo: "Comunicação Ágil & Alinhamento Sem Ruídos",
+      descricao: "Canal direto de acompanhamento com relatórios periódicos de progresso e total transparência em cada etapa.",
+    },
+    {
+      titulo: "Metodologia Validada & Rigor Técnico",
+      descricao: "Processos consolidados que eliminam retrabalho e asseguram o cumprimento integral dos prazos acordados.",
+    },
+  ];
+
+  const garantiasHtml = dados.observacoes
+    ? `<p style="margin: 0; font-size: 13px; color: #1e3a8a; line-height: 1.6;">${dados.observacoes}</p>`
+    : `<p style="margin: 0; font-size: 13px; color: #1e3a8a; line-height: 1.6;">Garantia de conformidade integral com o escopo aprovado, suporte assistido durante a homologação e compromisso formal com a qualidade e pontualidade de cada entrega.</p>`;
+
+  const proximosPassosHtml = `
+    <div style="display: grid; gap: 10px;">
+      <div style="display: flex; align-items: flex-start; gap: 10px;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 9999px; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 800;">1</span>
+        <span style="font-size: 13px; color: #334155;"><strong>Aprovação & Aceite da Proposta:</strong> Confirmação eletrônica ou assinatura deste documento.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 10px;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 9999px; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 800;">2</span>
+        <span style="font-size: 13px; color: #334155;"><strong>Kickoff & Onboarding:</strong> Reunião de alinhamento inicial realizada em até 48 horas úteis.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 10px;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 9999px; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 800;">3</span>
+        <span style="font-size: 13px; color: #334155;"><strong>Início da Execução:</strong> Ativação do cronograma e entrega dos primeiros marcos da Fase 01.</span>
+      </div>
+    </div>
+  `.trim();
+
+  return {
+    diagnosticoHtml,
+    fases,
+    diferenciais,
+    garantiasHtml,
+    proximosPassosHtml,
+  };
 }
 
 export function gerarTemplateFree(
@@ -152,6 +238,12 @@ export function gerarTemplateFree(
     1000 + Math.random() * 9000
   )}`;
 
+  const fallback = gerarCopywritingFallback(dados);
+  const consultivo = {
+    ...fallback,
+    ...(conteudoConsultivo || {}),
+  };
+
   const rowsHtml = dados.itens
     .map(
       (item) => `
@@ -165,22 +257,24 @@ export function gerarTemplateFree(
     )
     .join("");
 
-  const diagnosticoTexto = conteudoConsultivo?.diagnosticoHtml
-    ? conteudoConsultivo.diagnosticoHtml.replace(/<[^>]+>/g, " ").trim()
+  const diagnosticoTexto = consultivo.diagnosticoHtml
+    ? consultivo.diagnosticoHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
     : dados.descricao;
 
-  const defaultFasesFree = [
-    "Fase 01: Planejamento, Diagnóstico & Alinhamento de Escopo",
-    "Fase 02: Execução Técnica & Desenvolvimento Especializado",
-    "Fase 03: Homologação, Validação & Entrega Definitiva",
-  ];
+  const fasesRenderizadas =
+    consultivo.fases && consultivo.fases.length > 0
+      ? consultivo.fases
+      : fallback.fases!;
 
-  const fasesFree =
-    conteudoConsultivo?.fases && conteudoConsultivo.fases.length > 0
-      ? conteudoConsultivo.fases.map(
-          (f) => `• ${f.titulo}: ${f.descricao}`
-        ).join("\n")
-      : defaultFasesFree.map((f) => `• ${f}`).join("\n");
+  const fasesFree = fasesRenderizadas
+    .map((f) => `• ${f.titulo}: ${f.descricao}`)
+    .join("\n");
+
+  const observacoesFinal = dados.observacoes
+    ? dados.observacoes
+    : consultivo.garantiasHtml
+    ? consultivo.garantiasHtml.replace(/<[^>]+>/g, " ").trim()
+    : "";
 
   return `
 <!DOCTYPE html>
@@ -280,13 +374,13 @@ ${fasesFree}
       </div>
     </div>
 
-    <!-- Observations -->
+    <!-- Observations & Guarantees -->
     ${
-      dados.observacoes
+      observacoesFinal
         ? `
     <div style="margin-bottom: 24px; font-size: 12px; border: 1px solid #d1d5db; padding: 12px;">
-      <div style="font-weight: bold; margin-bottom: 4px; text-transform: uppercase;">Observações & Prazos:</div>
-      <div style="color: #374151;">${dados.observacoes}</div>
+      <div style="font-weight: bold; margin-bottom: 4px; text-transform: uppercase;">Garantias & Observações:</div>
+      <div style="color: #374151;">${observacoesFinal}</div>
     </div>`
         : ""
     }
@@ -332,6 +426,12 @@ export function gerarTemplatePro(
     1000 + Math.random() * 9000
   )}`;
 
+  const fallback = gerarCopywritingFallback(dados);
+  const consultivo = {
+    ...fallback,
+    ...(conteudoConsultivo || {}),
+  };
+
   const rowsHtml = dados.itens
     .map(
       (item, idx) => `
@@ -365,29 +465,12 @@ export function gerarTemplatePro(
             Proposta Comercial & Plano Estratégico
           </span>`;
 
-  const diagnosticoCardContent = conteudoConsultivo?.diagnosticoHtml
-    ? conteudoConsultivo.diagnosticoHtml
-    : dados.descricao;
-
-  const defaultFases = [
-    {
-      titulo: "Fase 01: Planejamento, Diagnóstico & Alinhamento",
-      descricao: "Mapeamento detalhado dos objetivos, definição de cronograma executivo e alinhamento inicial de entregáveis.",
-    },
-    {
-      titulo: "Fase 02: Execução Técnica & Desenvolvimento Especializado",
-      descricao: "Construção dos módulos e serviços contratados seguindo padrões rígidos de qualidade, segurança e eficiência.",
-    },
-    {
-      titulo: "Fase 03: Homologação, Validação & Entrega Definitiva",
-      descricao: "Testes integrados, validação assistida junto ao cliente e disponibilização para operação em produção.",
-    },
-  ];
+  const diagnosticoCardContent = consultivo.diagnosticoHtml || dados.descricao;
 
   const fasesRenderizadas =
-    conteudoConsultivo?.fases && conteudoConsultivo.fases.length > 0
-      ? conteudoConsultivo.fases
-      : defaultFases;
+    consultivo.fases && consultivo.fases.length > 0
+      ? consultivo.fases
+      : fallback.fases!;
 
   const fasesHtml = fasesRenderizadas
     .map(
@@ -405,11 +488,29 @@ export function gerarTemplatePro(
     )
     .join("");
 
-  const garantiasTexto = conteudoConsultivo?.garantiasHtml
-    ? conteudoConsultivo.garantiasHtml
+  const diferenciaisRenderizados =
+    consultivo.diferenciais && consultivo.diferenciais.length > 0
+      ? consultivo.diferenciais
+      : fallback.diferenciais!;
+
+  const diferenciaisHtml = diferenciaisRenderizados
+    .map(
+      (d) => `
+    <div style="background: #ffffff; padding: 14px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+      <div style="font-size: 13px; font-weight: 800; color: #1e3a8a; margin-bottom: 4px;">✓ ${d.titulo}</div>
+      <div style="font-size: 12px; color: #475569; line-height: 1.4;">${d.descricao}</div>
+    </div>
+  `
+    )
+    .join("");
+
+  const garantiasTexto = consultivo.garantiasHtml
+    ? consultivo.garantiasHtml
     : dados.observacoes
     ? `<p style="margin: 0; font-size: 13px; color: #1e3a8a; line-height: 1.6;">${dados.observacoes}</p>`
     : "";
+
+  const proximosPassosHtml = consultivo.proximosPassosHtml || fallback.proximosPassosHtml;
 
   return `
 <!DOCTYPE html>
@@ -448,25 +549,16 @@ export function gerarTemplatePro(
       .header-content { padding: 22px 14px !important; }
       .body-content { padding: 18px 12px !important; }
       [data-empresa-logo="true"] { padding: 6px 10px !important; margin-bottom: 12px !important; }
-      [data-empresa-logo="true"] img { max-height: 40px !important; max-width: 150px !important; }
-      .grid-responsive { grid-template-columns: 1fr !important; gap: 14px !important; padding: 16px !important; }
-      .flex-responsive { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
-      .table-responsive-wrapper table { min-width: 440px !important; }
-      .table-responsive-wrapper th,
-      .table-responsive-wrapper td {
-        padding: 10px 8px !important;
-        font-size: 12.5px !important;
-      }
-      .table-responsive-wrapper td:nth-child(3),
-      .table-responsive-wrapper td:nth-child(4) {
-        white-space: nowrap !important;
-        font-variant-numeric: tabular-nums !important;
-      }
-      .total-box-wrapper { width: 100% !important; padding: 14px !important; }
-      .signatures-grid { grid-template-columns: 1fr !important; gap: 24px !important; margin-top: 32px !important; padding-top: 24px !important; }
+      [data-empresa-logo="true"] img { max-height: 42px !important; max-width: 150px !important; }
+      .grid-responsive { grid-template-columns: 1fr !important; gap: 14px !important; }
+      .diferenciais-grid { grid-template-columns: 1fr !important; }
+      .signatures-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+      .flex-responsive { flex-direction: column !important; align-items: flex-start !important; }
+      .total-box-wrapper { width: 100% !important; }
     }
+
     @media print {
-      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #ffffff; padding: 0; }
+      body { background: #ffffff; padding: 0; }
       .pro-card-container { box-shadow: none; border: none; }
       [data-empresa-logo="true"] { background: #ffffff !important; box-shadow: none !important; border: 1px solid #cbd5e1 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
@@ -533,7 +625,7 @@ export function gerarTemplatePro(
         </div>
       </div>
 
-      <!-- Scope Section -->
+      <!-- Scope Section: Diagnosis & Transformation -->
       <div style="margin-bottom: 32px;">
         <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.04em;">
           1. Diagnóstico do Cenário, Metodologia & Escopo Estratégico
@@ -543,17 +635,27 @@ export function gerarTemplatePro(
           <div style="font-size: 12px; font-weight: 800; color: #1e3a8a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
             Diagnóstico do Cenário Atual & Oportunidade
           </div>
-          <div style="font-size: 14px; line-height: 1.7; color: #334155; white-space: pre-line;">
+          <div style="font-size: 14px; line-height: 1.7; color: #334155;">
             ${diagnosticoCardContent}
           </div>
         </div>
 
-        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 16px;">
           <div style="font-size: 12px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
             Metodologia Executiva de Entrega
           </div>
           <div style="display: grid; gap: 12px;">
             ${fasesHtml}
+          </div>
+        </div>
+
+        <!-- Differential Pillars -->
+        <div style="background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 12px; font-weight: 800; color: #1e3a8a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
+            Diferenciais Estratégicos & Proposta de Valor
+          </div>
+          <div class="diferenciais-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+            ${diferenciaisHtml}
           </div>
         </div>
       </div>
@@ -604,6 +706,12 @@ export function gerarTemplatePro(
       </div>`
           : ""
       }
+
+      <!-- Next Steps / Activation Plan -->
+      <div style="margin-bottom: 32px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px;">
+        <h4 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em;">Plano de Ativação & Próximos Passos:</h4>
+        ${proximosPassosHtml}
+      </div>
 
       <!-- Signatures -->
       <div class="signatures-grid" style="margin-top: 48px; padding-top: 32px; border-top: 2px dashed #cbd5e1; display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
@@ -660,31 +768,52 @@ export async function gerarPropostacComIA(
 
   const isFree = dados.plano === "free";
 
-  const prompt = `VOCÊ É O DIRETOR COMERCIAL & ESTRATEGISTA SÊNIOR DE VENDAS (VP of Sales & Closing Strategist) com mais de 25 anos de carreira fechando contratos de alto valor no mercado brasileiro. Você domina vendas consultivas, metodologia SPIN Selling, precificação de valor e fechamento com quebra antecipada de objeções.
+  const prompt = `VOCÊ É O DIRETOR COMERCIAL & COPYWRITER SÊNIOR DE ALTA CONVERSÃO (VP of Sales & Closing Copywriter) especializado em vendas consultivas B2B, metodologias SPIN Selling, Framework PAS (Problem, Agitate, Solution), Neurovendas e Fechamento de Contratos de Alto Valor.
 
 SUA MISSÃO:
-Transformar os dados brutos e escopo recebidos em uma NARRATIVA CONSULTIVA ESTRATÉGICA RICA (Diagnóstico SPIN Selling, Metodologia de Entrega em 3 Fases e Garantias).
+Gerar uma narrativa comercial e consultiva IRRESISTÍVEL, persuasiva e de altíssima conversão, transformando a descrição do projeto em um plano estratégico de alto valor percebido que faça o cliente se sentir seguro e motivado a fechar imediatamente.
 
-DADOS DA PROPOSTA:
-- Emissor / Prestador: ${dados.empresaNome || "Empresa Especializada"}
+DADOS DO PROJETO & CLIENTE:
+- Emissor / Prestador: ${dados.empresaNome || "Especialista"}
 - Cliente / Contratante: ${dados.clienteNome} (${dados.clienteEmpresa || "Contratante"})
-- Escopo Informado: ${dados.descricao}
-- Itens: ${itensFormatados}
-- Valor Total: R$ ${total.toFixed(2)}
+- Escopo Solicitado: ${dados.descricao}
+- Entregáveis / Itens:
+${itensFormatados}
+- Investimento Total: R$ ${total.toFixed(2)}
 - Condições de Pagamento: ${dados.prazoPagamento || "À Vista"}
-- Validade: ${dados.validade || 30} dias corridos
-- Observações: ${dados.observacoes || "Nenhuma"}
+- Validade da Proposta: ${dados.validade || 30} dias corridos
+- Observações Especiais: ${dados.observacoes || "Nenhuma"}
 
-REQUISITO ESTRITO:
-Retorne EXCLUSIVAMENTE um objeto JSON válido (sem tags html externas ou markdown fora do JSON) com a estrutura:
+DIRETRIZES DE COPYWRITING DE ALTA CONVERSÃO:
+1. DIAGNÓSTICO (diagnosticoHtml):
+   - Parágrafo 1: Apresentação personalizada ressaltando a relevância estratégica do projeto para o cliente.
+   - Parágrafo 2: Mapeamento profundo do problema/gargalo atual e o custo da inação (perda de tempo, eficiência ou oportunidades).
+   - Parágrafo 3: A transformação estratégica gerada pelos serviços contratados, destacando retorno sobre investimento (ROI), previsibilidade e excelência operacional.
+2. FASES DE ENTREGA (fases):
+   - 3 fases executivas com títulos profissionais (ex: Fase 01: Diagnóstico Estratégico & Alinhamento, Fase 02: Execução Técnica & Desenvolvimento, Fase 03: Homologação Assistida & Ativação de Resultados) e descrições focadas em valor e entregáveis claros.
+3. DIFERENCIAIS (diferenciais):
+   - 3 diferenciais competitivos fortes que anulem a concorrência (ex: Foco em ROI, Rigor Técnico, Comunicação Ágil).
+4. GARANTIAS & REVERSÃO DE RISCO (garantiasHtml):
+   - Texto persuasivo de garantia de conformidade técnica, suporte dedicado e proteção jurídica de escopo.
+5. PRÓXIMOS PASSOS (proximosPassosHtml):
+   - Call To Action (CTA) claro e sem fricção em 3 etapas para o fechamento imediato.
+
+REQUISITO OBRIGATÓRIO:
+Retorne EXCLUSIVAMENTE um objeto JSON válido (sem markdown em volta do JSON e sem caracteres extras):
 {
-  "diagnosticoHtml": "<p>Parágrafo 1 de diagnóstico profundo do problema/dor e gargalos atuais do cliente...</p><p>Parágrafo 2 explicando como a solução resolve o problema, gera valor tangível e destrava crescimento...</p>",
+  "diagnosticoHtml": "<p>...</p><p>...</p><p>...</p>",
   "fases": [
-    { "titulo": "Fase 01: [Nome da Fase de Diagnóstico/Planejamento]", "descricao": "[Descrição executiva dos entregáveis desta fase e benefícios]" },
-    { "titulo": "Fase 02: [Nome da Fase de Execução Técnica/Desenvolvimento]", "descricao": "[Descrição executiva dos entregáveis desta fase e benefícios]" },
-    { "titulo": "Fase 03: [Nome da Fase de Homologação/Lançamento/Validação]", "descricao": "[Descrição executiva dos entregáveis desta fase e benefícios]" }
+    { "titulo": "Fase 01: ...", "descricao": "..." },
+    { "titulo": "Fase 02: ...", "descricao": "..." },
+    { "titulo": "Fase 03: ...", "descricao": "..." }
   ],
-  "garantiasHtml": "<p>[Texto consultivo de alinhamentos comerciais, garantias de suporte e reversão de risco]</p>"
+  "diferenciais": [
+    { "titulo": "...", "descricao": "..." },
+    { "titulo": "...", "descricao": "..." },
+    { "titulo": "...", "descricao": "..." }
+  ],
+  "garantiasHtml": "<p>...</p>",
+  "proximosPassosHtml": "<div style=\\"display: grid; gap: 10px;\\">...</div>"
 }`;
 
   const configuredModel = process.env.GEMINI_MODEL || "gemini-3.6-flash";
@@ -743,7 +872,7 @@ Retorne EXCLUSIVAMENTE um objeto JSON válido (sem tags html externas ou markdow
         try {
           const parsed = JSON.parse(cleanedJson) as ConteudoConsultivoIA;
           if (parsed && (parsed.diagnosticoHtml || (parsed.fases && parsed.fases.length > 0))) {
-            console.log(`[Gemini AI] Síntese consultiva gerada com sucesso via ${modelName} em ${duration}ms!`);
+            console.log(`[Gemini AI] Síntese consultiva de alta conversão gerada com sucesso via ${modelName} em ${duration}ms!`);
             let renderedHtml = isFree ? gerarTemplateFree(dados, parsed) : gerarTemplatePro(dados, parsed);
             if (dados.plano === "pro" && dados.empresaLogoUrl) {
               renderedHtml = injetarOuAtualizarLogoHtml(renderedHtml, dados.empresaLogoUrl, dados.empresaNome);
@@ -760,7 +889,7 @@ Retorne EXCLUSIVAMENTE um objeto JSON válido (sem tags html externas ou markdow
     }
   }
 
-  // Fallback seguro, estruturado e imediato (0ms)
+  // Fallback seguro, estruturado e imediato (0ms) com Copywriting de Alta Conversão
   console.log("[Gemini AI] Utilizando template estruturado consultivo de fallback...");
   let fallbackHtml = isFree ? gerarTemplateFree(dados) : gerarTemplatePro(dados);
   if (dados.plano === "pro" && dados.empresaLogoUrl) {
@@ -768,5 +897,3 @@ Retorne EXCLUSIVAMENTE um objeto JSON válido (sem tags html externas ou markdow
   }
   return ajustarHtmlResponsivoProposta(fallbackHtml);
 }
-
-
