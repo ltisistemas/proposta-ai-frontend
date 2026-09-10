@@ -907,12 +907,21 @@ export default function LandingPage() {
       </section>
 
       {/* =========================================================================
-          9. FOOTER (Clean Light Footer)
+          9. FOOTER (Clean Light Footer with Legal Links)
       ========================================================================= */}
       <footer className="border-t border-slate-200/80 py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
         <Logo size="sm" variant="light" showSubtitle={false} />
-        <div>
-          © {new Date().getFullYear()} Proposta Ai!. Todos os direitos reservados.
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
+          <span>© {new Date().getFullYear()} Propex AI. Todos os direitos reservados.</span>
+          <div className="flex items-center gap-4">
+            <Link href="/termos" className="hover:text-blue-600 transition-colors underline-offset-2 hover:underline">
+              Termos de Uso
+            </Link>
+            <span className="text-slate-300">•</span>
+            <Link href="/privacidade" className="hover:text-blue-600 transition-colors underline-offset-2 hover:underline">
+              Privacidade (LGPD)
+            </Link>
+          </div>
         </div>
       </footer>
     </div>

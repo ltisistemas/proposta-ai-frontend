@@ -293,7 +293,7 @@ export default function ConfigPage() {
           Configurações da Conta & Plano
         </h1>
         <p className="text-slate-600 text-sm mt-1">
-          Personalize os dados da sua empresa, logotipo e gerencie sua assinatura do Proposta Ai!
+          Personalize os dados da sua empresa, logotipo e gerencie sua assinatura do Propex AI.
         </p>
       </div>
 
