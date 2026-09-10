@@ -452,11 +452,46 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
 
       <!-- Scope Section -->
       <div style="margin-bottom: 32px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.04em;">
-          1. Diagnóstico, Escopo & Metodologia de Entrega
+        <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.04em;">
+          1. Diagnóstico do Cenário, Metodologia & Escopo Estratégico
         </h3>
-        <div style="font-size: 14px; line-height: 1.7; color: #334155; background: #ffffff; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0; white-space: pre-line;">
-          ${dados.descricao}
+        
+        <div style="background: #ffffff; padding: 22px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 16px;">
+          <div style="font-size: 12px; font-weight: 800; color: #1e3a8a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+            Diagnóstico do Cenário Atual & Oportunidade
+          </div>
+          <div style="font-size: 14px; line-height: 1.7; color: #334155; white-space: pre-line;">
+            ${dados.descricao}
+          </div>
+        </div>
+
+        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 12px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
+            Metodologia Executiva de Entrega
+          </div>
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; border-radius: 9999px; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700;">1</span>
+              <div>
+                <strong style="font-size: 13px; color: #0f172a;">Fase 01: Planejamento, Diagnóstico & Alinhamento</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12.5px; color: #475569; line-height: 1.5;">Mapeamento detalhado dos objetivos, definição de cronograma executivo e alinhamento inicial de entregáveis.</p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; border-radius: 9999px; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700;">2</span>
+              <div>
+                <strong style="font-size: 13px; color: #0f172a;">Fase 02: Execução Técnica & Desenvolvimento Especializado</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12.5px; color: #475569; line-height: 1.5;">Construção dos módulos e serviços contratados seguindo padrões rígidos de qualidade, segurança e eficiência.</p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; border-radius: 9999px; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700;">3</span>
+              <div>
+                <strong style="font-size: 13px; color: #0f172a;">Fase 03: Homologação, Validação & Entrega Definitiva</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12.5px; color: #475569; line-height: 1.5;">Testes integrados, validação assistida junto ao cliente e disponibilização para operação em produção.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -662,67 +697,103 @@ ${
 8. Tipografia limpa baseada em fontes do sistema ('Inter', -apple-system, system-ui, sans-serif).
 9. Inclua as seções numeradas e bem destacadas:
    - Cabeçalho da Empresa Emissora (com logo se informada) & Dados do Cliente
-   - 1. Diagnóstico do Cenário & Objetivos Estratégicos
-   - 2. Metodologia & Escopo de Entregas
-   - 3. Tabela Estruturada de Investimento & Itens (com soma total em destaque)
-   - 4. Cronograma & Condições Comerciais
-   - 5. Garantias, Validade & Termo Formal de Aceite / Assinaturas.`;
+   - 1. Diagnóstico do Cenário, Metodologia & Escopo Estratégico
+   - 2. Tabela Estruturada de Investimento & Entregáveis (com soma total em destaque)
+   - 3. Condições Comerciais, Validade & Garantias
+   - 4. Termo Formal de Aceite / Assinaturas.`;
   }
 
-  const modelsToTry = [
-    process.env.GEMINI_MODEL,
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
-  ].filter(Boolean) as string[];
+  const configuredModel = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+  const defaultModels = [
+    configuredModel,
+    "gemini-3.6-flash",
+    "gemini-flash-latest",
+    "gemini-3.5-flash",
+    "gemini-3.7-flash",
+    "gemini-pro-latest",
+  ];
+  const modelsToTry = Array.from(new Set(defaultModels.filter(Boolean)));
 
   const genAI = getGenAIClient();
 
   for (const modelName of modelsToTry) {
-    try {
-      const timeoutMs = 20000;
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error(`Timeout de IA (${modelName})`)), timeoutMs)
-      );
+    const maxRetries = 2;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`[Gemini AI] Gerando proposta com modelo ${modelName} (tentativa ${attempt}/${maxRetries})...`);
+        const startTime = Date.now();
+        const timeoutMs = 35000;
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error(`Timeout de IA (${modelName} após ${timeoutMs}ms)`)), timeoutMs)
+        );
 
-      const generatePromise = (async () => {
-        const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
-      })();
+        const generatePromise = (async () => {
+          const model = genAI.getGenerativeModel({
+            model: modelName,
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 8192,
+            },
+          });
+          const result = await model.generateContent(prompt);
+          const response = await result.response;
+          return response.text();
+        })();
 
-      const text = await Promise.race([generatePromise, timeoutPromise]);
+        const text = await Promise.race([generatePromise, timeoutPromise]);
+        const duration = Date.now() - startTime;
 
-      const htmlContent = text
-        .replace(/```html\n?/gi, "")
-        .replace(/```\n?/g, "")
-        .trim();
+        const htmlContent = text
+          .replace(/```html\n?/gi, "")
+          .replace(/```\n?/g, "")
+          .trim();
 
-      if (htmlContent.includes("<html") && htmlContent.includes("</html>")) {
-        let finalHtml = htmlContent;
-        if (dados.plano === "pro" && dados.empresaLogoUrl) {
-          finalHtml = injetarOuAtualizarLogoHtml(finalHtml, dados.empresaLogoUrl, dados.empresaNome);
+        if (htmlContent.includes("<html") && htmlContent.includes("</html>")) {
+          console.log(`[Gemini AI] Proposta gerada com sucesso via ${modelName} em ${duration}ms (${htmlContent.length} bytes)!`);
+          let finalHtml = htmlContent;
+          if (dados.plano === "pro" && dados.empresaLogoUrl) {
+            finalHtml = injetarOuAtualizarLogoHtml(finalHtml, dados.empresaLogoUrl, dados.empresaNome);
+          }
+          return ajustarHtmlResponsivoProposta(finalHtml);
         }
-        return ajustarHtmlResponsivoProposta(finalHtml);
-      }
-      if (htmlContent.length > 500) {
-        let finalHtml = htmlContent;
-        if (dados.plano === "pro" && dados.empresaLogoUrl) {
-          finalHtml = injetarOuAtualizarLogoHtml(finalHtml, dados.empresaLogoUrl, dados.empresaNome);
+        if (htmlContent.length > 500) {
+          console.log(`[Gemini AI] Proposta parcial gerada com sucesso via ${modelName} em ${duration}ms (${htmlContent.length} bytes)!`);
+          let finalHtml = htmlContent;
+          if (dados.plano === "pro" && dados.empresaLogoUrl) {
+            finalHtml = injetarOuAtualizarLogoHtml(finalHtml, dados.empresaLogoUrl, dados.empresaNome);
+          }
+          return ajustarHtmlResponsivoProposta(finalHtml);
         }
-        return ajustarHtmlResponsivoProposta(finalHtml);
+      } catch (err: any) {
+        const isTransient =
+          err?.message?.includes("503") ||
+          err?.message?.includes("high demand") ||
+          err?.message?.includes("429") ||
+          err?.message?.includes("rate limit") ||
+          err?.message?.includes("Timeout");
+
+        console.warn(
+          `[Gemini AI] Tentativa ${attempt} com modelo ${modelName} falhou:`,
+          err?.message || err
+        );
+
+        if (attempt < maxRetries && isTransient) {
+          const waitMs = attempt * 1200;
+          console.log(`[Gemini AI] Aguardando ${waitMs}ms antes de tentar novamente o modelo ${modelName}...`);
+          await new Promise((r) => setTimeout(r, waitMs));
+        } else {
+          break; // move to next model
+        }
       }
-    } catch (err: any) {
-      console.warn(`Tentativa com modelo ${modelName} falhou:`, err?.message || err);
     }
   }
 
   // Fallback
-  console.log("Utilizando template estruturado de fallback...");
+  console.warn("[Gemini AI] Todos os modelos de IA falharam ou esgotaram cota. Utilizando template estruturado consultivo de fallback...");
   let fallbackHtml = gerarTemplateFallback(dados);
   if (dados.plano === "pro" && dados.empresaLogoUrl) {
     fallbackHtml = injetarOuAtualizarLogoHtml(fallbackHtml, dados.empresaLogoUrl, dados.empresaNome);
   }
   return ajustarHtmlResponsivoProposta(fallbackHtml);
 }
+

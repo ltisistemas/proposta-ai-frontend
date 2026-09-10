@@ -109,12 +109,15 @@ describe("lib/gemini/client", () => {
     expect(proWithoutLogo).toContain("Proposta Comercial & Plano Estratégico");
   });
 
-  it("should generate fallback template for pro and free", () => {
+  it("should generate fallback template for pro and free with consultative methodology structure", () => {
     const freeHtml = gerarTemplateFallback(sampleData);
     expect(freeHtml).toContain("notepad-container");
 
     const proHtml = gerarTemplateFallback({ ...sampleData, plano: "pro" });
     expect(proHtml).toContain("Proposta Comercial");
+    expect(proHtml).toContain("Diagnóstico do Cenário Atual & Oportunidade");
+    expect(proHtml).toContain("Metodologia Executiva de Entrega");
+    expect(proHtml).toContain("Fase 01: Planejamento, Diagnóstico & Alinhamento");
   });
 
   it("should generate proposal with Gemini AI for Pro tier", async () => {
