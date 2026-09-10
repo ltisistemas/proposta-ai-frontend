@@ -19,6 +19,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [empresaNome, setEmpresaNome] = useState("");
   const [empresaCnpj, setEmpresaCnpj] = useState("");
+  const [aceitouTermos, setAceitouTermos] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,6 +29,11 @@ export default function SignupPage() {
 
     if (password.length < 6) {
       setError("A senha deve ter no mínimo 6 caracteres.");
+      return;
+    }
+
+    if (!aceitouTermos) {
+      setError("Você precisa aceitar os Termos de Uso e a Política de Privacidade (LGPD) para criar sua conta.");
       return;
     }
 
@@ -58,7 +64,7 @@ export default function SignupPage() {
       addToast({
         type: "success",
         title: "Conta criada com sucesso!",
-        message: "Você já pode começar a gerar propostas incríveis.",
+        message: "Bem-vindo ao Propex AI! Você já pode gerar suas propostas.",
       });
 
       router.push("/dashboard");
@@ -74,7 +80,7 @@ export default function SignupPage() {
       <ToastContainer />
       <div className="text-center mb-8">
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-          Crie sua conta grátis
+          Crie sua conta no Propex AI
         </h1>
         <p className="text-slate-500 text-sm mt-1.5">
           Comece a gerar propostas comerciais profissionais com IA hoje
@@ -141,6 +147,38 @@ export default function SignupPage() {
         <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-100 flex items-center gap-2 text-xs text-blue-900">
           <Check className="w-4 h-4 text-blue-600 shrink-0" />
           <span>Plano Grátis incluso: 3 propostas completas com IA todo mês.</span>
+        </div>
+
+        {/* LGPD Agreement Checkbox */}
+        <div className="pt-1">
+          <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              required
+              checked={aceitouTermos}
+              onChange={(e) => setAceitouTermos(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 shrink-0 cursor-pointer"
+            />
+            <span className="leading-relaxed">
+              Li e concordo com os{" "}
+              <Link
+                href="/termos"
+                target="_blank"
+                className="text-blue-600 font-bold hover:underline"
+              >
+                Termos de Uso
+              </Link>{" "}
+              e com a{" "}
+              <Link
+                href="/privacidade"
+                target="_blank"
+                className="text-blue-600 font-bold hover:underline"
+              >
+                Política de Privacidade (LGPD)
+              </Link>
+              .
+            </span>
+          </label>
         </div>
 
         <div className="pt-2">

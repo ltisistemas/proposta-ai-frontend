@@ -109,7 +109,7 @@ describe("API /api/checkout", () => {
     expect(criarCobrancaPixTransparente).toHaveBeenCalledWith(
       expect.objectContaining({
         customer: expect.objectContaining({
-          name: "Assinante Proposta Ai",
+          name: "Assinante Propex AI",
         }),
       })
     );

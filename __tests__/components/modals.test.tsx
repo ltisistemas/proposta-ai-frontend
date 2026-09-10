@@ -119,7 +119,7 @@ describe("components/Billing/UpgradeModal", () => {
     expect(screen.getByText(/você atingiu o limite de propostas gratuitas/i)).toBeInTheDocument();
 
     rerender(<UpgradeModal isOpen={true} onClose={vi.fn()} feature="general" />);
-    expect(screen.getByText(/desbloqueie todo o poder do proposta ai! pro/i)).toBeInTheDocument();
+    expect(screen.getByText(/desbloqueie todo o poder do propex ai pro/i)).toBeInTheDocument();
   });
 
   it("should support navigating back from PIX step to DETAILS and handle simulation errors", async () => {

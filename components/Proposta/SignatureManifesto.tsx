@@ -71,7 +71,7 @@ export function gerarManifestoHTML(
   <div class="signature-manifesto-container" style="page-break-before: always; break-before: page; margin-top: 40px; padding: 40px 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #000; background: #fff; line-height: 1.5; border-top: 2px dashed #ccc;">
     <div style="text-align: center; margin-bottom: 24px;">
       <h2 style="font-size: 20px; font-weight: 800; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px;">MANIFESTO DE ASSINATURAS</h2>
-      <p style="font-size: 13px; margin: 0 0 14px 0; color: #333;">O documento acima foi proposto para assinatura eletrônica na plataforma <strong>Proposta Ai!</strong>.</p>
+      <p style="font-size: 13px; margin: 0 0 14px 0; color: #333;">O documento acima foi proposto para assinatura eletrônica na plataforma <strong>Propex AI</strong>.</p>
       
       <p style="font-size: 13px; margin: 0 0 10px 0;">Para verificar as assinaturas clique no link: <a href="${validationUrl}" style="color: #0066cc; text-decoration: underline;" target="_blank">${validationUrl}</a></p>
       
@@ -153,7 +153,7 @@ export function SignatureManifesto({
           MANIFESTO DE ASSINATURAS
         </h2>
         <p className="text-xs sm:text-sm text-slate-800">
-          O documento acima foi proposto para assinatura eletrônica na plataforma <strong>Proposta Ai!</strong>.
+          O documento acima foi proposto para assinatura eletrônica na plataforma <strong>Propex AI</strong>.
         </p>
 
         <p className="text-xs sm:text-sm text-slate-800">
