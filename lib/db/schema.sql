@@ -65,6 +65,7 @@ ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinante_documento VARCHAR(50);
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinado_em TIMESTAMP;
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinatura_ip VARCHAR(50);
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinatura_hash VARCHAR(255);
+ALTER TABLE propostas ADD COLUMN IF NOT EXISTS regeneracoes_ia INT DEFAULT 0;
 
 CREATE INDEX IF NOT EXISTS idx_propostas_usuario ON propostas(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_propostas_status ON propostas(status);

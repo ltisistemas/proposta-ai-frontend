@@ -41,6 +41,7 @@ export interface PropostaRow {
   assinado_em?: Date | null;
   assinatura_ip?: string | null;
   assinatura_hash?: string | null;
+  regeneracoes_ia?: number;
   criado_em: Date;
   atualizado_em: Date;
   itens?: any[];
@@ -342,4 +343,41 @@ export async function sincronizarLogoPropostasDoUsuario(
 
   return atualizadas;
 }
+
+export async function regenerarConteudoIA(
+  id: string,
+  usuarioId: string,
+  novoConteudoHtml: string
+): Promise<{ sucesso: boolean; proposta?: PropostaRow; erro?: string }> {
+  const prop = await obterPropostaPorId(id, usuarioId);
+  if (!prop) {
+    return { sucesso: false, erro: "Proposta não encontrada" };
+  }
+
+  if (prop.status === "aceita") {
+    return { sucesso: false, erro: "Propostas já aceitas ou assinadas não podem ser alteradas." };
+  }
+
+  const regeneracoesAtuais = prop.regeneracoes_ia ?? 0;
+  if (regeneracoesAtuais >= 3) {
+    return { sucesso: false, erro: "Esta proposta já atingiu o limite máximo de 3 regenerações com IA." };
+  }
+
+  const result = await query<PropostaRow>(
+    `UPDATE propostas
+     SET conteudo_html = $1,
+         regeneracoes_ia = COALESCE(regeneracoes_ia, 0) + 1,
+         atualizado_em = CURRENT_TIMESTAMP
+     WHERE id = $2 AND usuario_id = $3 AND (regeneracoes_ia < 3 OR regeneracoes_ia IS NULL) AND deletado_em IS NULL
+     RETURNING *`,
+    [novoConteudoHtml, id, usuarioId]
+  );
+
+  if (!result.rows[0]) {
+    return { sucesso: false, erro: "Não foi possível atualizar a proposta ou o limite foi atingido." };
+  }
+
+  return { sucesso: true, proposta: result.rows[0] };
+}
+
 

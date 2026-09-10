@@ -611,12 +611,14 @@ DIRETRIZES OBRIGATÓRIAS DO FORMATO NOTEPAD (PLANO FREE):
 SUA MISSÃO:
 Transformar os dados brutos recebidos em uma PROPOSTA COMERCIAL CONSULTIVA COMPLETA, PERSUASIVA, ELEGANTE E COM ALTA TAXA DE CONVERSÃO em formato HTML profissional executivo adaptado para dispositivos móveis e desktop (PLANO PRO).
 
-DIRETRIZES DE COPYWRITING COMERCIAL:
-1. DIAGNÓSTICO & ENTENDIMENTO: Comece demonstrando que entendeu com profundidade a dor e o objetivo estratégico do cliente. Enquadre o projeto como uma solução de alto retorno (ROI), não apenas como tarefas técnicas.
-2. METODOLOGIA E SEGURANÇA: Apresente o escopo em fases lógicas e entregáveis concretos que eliminem qualquer sensação de risco do comprador.
-3. VALOR & TRANSPARÊNCIA: A tabela financeira deve ser cristalina, formatada no padrão contábil brasileiro em Real (R$).
-4. CLÁUSULAS & REVERSÃO DE RISCO: Reforce prazos, garantias de entrega, termos de pagamento e o valor da agilidade na contratação.
-5. FORMALIDADE & FECHAMENTO: Conclua com espaço claro de aceite formal e assinaturas bilaterais.
+DIRETRIZES DE COPYWRITING COMERCIAL CONSULTIVO (SPIN SELLING):
+1. DIAGNÓSTICO E ESCOPO EXPANDIDO (CRUCIAL): Na Seção 1 ("1. Diagnóstico do Cenário, Metodologia & Escopo Estratégico"), NUNCA se limite a copiar ou colar o texto bruto digitado pelo usuário. Você DEVE expandir, estruturar e transformar o escopo em uma narrativa consultiva rica de alto nível, com:
+   - **Diagnóstico do Cenário Atual**: Compreensão clara do problema, dos gargalos operacionais e da oportunidade de negócio.
+   - **Metodologia de Entrega em Fases**: Detalhar as etapas de execução (ex: Fase 1: Diagnóstico e Planejamento, Fase 2: Execução Técnica e Otimizações, Fase 3: Validação, Testes e Entrega), explicando os benefícios concretos de cada fase.
+   - **Garantia de Qualidade e Segurança**: Como a solução elimina riscos para a contratante.
+2. VALOR & TRANSPARÊNCIA: A tabela financeira deve ser cristalina, formatada no padrão contábil brasileiro em Real (R$), com alinhamento perfeito.
+3. CLÁUSULAS & REVERSÃO DE RISCO: Reforce prazos, garantias de suporte, condições de pagamento e a importância do fechamento ágil.
+4. FORMALIDADE & FECHAMENTO: Conclua com espaço claro de aceite formal e assinaturas bilaterais.
 
 DADOS DA PROPOSTA:
 - Data de Emissão: ${new Date().toLocaleDateString("pt-BR")}

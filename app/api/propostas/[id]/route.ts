@@ -42,11 +42,16 @@ export async function GET(
       }
     }
 
+    const regeneracoesIa = proposta.regeneracoes_ia || 0;
+    const regeneracoesRestantes = Math.max(0, 3 - regeneracoesIa);
+
     return NextResponse.json({
       sucesso: true,
       proposta: {
         ...proposta,
         conteudo_html: conteudoHtml,
+        regeneracoes_ia: regeneracoesIa,
+        regeneracoes_restantes: regeneracoesRestantes,
       },
     });
   } catch (error) {
