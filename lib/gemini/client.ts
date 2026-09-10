@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { ajustarHtmlResponsivoProposta } from "../utils/proposal-html";
 
 export interface DadosGeracaoProposta {
   empresaNome: string;
@@ -335,22 +336,51 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Proposta Comercial Consultiva - ${dados.clienteNome}</title>
   <style>
-    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 32px 12px; color: #0f172a; line-height: 1.5; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 32px 12px; color: #0f172a; line-height: 1.5; -webkit-text-size-adjust: 100%; }
     .pro-card-container { max-width: 820px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.04); overflow: hidden; border: 1px solid #e2e8f0; box-sizing: border-box; }
     
     [data-empresa-logo="true"] { display: inline-flex; align-items: center; justify-content: center; }
+    .table-responsive-wrapper {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 transparent;
+    }
+    .table-responsive-wrapper::-webkit-scrollbar {
+      height: 6px;
+    }
+    .table-responsive-wrapper::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
     @media (max-width: 640px) {
-      body { padding: 8px !important; }
-      .pro-card-container { border-radius: 12px !important; }
-      .header-content { padding: 24px 16px !important; }
-      .body-content { padding: 20px 16px !important; }
+      body { padding: 6px !important; }
+      .pro-card-container { border-radius: 12px !important; width: 100% !important; }
+      .header-content { padding: 22px 14px !important; }
+      .body-content { padding: 18px 12px !important; }
       [data-empresa-logo="true"] { padding: 6px 10px !important; margin-bottom: 12px !important; }
       [data-empresa-logo="true"] img { max-height: 40px !important; max-width: 150px !important; }
-      .grid-responsive { grid-template-columns: 1fr !important; gap: 16px !important; }
-      .flex-responsive { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
-      .table-responsive-wrapper { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .total-box-wrapper { width: 100% !important; }
-      .signatures-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+      .grid-responsive { grid-template-columns: 1fr !important; gap: 14px !important; padding: 16px !important; }
+      .flex-responsive { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
+      .table-responsive-wrapper table { min-width: 440px !important; }
+      .table-responsive-wrapper th,
+      .table-responsive-wrapper td {
+        padding: 10px 8px !important;
+        font-size: 12.5px !important;
+      }
+      .table-responsive-wrapper td:nth-child(3),
+      .table-responsive-wrapper td:nth-child(4) {
+        white-space: nowrap !important;
+        font-variant-numeric: tabular-nums !important;
+      }
+      .total-box-wrapper { width: 100% !important; padding: 14px !important; }
+      .signatures-grid { grid-template-columns: 1fr !important; gap: 24px !important; margin-top: 32px !important; padding-top: 24px !important; }
     }
     @media print {
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #ffffff; padding: 0; }
@@ -435,14 +465,14 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
         <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.04em;">
           2. Investimento & Entregáveis
         </h3>
-        <div class="table-responsive-wrapper" style="border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0;">
-          <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;">
+        <div class="table-responsive-wrapper">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 440px;">
             <thead>
               <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
-                <th style="padding: 12px 18px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em;">Descrição do Entregável</th>
-                <th style="padding: 12px 18px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; text-align: center; width: 80px;">Qtd</th>
-                <th style="padding: 12px 18px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; text-align: right; width: 140px;">Valor Unit.</th>
-                <th style="padding: 12px 18px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; text-align: right; width: 140px;">Total</th>
+                <th style="padding: 12px 14px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em;">Descrição do Entregável</th>
+                <th style="padding: 12px 14px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; text-align: center; width: 60px;">Qtd</th>
+                <th style="padding: 12px 14px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; text-align: right; width: 130px;">Valor Unit.</th>
+                <th style="padding: 12px 14px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.05em; text-align: right; width: 130px;">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -661,16 +691,18 @@ ${
         .trim();
 
       if (htmlContent.includes("<html") && htmlContent.includes("</html>")) {
+        let finalHtml = htmlContent;
         if (dados.plano === "pro" && dados.empresaLogoUrl) {
-          return injetarOuAtualizarLogoHtml(htmlContent, dados.empresaLogoUrl, dados.empresaNome);
+          finalHtml = injetarOuAtualizarLogoHtml(finalHtml, dados.empresaLogoUrl, dados.empresaNome);
         }
-        return htmlContent;
+        return ajustarHtmlResponsivoProposta(finalHtml);
       }
       if (htmlContent.length > 500) {
+        let finalHtml = htmlContent;
         if (dados.plano === "pro" && dados.empresaLogoUrl) {
-          return injetarOuAtualizarLogoHtml(htmlContent, dados.empresaLogoUrl, dados.empresaNome);
+          finalHtml = injetarOuAtualizarLogoHtml(finalHtml, dados.empresaLogoUrl, dados.empresaNome);
         }
-        return htmlContent;
+        return ajustarHtmlResponsivoProposta(finalHtml);
       }
     } catch (err: any) {
       console.warn(`Tentativa com modelo ${modelName} falhou:`, err?.message || err);
@@ -679,9 +711,9 @@ ${
 
   // Fallback
   console.log("Utilizando template estruturado de fallback...");
-  const fallbackHtml = gerarTemplateFallback(dados);
+  let fallbackHtml = gerarTemplateFallback(dados);
   if (dados.plano === "pro" && dados.empresaLogoUrl) {
-    return injetarOuAtualizarLogoHtml(fallbackHtml, dados.empresaLogoUrl, dados.empresaNome);
+    fallbackHtml = injetarOuAtualizarLogoHtml(fallbackHtml, dados.empresaLogoUrl, dados.empresaNome);
   }
-  return fallbackHtml;
+  return ajustarHtmlResponsivoProposta(fallbackHtml);
 }
