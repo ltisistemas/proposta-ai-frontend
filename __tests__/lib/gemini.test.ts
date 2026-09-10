@@ -120,7 +120,36 @@ describe("lib/gemini/client", () => {
     expect(proHtml).toContain("Fase 01: Planejamento, Diagnóstico & Alinhamento");
   });
 
-  it("should generate proposal with Gemini AI for Pro tier", async () => {
+  it("should generate proposal with Gemini AI for Pro tier using structured JSON synthesis", async () => {
+    mockGenerateContent.mockResolvedValueOnce({
+      response: {
+        text: () =>
+          JSON.stringify({
+            diagnosticoHtml: "<p>Diagnóstico de Alto Impacto para Cliente VIP</p>",
+            fases: [
+              { titulo: "Fase 01: Diagnóstico Especializado", descricao: "Mapeamento completo de requisitos" },
+              { titulo: "Fase 02: Construção Técnica", descricao: "Desenvolvimento robusto" },
+              { titulo: "Fase 03: Validação & Entrega", descricao: "Homologação assistida" },
+            ],
+            garantiasHtml: "<p>Garantia de 90 dias com suporte prioritário.</p>",
+          }),
+      },
+    });
+
+    const proData: DadosGeracaoProposta = {
+      ...sampleData,
+      plano: "pro",
+      empresaLogoUrl: "data:image/png;base64,samplelogo",
+    };
+
+    const result = await gerarPropostacComIA(proData);
+    expect(result).toBeDefined();
+    expect(result).toContain("Diagnóstico de Alto Impacto para Cliente VIP");
+    expect(result).toContain("Fase 01: Diagnóstico Especializado");
+    expect(result).toContain("Fase 02: Construção Técnica");
+  });
+
+  it("should generate proposal with Gemini AI for Pro tier with legacy HTML response", async () => {
     mockGenerateContent.mockResolvedValueOnce({
       response: {
         text: () =>

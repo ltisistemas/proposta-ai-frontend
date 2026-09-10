@@ -128,7 +128,20 @@ export function injetarOuAtualizarLogoHtml(
   return `${logoMarkup}\n${cleanedHtml}`;
 }
 
-export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
+export interface ConteudoConsultivoIA {
+  diagnosticoHtml?: string;
+  fases?: Array<{
+    fase?: number | string;
+    titulo: string;
+    descricao: string;
+  }>;
+  garantiasHtml?: string;
+}
+
+export function gerarTemplateFree(
+  dados: DadosGeracaoProposta,
+  conteudoConsultivo?: ConteudoConsultivoIA | null
+): string {
   const subtotal = dados.itens.reduce(
     (acc, item) => acc + item.quantidade * item.valorUnitario,
     0
@@ -151,6 +164,23 @@ export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
     `
     )
     .join("");
+
+  const diagnosticoTexto = conteudoConsultivo?.diagnosticoHtml
+    ? conteudoConsultivo.diagnosticoHtml.replace(/<[^>]+>/g, " ").trim()
+    : dados.descricao;
+
+  const defaultFasesFree = [
+    "Fase 01: Planejamento, Diagnóstico & Alinhamento de Escopo",
+    "Fase 02: Execução Técnica & Desenvolvimento Especializado",
+    "Fase 03: Homologação, Validação & Entrega Definitiva",
+  ];
+
+  const fasesFree =
+    conteudoConsultivo?.fases && conteudoConsultivo.fases.length > 0
+      ? conteudoConsultivo.fases.map(
+          (f) => `• ${f.titulo}: ${f.descricao}`
+        ).join("\n")
+      : defaultFasesFree.map((f) => `• ${f}`).join("\n");
 
   return `
 <!DOCTYPE html>
@@ -212,10 +242,14 @@ export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
     <!-- Scope / Description -->
     <div style="margin-bottom: 24px;">
       <div style="font-size: 13px; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #111827; padding-bottom: 4px; margin-bottom: 10px;">
-        1. Descrição do Escopo / Serviços
+        1. Diagnóstico do Cenário & Metodologia de Entrega
       </div>
-      <div style="font-size: 13px; color: #1f2937; white-space: pre-line; line-height: 1.6;">
-        ${dados.descricao}
+      <div style="font-size: 13px; color: #1f2937; white-space: pre-line; line-height: 1.6; margin-bottom: 12px;">
+        ${diagnosticoTexto}
+      </div>
+      <div style="font-size: 12.5px; color: #374151; white-space: pre-line; line-height: 1.5; background: #f9fafb; padding: 10px; border: 1px dashed #9ca3af;">
+        <strong>Metodologia em Fases:</strong>
+${fasesFree}
       </div>
     </div>
 
@@ -284,7 +318,10 @@ export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
   `.trim();
 }
 
-export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
+export function gerarTemplatePro(
+  dados: DadosGeracaoProposta,
+  conteudoConsultivo?: ConteudoConsultivoIA | null
+): string {
   const subtotal = dados.itens.reduce(
     (acc, item) => acc + item.quantidade * item.valorUnitario,
     0
@@ -327,6 +364,52 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
     : `<span data-badge-estrategica="true" style="display: inline-block; background: rgba(37, 99, 235, 0.3); border: 1px solid rgba(96, 165, 250, 0.4); padding: 4px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; color: #93c5fd;">
             Proposta Comercial & Plano Estratégico
           </span>`;
+
+  const diagnosticoCardContent = conteudoConsultivo?.diagnosticoHtml
+    ? conteudoConsultivo.diagnosticoHtml
+    : dados.descricao;
+
+  const defaultFases = [
+    {
+      titulo: "Fase 01: Planejamento, Diagnóstico & Alinhamento",
+      descricao: "Mapeamento detalhado dos objetivos, definição de cronograma executivo e alinhamento inicial de entregáveis.",
+    },
+    {
+      titulo: "Fase 02: Execução Técnica & Desenvolvimento Especializado",
+      descricao: "Construção dos módulos e serviços contratados seguindo padrões rígidos de qualidade, segurança e eficiência.",
+    },
+    {
+      titulo: "Fase 03: Homologação, Validação & Entrega Definitiva",
+      descricao: "Testes integrados, validação assistida junto ao cliente e disponibilização para operação em produção.",
+    },
+  ];
+
+  const fasesRenderizadas =
+    conteudoConsultivo?.fases && conteudoConsultivo.fases.length > 0
+      ? conteudoConsultivo.fases
+      : defaultFases;
+
+  const fasesHtml = fasesRenderizadas
+    .map(
+      (f, idx) => `
+    <div style="display: flex; gap: 12px; align-items: flex-start;">
+      <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; border-radius: 9999px; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700;">${
+        idx + 1
+      }</span>
+      <div>
+        <strong style="font-size: 13px; color: #0f172a;">${f.titulo}</strong>
+        <p style="margin: 2px 0 0 0; font-size: 12.5px; color: #475569; line-height: 1.5;">${f.descricao}</p>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+
+  const garantiasTexto = conteudoConsultivo?.garantiasHtml
+    ? conteudoConsultivo.garantiasHtml
+    : dados.observacoes
+    ? `<p style="margin: 0; font-size: 13px; color: #1e3a8a; line-height: 1.6;">${dados.observacoes}</p>`
+    : "";
 
   return `
 <!DOCTYPE html>
@@ -461,7 +544,7 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
             Diagnóstico do Cenário Atual & Oportunidade
           </div>
           <div style="font-size: 14px; line-height: 1.7; color: #334155; white-space: pre-line;">
-            ${dados.descricao}
+            ${diagnosticoCardContent}
           </div>
         </div>
 
@@ -470,27 +553,7 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
             Metodologia Executiva de Entrega
           </div>
           <div style="display: grid; gap: 12px;">
-            <div style="display: flex; gap: 12px; align-items: flex-start;">
-              <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; border-radius: 9999px; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700;">1</span>
-              <div>
-                <strong style="font-size: 13px; color: #0f172a;">Fase 01: Planejamento, Diagnóstico & Alinhamento</strong>
-                <p style="margin: 2px 0 0 0; font-size: 12.5px; color: #475569; line-height: 1.5;">Mapeamento detalhado dos objetivos, definição de cronograma executivo e alinhamento inicial de entregáveis.</p>
-              </div>
-            </div>
-            <div style="display: flex; gap: 12px; align-items: flex-start;">
-              <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; border-radius: 9999px; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700;">2</span>
-              <div>
-                <strong style="font-size: 13px; color: #0f172a;">Fase 02: Execução Técnica & Desenvolvimento Especializado</strong>
-                <p style="margin: 2px 0 0 0; font-size: 12.5px; color: #475569; line-height: 1.5;">Construção dos módulos e serviços contratados seguindo padrões rígidos de qualidade, segurança e eficiência.</p>
-              </div>
-            </div>
-            <div style="display: flex; gap: 12px; align-items: flex-start;">
-              <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; border-radius: 9999px; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700;">3</span>
-              <div>
-                <strong style="font-size: 13px; color: #0f172a;">Fase 03: Homologação, Validação & Entrega Definitiva</strong>
-                <p style="margin: 2px 0 0 0; font-size: 12.5px; color: #475569; line-height: 1.5;">Testes integrados, validação assistida junto ao cliente e disponibilização para operação em produção.</p>
-              </div>
-            </div>
+            ${fasesHtml}
           </div>
         </div>
       </div>
@@ -533,11 +596,11 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
 
       <!-- Observations & Guarantees -->
       ${
-        dados.observacoes
+        garantiasTexto
           ? `
       <div style="margin-bottom: 32px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 18px;">
         <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 800; color: #1e40af; text-transform: uppercase; letter-spacing: 0.04em;">Garantias & Alinhamentos Comerciais:</h4>
-        <p style="margin: 0; font-size: 13px; color: #1e3a8a; line-height: 1.6;">${dados.observacoes}</p>
+        ${garantiasTexto}
       </div>`
           : ""
       }
@@ -597,132 +660,50 @@ export async function gerarPropostacComIA(
 
   const isFree = dados.plano === "free";
 
-  let prompt = "";
-
-  if (isFree) {
-    prompt = `VOCÊ É UM FORMATADOR DE PROPOSTAS COMERCIAIS ESSENCIAIS EM ESTILO NOTEPAD / MONOCROMÁTICO.
-SUA MISSÃO: Gerar um HTML de proposta comercial limpo, minimalista, totalmente em preto e branco (estilo Notepad profissional), sem cores, sem gradientes e sem elementos visuais decorativos.
-
-DADOS DA PROPOSTA:
-- Data de Emissão: ${new Date().toLocaleDateString("pt-BR")}
-- Código da Proposta: PROP-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}
-- Validade da Proposta: ${dados.validade || 30} dias corridos
-- Condição de Pagamento: ${dados.prazoPagamento || "À Vista"}
-- Observações: ${dados.observacoes || "Nenhuma"}
-
-DADOS DO EMISSOR:
-- Nome: ${dados.empresaNome || "Emissor"}
-- CNPJ: ${dados.empresaCNPJ || ""}
-- Email: ${dados.empresaEmail || ""}
-- Telefone: ${dados.empresaTelefone || ""}
-
-DADOS DO CLIENTE:
-- Nome: ${dados.clienteNome}
-- Empresa: ${dados.clienteEmpresa || ""}
-- Email: ${dados.clienteEmail || ""}
-- Telefone: ${dados.clienteTelefone || ""}
-
-ESCOPO INFORMADO:
-${dados.descricao}
-
-ITENS:
-${itensFormatados}
-
-VALOR TOTAL: R$ ${total.toFixed(2)}
-
-DIRETRIZES OBRIGATÓRIAS DO FORMATO NOTEPAD (PLANO FREE):
-1. Comece diretamente com <!DOCTYPE html> e termine com </html>.
-2. NUNCA inclua markdown ou crases triplas (\`\`\`html).
-3. Inclua a tag <meta name="viewport" content="width=device-width, initial-scale=1.0"> no <head>.
-4. ESTILO MONOCROMÁTICO PURO: Apenas tons de preto, cinza e branco (#000000, #111827, #374151, #ffffff). NÃO use cores vibrantes, azul, verde ou gradientes.
-5. Tipografia limpa baseada em fonte monoespaçada ou sistema ('Courier New', monospace, sans-serif).
-6. Estrutura em caixa simples com bordas sólidas finas (1px solid #111827).
-7. Tabela simples de itens com cabeçalho cinza claro e total destacado.
-8. Seção de termos e assinaturas simples.
-9. No rodapé, inclua a nota: "Proposta gerada no plano gratuito do ViraPropo AI! • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF e assinatura eletrônica."`;
-  } else {
-    prompt = `VOCÊ É O DIRETOR COMERCIAL & ESTRATEGISTA SÊNIOR DE VENDAS (VP of Sales & Closing Strategist) com mais de 25 anos de carreira fechando contratos de alto valor no mercado brasileiro. Você domina vendas consultivas, metodologia SPIN Selling, precificação de valor e fechamento com quebra antecipada de objeções.
+  const prompt = `VOCÊ É O DIRETOR COMERCIAL & ESTRATEGISTA SÊNIOR DE VENDAS (VP of Sales & Closing Strategist) com mais de 25 anos de carreira fechando contratos de alto valor no mercado brasileiro. Você domina vendas consultivas, metodologia SPIN Selling, precificação de valor e fechamento com quebra antecipada de objeções.
 
 SUA MISSÃO:
-Transformar os dados brutos recebidos em uma PROPOSTA COMERCIAL CONSULTIVA COMPLETA, PERSUASIVA, ELEGANTE E COM ALTA TAXA DE CONVERSÃO em formato HTML profissional executivo adaptado para dispositivos móveis e desktop (PLANO PRO).
-
-DIRETRIZES DE COPYWRITING COMERCIAL CONSULTIVO (SPIN SELLING):
-1. DIAGNÓSTICO E ESCOPO EXPANDIDO (CRUCIAL): Na Seção 1 ("1. Diagnóstico do Cenário, Metodologia & Escopo Estratégico"), NUNCA se limite a copiar ou colar o texto bruto digitado pelo usuário. Você DEVE expandir, estruturar e transformar o escopo em uma narrativa consultiva rica de alto nível, com:
-   - **Diagnóstico do Cenário Atual**: Compreensão clara do problema, dos gargalos operacionais e da oportunidade de negócio.
-   - **Metodologia de Entrega em Fases**: Detalhar as etapas de execução (ex: Fase 1: Diagnóstico e Planejamento, Fase 2: Execução Técnica e Otimizações, Fase 3: Validação, Testes e Entrega), explicando os benefícios concretos de cada fase.
-   - **Garantia de Qualidade e Segurança**: Como a solução elimina riscos para a contratante.
-2. VALOR & TRANSPARÊNCIA: A tabela financeira deve ser cristalina, formatada no padrão contábil brasileiro em Real (R$), com alinhamento perfeito.
-3. CLÁUSULAS & REVERSÃO DE RISCO: Reforce prazos, garantias de suporte, condições de pagamento e a importância do fechamento ágil.
-4. FORMALIDADE & FECHAMENTO: Conclua com espaço claro de aceite formal e assinaturas bilaterais.
+Transformar os dados brutos e escopo recebidos em uma NARRATIVA CONSULTIVA ESTRATÉGICA RICA (Diagnóstico SPIN Selling, Metodologia de Entrega em 3 Fases e Garantias).
 
 DADOS DA PROPOSTA:
-- Data de Emissão: ${new Date().toLocaleDateString("pt-BR")}
-- Código da Proposta: PROP-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}
-- Validade da Proposta: ${dados.validade || 30} dias corridos
-- Condição de Pagamento: ${dados.prazoPagamento || "À Vista"}
-- Observações / Garantias: ${dados.observacoes || "Nenhuma"}
+- Emissor / Prestador: ${dados.empresaNome || "Empresa Especializada"}
+- Cliente / Contratante: ${dados.clienteNome} (${dados.clienteEmpresa || "Contratante"})
+- Escopo Informado: ${dados.descricao}
+- Itens: ${itensFormatados}
+- Valor Total: R$ ${total.toFixed(2)}
+- Condições de Pagamento: ${dados.prazoPagamento || "À Vista"}
+- Validade: ${dados.validade || 30} dias corridos
+- Observações: ${dados.observacoes || "Nenhuma"}
 
-DADOS DA EMPRESA EMISSORA (PRESTADOR):
-- Nome: ${dados.empresaNome || "Empresa Especializada"}
-- CNPJ: ${dados.empresaCNPJ || "Não informado"}
-- Email: ${dados.empresaEmail || "Não informado"}
-- Telefone: ${dados.empresaTelefone || "Não informado"}
-${dados.empresaLogoUrl ? `- Logo em Base64: Disponível para ser inserida como <div data-empresa-logo="true" style="display: inline-flex; align-items: center; justify-content: center; background: #ffffff; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(226, 232, 240, 0.9); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07); margin-bottom: 16px; max-width: 220px;"><img src="${dados.empresaLogoUrl}" alt="${dados.empresaNome || "Logo"}" style="max-height: 52px; max-width: 190px; object-fit: contain; display: block;" /></div>` : ""}
-
-DADOS DO CLIENTE (CONTRATANTE):
-- Nome: ${dados.clienteNome}
-- Empresa: ${dados.clienteEmpresa || "Cliente"}
-- Email: ${dados.clienteEmail || ""}
-- Telefone: ${dados.clienteTelefone || ""}
-
-DESCRIÇÃO E ESCOPO DO PROJETO INFORMADO:
-${dados.descricao}
-
-ITENS E INVESTIMENTO:
-${itensFormatados}
-
-VALOR TOTAL: R$ ${total.toFixed(2)}
-
-REQUISITOS ESTRUTURAIS DO CÓDIGO HTML & ADAPTAÇÃO MOBILE:
-1. Comece diretamente com <!DOCTYPE html> e termine com </html>.
-2. NUNCA inclua marcações de markdown, crases triplas (\`\`\`html) ou comentários fora do código HTML.
-3. Inclua a tag <meta name="viewport" content="width=device-width, initial-scale=1.0"> no <head>.
-4. Inclua no <style> regras responsivas com @media (max-width: 640px) para que em smartphones o documento se adapte com padding suave, colunas empilhadas, tabelas com scroll horizontal suave e visual perfeito em telas touch.
-5. Utilize estritamente a Data de Emissão (${new Date().toLocaleDateString("pt-BR")}) e o Código da Proposta informados.
-${
-  dados.empresaLogoUrl
-    ? `7. Como o prestador possui logomarca cadastrada, insira o logotipo no topo do cabeçalho (<div data-empresa-logo="true">...</div>) e NÃO inclua a tarja/badge ("Proposta Comercial & Plano Estratégico" ou "Proposta Estratégica"), deixando o cabeçalho limpo com a marca em destaque.`
-    : `7. Como o prestador NÃO possui logomarca cadastrada, inclua uma tarja/badge elegante e discreta no topo do cabeçalho (<span style="display: inline-block; background: rgba(37, 99, 235, 0.3); border: 1px solid rgba(96, 165, 250, 0.4); padding: 4px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; color: #93c5fd;">Proposta Comercial & Plano Estratégico</span>).`
-}
-8. Tipografia limpa baseada em fontes do sistema ('Inter', -apple-system, system-ui, sans-serif).
-9. Inclua as seções numeradas e bem destacadas:
-   - Cabeçalho da Empresa Emissora (com logo se informada) & Dados do Cliente
-   - 1. Diagnóstico do Cenário, Metodologia & Escopo Estratégico
-   - 2. Tabela Estruturada de Investimento & Entregáveis (com soma total em destaque)
-   - 3. Condições Comerciais, Validade & Garantias
-   - 4. Termo Formal de Aceite / Assinaturas.`;
-  }
+REQUISITO ESTRITO:
+Retorne EXCLUSIVAMENTE um objeto JSON válido (sem tags html externas ou markdown fora do JSON) com a estrutura:
+{
+  "diagnosticoHtml": "<p>Parágrafo 1 de diagnóstico profundo do problema/dor e gargalos atuais do cliente...</p><p>Parágrafo 2 explicando como a solução resolve o problema, gera valor tangível e destrava crescimento...</p>",
+  "fases": [
+    { "titulo": "Fase 01: [Nome da Fase de Diagnóstico/Planejamento]", "descricao": "[Descrição executiva dos entregáveis desta fase e benefícios]" },
+    { "titulo": "Fase 02: [Nome da Fase de Execução Técnica/Desenvolvimento]", "descricao": "[Descrição executiva dos entregáveis desta fase e benefícios]" },
+    { "titulo": "Fase 03: [Nome da Fase de Homologação/Lançamento/Validação]", "descricao": "[Descrição executiva dos entregáveis desta fase e benefícios]" }
+  ],
+  "garantiasHtml": "<p>[Texto consultivo de alinhamentos comerciais, garantias de suporte e reversão de risco]</p>"
+}`;
 
   const configuredModel = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  const defaultModels = [
-    configuredModel,
-    "gemini-3.6-flash",
-    "gemini-flash-latest",
-    "gemini-3.5-flash",
-    "gemini-3.7-flash",
-    "gemini-pro-latest",
-  ];
-  const modelsToTry = Array.from(new Set(defaultModels.filter(Boolean)));
+  const modelsToTry = Array.from(new Set([configuredModel, "gemini-3.6-flash", "gemini-flash-latest"].filter(Boolean)));
 
-  const genAI = getGenAIClient();
+  let genAI: any = null;
+  try {
+    genAI = getGenAIClient();
+  } catch (err: any) {
+    console.warn("[Gemini AI] Cliente não pôde ser inicializado:", err?.message || err);
+  }
 
-  for (const modelName of modelsToTry) {
-    const maxRetries = 2;
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  if (genAI) {
+    for (const modelName of modelsToTry) {
       try {
-        console.log(`[Gemini AI] Gerando proposta com modelo ${modelName} (tentativa ${attempt}/${maxRetries})...`);
+        console.log(`[Gemini AI] Sintetizando consultoria com modelo ${modelName}...`);
         const startTime = Date.now();
-        const timeoutMs = 35000;
+        // 8.5s hard timeout to guarantee response within Vercel serverless window without 504
+        const timeoutMs = 8500;
         const timeoutPromise = new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error(`Timeout de IA (${modelName} após ${timeoutMs}ms)`)), timeoutMs)
         );
@@ -732,7 +713,8 @@ ${
             model: modelName,
             generationConfig: {
               temperature: 0.7,
-              maxOutputTokens: 8192,
+              maxOutputTokens: 2048,
+              responseMimeType: "application/json",
             },
           });
           const result = await model.generateContent(prompt);
@@ -740,60 +722,51 @@ ${
           return response.text();
         })();
 
-        const text = await Promise.race([generatePromise, timeoutPromise]);
+        const rawText = await Promise.race([generatePromise, timeoutPromise]);
         const duration = Date.now() - startTime;
 
-        const htmlContent = text
-          .replace(/```html\n?/gi, "")
+        const cleanedJson = rawText
+          .replace(/```json\n?/gi, "")
           .replace(/```\n?/g, "")
           .trim();
 
-        if (htmlContent.includes("<html") && htmlContent.includes("</html>")) {
-          console.log(`[Gemini AI] Proposta gerada com sucesso via ${modelName} em ${duration}ms (${htmlContent.length} bytes)!`);
-          let finalHtml = htmlContent;
+        // Check if response is raw full HTML or JSON
+        if (cleanedJson.includes("<html") && cleanedJson.includes("</html>")) {
+          console.log(`[Gemini AI] Proposta HTML direta gerada com sucesso via ${modelName} em ${duration}ms!`);
+          let finalHtml = cleanedJson;
           if (dados.plano === "pro" && dados.empresaLogoUrl) {
             finalHtml = injetarOuAtualizarLogoHtml(finalHtml, dados.empresaLogoUrl, dados.empresaNome);
           }
           return ajustarHtmlResponsivoProposta(finalHtml);
         }
-        if (htmlContent.length > 500) {
-          console.log(`[Gemini AI] Proposta parcial gerada com sucesso via ${modelName} em ${duration}ms (${htmlContent.length} bytes)!`);
-          let finalHtml = htmlContent;
-          if (dados.plano === "pro" && dados.empresaLogoUrl) {
-            finalHtml = injetarOuAtualizarLogoHtml(finalHtml, dados.empresaLogoUrl, dados.empresaNome);
+
+        try {
+          const parsed = JSON.parse(cleanedJson) as ConteudoConsultivoIA;
+          if (parsed && (parsed.diagnosticoHtml || (parsed.fases && parsed.fases.length > 0))) {
+            console.log(`[Gemini AI] Síntese consultiva gerada com sucesso via ${modelName} em ${duration}ms!`);
+            let renderedHtml = isFree ? gerarTemplateFree(dados, parsed) : gerarTemplatePro(dados, parsed);
+            if (dados.plano === "pro" && dados.empresaLogoUrl) {
+              renderedHtml = injetarOuAtualizarLogoHtml(renderedHtml, dados.empresaLogoUrl, dados.empresaNome);
+            }
+            return ajustarHtmlResponsivoProposta(renderedHtml);
           }
-          return ajustarHtmlResponsivoProposta(finalHtml);
+        } catch (jsonErr) {
+          console.warn(`[Gemini AI] Resposta do modelo ${modelName} não pôde ser parseada como JSON:`, jsonErr);
         }
       } catch (err: any) {
-        const isTransient =
-          err?.message?.includes("503") ||
-          err?.message?.includes("high demand") ||
-          err?.message?.includes("429") ||
-          err?.message?.includes("rate limit") ||
-          err?.message?.includes("Timeout");
-
-        console.warn(
-          `[Gemini AI] Tentativa ${attempt} com modelo ${modelName} falhou:`,
-          err?.message || err
-        );
-
-        if (attempt < maxRetries && isTransient) {
-          const waitMs = attempt * 1200;
-          console.log(`[Gemini AI] Aguardando ${waitMs}ms antes de tentar novamente o modelo ${modelName}...`);
-          await new Promise((r) => setTimeout(r, waitMs));
-        } else {
-          break; // move to next model
-        }
+        console.warn(`[Gemini AI] Tentativa com modelo ${modelName} falhou (${err?.message || err}).`);
+        break; // Stop immediately on timeout to prevent cascading delays
       }
     }
   }
 
-  // Fallback
-  console.warn("[Gemini AI] Todos os modelos de IA falharam ou esgotaram cota. Utilizando template estruturado consultivo de fallback...");
-  let fallbackHtml = gerarTemplateFallback(dados);
+  // Fallback seguro, estruturado e imediato (0ms)
+  console.log("[Gemini AI] Utilizando template estruturado consultivo de fallback...");
+  let fallbackHtml = isFree ? gerarTemplateFree(dados) : gerarTemplatePro(dados);
   if (dados.plano === "pro" && dados.empresaLogoUrl) {
     fallbackHtml = injetarOuAtualizarLogoHtml(fallbackHtml, dados.empresaLogoUrl, dados.empresaNome);
   }
   return ajustarHtmlResponsivoProposta(fallbackHtml);
 }
+
 
