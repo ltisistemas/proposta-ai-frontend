@@ -37,7 +37,8 @@ export default function VisualizarPropostaPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const resolvedParams = use(params);
+  const resolvedParams =
+    params && typeof (params as any).then === "function" ? use(params) : (params as any);
   const router = useRouter();
   const { token, user } = useAuthStore();
   const { addToast } = useToast();
@@ -427,6 +428,42 @@ export default function VisualizarPropostaPage({
                 </button>
               </div>
 
+              {/* AI Redeploy / Regenerate Button (Max 3x per proposal) */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setRegerarModalOpen(true)}
+                disabled={
+                  isRegenerating ||
+                  (proposta.regeneracoes_restantes ?? (3 - (proposta.regeneracoes_ia || 0))) <= 0 ||
+                  proposta.status === "aceita"
+                }
+                leftIcon={
+                  <Sparkles
+                    className={`w-4 h-4 ${
+                      isRegenerating
+                        ? "animate-spin text-amber-600"
+                        : "text-amber-600"
+                    }`}
+                  />
+                }
+                title={
+                  proposta.status === "aceita"
+                    ? "Propostas aceitas ou assinadas não podem ser alteradas"
+                    : (proposta.regeneracoes_restantes ?? (3 - (proposta.regeneracoes_ia || 0))) <= 0
+                    ? "Limite máximo de 3 regenerações por IA atingido para esta proposta"
+                    : "Re-analisar escopo comercial e expandir com copywriting consultivo de alta conversão"
+                }
+                className="text-xs font-bold border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <span className="flex items-center gap-1.5">
+                  <span>Regerar com IA</span>
+                  <span className="text-[10px] bg-amber-200/90 text-amber-950 px-1.5 py-0.5 rounded-full font-mono font-bold">
+                    {proposta.regeneracoes_restantes ?? (3 - (proposta.regeneracoes_ia || 0))} restantes
+                  </span>
+                </span>
+              </Button>
+
               {/* Share & Copy Link */}
               <Button
                 variant="outline"
@@ -515,6 +552,38 @@ export default function VisualizarPropostaPage({
             />
           </div>
         </div>
+
+        {/* AI Regeneration Confirmation Modal */}
+        <ConfirmModal
+          isOpen={regerarModalOpen}
+          onClose={() => !isRegenerating && setRegerarModalOpen(false)}
+          title="Reescrever proposta com IA Consultiva?"
+          description={
+            <div className="space-y-3 text-slate-600 text-sm">
+              <p>
+                A Inteligência Artificial re-analisará a descrição do projeto e enriquecerá a seção{" "}
+                <strong className="text-slate-900 font-semibold">1. Diagnóstico, Escopo & Metodologia de Entrega</strong>{" "}
+                com metodologia consultiva (SPIN Selling), detalhamento de fases estratégicas e entregáveis de alto valor.
+              </p>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 space-y-1.5">
+                <div className="flex items-center gap-1.5 font-bold text-amber-950">
+                  <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>
+                    Restam {proposta.regeneracoes_restantes ?? (3 - (proposta.regeneracoes_ia || 0))} de 3 tentativas para esta proposta
+                  </span>
+                </div>
+                <p className="text-amber-800">
+                  Os itens financeiros, valores e prazos cadastrados serão preservados intactos.
+                </p>
+              </div>
+            </div>
+          }
+          confirmLabel={isRegenerating ? "Reescrevendo com IA..." : "Sim, regerar proposta"}
+          cancelLabel="Cancelar"
+          variant="primary"
+          isLoading={isRegenerating}
+          onConfirm={handleRegenerarIA}
+        />
 
         {/* Delete Confirmation Modal */}
         <ConfirmModal
