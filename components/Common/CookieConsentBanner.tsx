@@ -12,7 +12,8 @@ export interface CookiePreferences {
   consentedAt: string;
 }
 
-const STORAGE_KEY = "propex_cookie_consent";
+const STORAGE_KEY = "virapropo_cookie_consent";
+const LEGACY_STORAGE_KEY = "propex_cookie_consent";
 
 export function CookieConsentBanner() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +23,9 @@ export function CookieConsentBanner() {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved =
+        localStorage.getItem(STORAGE_KEY) ||
+        localStorage.getItem(LEGACY_STORAGE_KEY);
       if (!saved) {
         // Delay slightly for smooth entrance
         const timer = setTimeout(() => setIsOpen(true), 800);
@@ -86,7 +89,7 @@ export function CookieConsentBanner() {
               Privacidade & Cookies (LGPD)
             </h4>
             <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-              O <strong>Propex AI</strong> utiliza cookies e tecnologias essenciais para garantir o funcionamento seguro do serviço, personalizar sua experiência e aprimorar nossas ferramentas, em conformidade com a LGPD (Lei nº 13.709/2018).
+              O <strong>ViraPropo AI!</strong> utiliza cookies e tecnologias essenciais para garantir o funcionamento seguro do serviço, personalizar sua experiência e aprimorar nossas ferramentas, em conformidade com a LGPD (Lei nº 13.709/2018).
             </p>
           </div>
         </div>

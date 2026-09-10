@@ -64,7 +64,7 @@ export default function SignupPage() {
       addToast({
         type: "success",
         title: "Conta criada com sucesso!",
-        message: "Bem-vindo ao Propex AI! Você já pode gerar suas propostas.",
+        message: "Bem-vindo ao ViraPropo AI!! Você já pode gerar suas propostas.",
       });
 
       router.push("/dashboard");
@@ -80,7 +80,7 @@ export default function SignupPage() {
       <ToastContainer />
       <div className="text-center mb-8">
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-          Crie sua conta no Propex AI
+          Crie sua conta no ViraPropo AI!
         </h1>
         <p className="text-slate-500 text-sm mt-1.5">
           Comece a gerar propostas comerciais profissionais com IA hoje

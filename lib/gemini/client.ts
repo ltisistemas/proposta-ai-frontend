@@ -274,7 +274,7 @@ export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
 
     <!-- Free Tier Footer -->
     <div style="margin-top: 32px; text-align: center; font-size: 11px; color: #6b7280; border-top: 1px dotted #9ca3af; padding-top: 12px;">
-      Proposta gerada no plano gratuito do Propex AI • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF, versão mobile e assinatura eletrônica.
+      Proposta gerada no plano gratuito do ViraPropo AI! • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF, versão mobile e assinatura eletrônica.
     </div>
 
   </div>
@@ -497,7 +497,7 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
 
       <!-- Footer Note -->
       <div style="margin-top: 40px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 16px;">
-        Proposta gerada via Propex AI Pro • Documento confidencial destinado exclusivamente ao cliente especificado.
+        Proposta gerada via ViraPropo AI! Pro • Documento confidencial destinado exclusivamente ao cliente especificado.
       </div>
     </div>
   </div>
@@ -574,7 +574,7 @@ DIRETRIZES OBRIGATÓRIAS DO FORMATO NOTEPAD (PLANO FREE):
 6. Estrutura em caixa simples com bordas sólidas finas (1px solid #111827).
 7. Tabela simples de itens com cabeçalho cinza claro e total destacado.
 8. Seção de termos e assinaturas simples.
-9. No rodapé, inclua a nota: "Proposta gerada no plano gratuito do Propex AI • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF e assinatura eletrônica."`;
+9. No rodapé, inclua a nota: "Proposta gerada no plano gratuito do ViraPropo AI! • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF e assinatura eletrônica."`;
   } else {
     prompt = `VOCÊ É O DIRETOR COMERCIAL & ESTRATEGISTA SÊNIOR DE VENDAS (VP of Sales & Closing Strategist) com mais de 25 anos de carreira fechando contratos de alto valor no mercado brasileiro. Você domina vendas consultivas, metodologia SPIN Selling, precificação de valor e fechamento com quebra antecipada de objeções.
 

@@ -229,18 +229,18 @@ describe("components/Common/ConfirmModal", () => {
 describe("components/Common/Logo", () => {
   it("should render logo with variants, sizes, and links", () => {
     const { rerender } = render(<Logo size="md" variant="light" showSubtitle={true} />);
-    expect(screen.getByText("Propex")).toBeInTheDocument();
-    expect(screen.getByText("AI")).toBeInTheDocument();
+    expect(screen.getByText("ViraPropo")).toBeInTheDocument();
+    expect(screen.getByText("AI!")).toBeInTheDocument();
     expect(screen.getByText(/Sua IA geradora de propostas/i)).toBeInTheDocument();
 
     rerender(<Logo size="sm" variant="dark" href="/dashboard" />);
     expect(screen.getByRole("link")).toBeInTheDocument();
 
     rerender(<Logo size="lg" />);
-    expect(screen.getByText("AI")).toBeInTheDocument();
+    expect(screen.getByText("AI!")).toBeInTheDocument();
 
     rerender(<Logo size="xl" />);
-    expect(screen.getByText("AI")).toBeInTheDocument();
+    expect(screen.getByText("AI!")).toBeInTheDocument();
   });
 });
 

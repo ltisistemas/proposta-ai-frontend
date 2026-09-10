@@ -27,11 +27,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "https://proposta-ai-pra-mim.vercel.app"
   ),
-  title: "Propex AI - Sua IA geradora de propostas",
+  title: "ViraPropo AI! - Sua IA geradora de propostas",
   description:
-    "Propex AI: gere propostas comerciais profissionais, personalizadas e altamente persuasivas com Inteligência Artificial e feche mais contratos.",
+    "ViraPropo AI!: gere propostas comerciais profissionais, personalizadas e altamente persuasivas com Inteligência Artificial e feche mais contratos.",
   keywords: [
-    "Propex AI",
+    "ViraPropo AI!",
+    "ViraPropo",
     "proposta comercial",
     "gerador de propostas",
     "inteligência artificial",
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
     "freelancer",
     "consultoria",
   ],
-  authors: [{ name: "Propex AI" }],
+  authors: [{ name: "ViraPropo AI!" }],
 };
 
 export default function RootLayout({

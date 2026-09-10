@@ -39,7 +39,7 @@ export default function TermosDeUsoPage() {
             Documento Legal & Termos de Serviço
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Termos de Uso do Propex AI
+            Termos de Uso do ViraPropo AI!
           </h1>
           <p className="text-sm text-slate-500">
             Última atualização: <strong>{ultimaAtualizacao}</strong> • Versão 2.1
@@ -49,7 +49,7 @@ export default function TermosDeUsoPage() {
         {/* Intro Card */}
         <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-4 text-sm text-slate-700 leading-relaxed">
           <p>
-            Bem-vindo ao <strong>Propex AI - Sua IA geradora de propostas</strong> (&quot;Propex AI&quot;, &quot;nós&quot; ou &quot;Plataforma&quot;). Estes Termos de Uso regulam o acesso e a utilização dos nossos serviços de software como serviço (SaaS), incluindo a síntese de documentos comerciais com inteligência artificial, gestão de propostas e coleta de assinaturas eletrônicas.
+            Bem-vindo ao <strong>ViraPropo AI! - Sua IA geradora de propostas</strong> (&quot;ViraPropo AI!&quot;, &quot;nós&quot; ou &quot;Plataforma&quot;). Estes Termos de Uso regulam o acesso e a utilização dos nossos serviços de software como serviço (SaaS), incluindo a síntese de documentos comerciais com inteligência artificial, gestão de propostas e coleta de assinaturas eletrônicas.
           </p>
           <p>
             Ao criar uma conta ou utilizar a Plataforma, você declara ter lido, compreendido e concordado integralmente com estes Termos e com a nossa{" "}
@@ -71,7 +71,7 @@ export default function TermosDeUsoPage() {
               Objeto e Descrição dos Serviços
             </h2>
             <p>
-              O <strong>Propex AI</strong> é uma plataforma digital que disponibiliza ferramentas assistidas por inteligência artificial generativa (Google Gemini) para elaboração, formatação, customização e compartilhamento de propostas comerciais e orçamentos em formato web e PDF.
+              O <strong>ViraPropo AI!</strong> é uma plataforma digital que disponibiliza ferramentas assistidas por inteligência artificial generativa (Google Gemini) para elaboração, formatação, customização e compartilhamento de propostas comerciais e orçamentos em formato web e PDF.
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
               <li><strong>Plano Free:</strong> Permite a geração mensal de até 3 propostas comerciais em layout monocromático padrão.</li>
@@ -126,8 +126,8 @@ export default function TermosDeUsoPage() {
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
               <li>É dever exclusivo do usuário revisar todos os valores, quantitativos, prazos, obrigações contratuais e escopo antes de enviar o documento ao cliente final.</li>
-              <li>O Propex AI não se responsabiliza por eventuais imprecisões nas descrições técnicas sugeridas pela IA ou por disputas comerciais entre o prestador e seu cliente contratante.</li>
-              <li>O Propex AI não garante o fechamento de vendas ou resultados financeiros decorrentes do envio das propostas.</li>
+              <li>O ViraPropo AI! não se responsabiliza por eventuais imprecisões nas descrições técnicas sugeridas pela IA ou por disputas comerciais entre o prestador e seu cliente contratante.</li>
+              <li>O ViraPropo AI! não garante o fechamento de vendas ou resultados financeiros decorrentes do envio das propostas.</li>
             </ul>
           </section>
 
@@ -140,7 +140,7 @@ export default function TermosDeUsoPage() {
               Assinatura Eletrônica e Validade Jurídica
             </h2>
             <p>
-              O sistema de aceite e assinatura digital bilateral do Propex AI opera em estrita conformidade com a <strong>Medida Provisória nº 2.200-2/2001</strong> e a <strong>Lei Federal nº 14.063/2020</strong> (Assinatura Eletrônica Simples e Avançada).
+              O sistema de aceite e assinatura digital bilateral do ViraPropo AI! opera em estrita conformidade com a <strong>Medida Provisória nº 2.200-2/2001</strong> e a <strong>Lei Federal nº 14.063/2020</strong> (Assinatura Eletrônica Simples e Avançada).
             </p>
             <p>
               Para cada proposta assinada, é gerado um <em>Manifesto de Assinaturas</em> com carimbo de data/hora, endereço IP, nome, CPF/CNPJ e hash criptográfico SHA-256 do documento para fins de integridade e não repúdio.
@@ -156,7 +156,7 @@ export default function TermosDeUsoPage() {
               Propriedade Intelectual e Foro
             </h2>
             <p>
-              Todos os direitos de propriedade intelectual relativos ao software, marcas, logotipos, layouts e código-fonte pertencem exclusivamente ao <strong>Propex AI</strong>. O conteúdo e dados das propostas comerciais criadas pertencem ao usuário emissor.
+              Todos os direitos de propriedade intelectual relativos ao software, marcas, logotipos, layouts e código-fonte pertencem exclusivamente ao <strong>ViraPropo AI!</strong>. O conteúdo e dados das propostas comerciais criadas pertencem ao usuário emissor.
             </p>
             <p>
               Estes Termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o Foro da Comarca de São Paulo/SP como competente para dirimir eventuais controvérsias.
@@ -170,7 +170,7 @@ export default function TermosDeUsoPage() {
             Dúvidas sobre estes Termos de Uso?
           </p>
           <p className="text-xs text-slate-500">
-            Entre em contato com nossa equipe através do email <strong>contato@propex-ai.com</strong> ou acesse a nossa{" "}
+            Entre em contato com nossa equipe através do email <strong>contato@virapropo.ai</strong> ou acesse a nossa{" "}
             <Link href="/privacidade" className="text-blue-600 font-bold hover:underline">
               Política de Privacidade
             </Link>
@@ -181,7 +181,7 @@ export default function TermosDeUsoPage() {
 
       {/* Page Footer */}
       <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400 bg-white">
-        © {new Date().getFullYear()} Propex AI - Sua IA geradora de propostas • Todos os direitos reservados.
+        © {new Date().getFullYear()} ViraPropo AI! - Sua IA geradora de propostas • Todos os direitos reservados.
       </footer>
     </div>
   );

@@ -83,7 +83,7 @@ const FAQS = [
   {
     question: "Preciso cadastrar cartão de crédito para começar?",
     answer:
-      "Não! O plano gratuito do Propex AI não exige nenhum dado de pagamento. Você pode se cadastrar em 30 segundos e criar até 3 propostas comerciais completas por mês gratuitamente.",
+      "Não! O plano gratuito do ViraPropo AI! não exige nenhum dado de pagamento. Você pode se cadastrar em 30 segundos e criar até 3 propostas comerciais completas por mês gratuitamente.",
   },
   {
     question: "Como o meu cliente recebe e visualiza a proposta?",
@@ -550,7 +550,7 @@ export default function LandingPage() {
 
                 {/* Document Footer */}
                 <div className="pt-3 border-t border-slate-100 text-center text-[10px] text-slate-400">
-                  Proposta gerada via Propex AI • Documento confidencial destinado exclusivamente ao cliente.
+                  Proposta gerada via ViraPropo AI! • Documento confidencial destinado exclusivamente ao cliente.
                 </div>
               </div>
             </div>
@@ -912,7 +912,7 @@ export default function LandingPage() {
       <footer className="border-t border-slate-200/80 py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
         <Logo size="sm" variant="light" showSubtitle={false} />
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
-          <span>© {new Date().getFullYear()} Propex AI. Todos os direitos reservados.</span>
+          <span>© {new Date().getFullYear()} ViraPropo AI!. Todos os direitos reservados.</span>
           <div className="flex items-center gap-4">
             <Link href="/termos" className="hover:text-blue-600 transition-colors underline-offset-2 hover:underline">
               Termos de Uso

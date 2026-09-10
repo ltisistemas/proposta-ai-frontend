@@ -124,7 +124,7 @@ export default function DashboardLayout({
           {/* Logo & Toggle Header */}
           <div className={`flex items-center ${collapsed ? "flex-col gap-3 justify-center" : "justify-between"} px-1 pt-1`}>
             {collapsed ? (
-              <div title="Propex AI">
+              <div title="ViraPropo AI!">
                 <Logo href="/dashboard" size="sm" variant="light" />
               </div>
             ) : (

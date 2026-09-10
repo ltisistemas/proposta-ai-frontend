@@ -22,10 +22,10 @@ describe("Legal Pages & Compliance", () => {
   });
 
   describe("Logo component", () => {
-    it("should render Propex AI brand name and subtitle", () => {
+    it("should render ViraPropo AI! brand name and subtitle", () => {
       render(<Logo size="md" variant="light" showSubtitle={true} />);
-      expect(screen.getByText("Propex")).toBeInTheDocument();
-      expect(screen.getByText("AI")).toBeInTheDocument();
+      expect(screen.getByText("ViraPropo")).toBeInTheDocument();
+      expect(screen.getByText("AI!")).toBeInTheDocument();
       expect(screen.getByText(/Sua IA geradora de propostas/i)).toBeInTheDocument();
     });
   });
@@ -33,7 +33,7 @@ describe("Legal Pages & Compliance", () => {
   describe("Termos de Uso (/termos)", () => {
     it("should render Termos de Uso page with all key sections", () => {
       render(<TermosDeUsoPage />);
-      expect(screen.getByText(/Termos de Uso do Propex AI/i)).toBeInTheDocument();
+      expect(screen.getByText(/Termos de Uso do ViraPropo AI!/i)).toBeInTheDocument();
       expect(screen.getByText(/Objeto e Descrição dos Serviços/i)).toBeInTheDocument();
       expect(screen.getByText(/Assinaturas, Cobrança e Cancelamento/i)).toBeInTheDocument();
       expect(screen.getByText(/Uso de Inteligência Artificial e Responsabilidade/i)).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe("Legal Pages & Compliance", () => {
       const acceptBtn = screen.getByRole("button", { name: /aceitar todos/i });
       fireEvent.click(acceptBtn);
 
-      const saved = JSON.parse(localStorage.getItem("propex_cookie_consent") || "{}");
+      const saved = JSON.parse(localStorage.getItem("virapropo_cookie_consent") || "{}");
       expect(saved.essential).toBe(true);
       expect(saved.analytics).toBe(true);
       expect(saved.marketing).toBe(true);
@@ -97,7 +97,7 @@ describe("Legal Pages & Compliance", () => {
       const rejectBtn = screen.getByRole("button", { name: /apenas essenciais/i });
       fireEvent.click(rejectBtn);
 
-      const saved = JSON.parse(localStorage.getItem("propex_cookie_consent") || "{}");
+      const saved = JSON.parse(localStorage.getItem("virapropo_cookie_consent") || "{}");
       expect(saved.essential).toBe(true);
       expect(saved.analytics).toBe(false);
       expect(saved.marketing).toBe(false);
@@ -124,7 +124,7 @@ describe("Legal Pages & Compliance", () => {
       const saveBtn = screen.getByRole("button", { name: /salvar preferências/i });
       fireEvent.click(saveBtn);
 
-      const saved = JSON.parse(localStorage.getItem("propex_cookie_consent") || "{}");
+      const saved = JSON.parse(localStorage.getItem("virapropo_cookie_consent") || "{}");
       expect(saved.essential).toBe(true);
       expect(saved.analytics).toBe(false);
       vi.useRealTimers();
@@ -132,7 +132,7 @@ describe("Legal Pages & Compliance", () => {
 
     it("should not render banner if consent already exists in localStorage", () => {
       localStorage.setItem(
-        "propex_cookie_consent",
+        "virapropo_cookie_consent",
         JSON.stringify({ essential: true, analytics: true, marketing: true, consentedAt: "2026-09-10" })
       );
 
@@ -156,7 +156,7 @@ describe("Legal Pages & Compliance", () => {
         target: { value: "Test User" },
       });
       fireEvent.change(screen.getByPlaceholderText(/seu.email@empresa.com/i), {
-        target: { value: "test@propex.com" },
+        target: { value: "test@virapropo.ai" },
       });
       fireEvent.change(screen.getByPlaceholderText(/Mínimo 6 caracteres/i), {
         target: { value: "senha123" },

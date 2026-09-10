@@ -49,7 +49,7 @@ export default function PoliticaDePrivacidadePage() {
         {/* Executive Summary */}
         <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-4 text-sm text-slate-700 leading-relaxed">
           <p>
-            No <strong>Propex AI - Sua IA geradora de propostas</strong> (&quot;Propex AI&quot; ou &quot;nós&quot;), a privacidade, a segurança e a transparência no tratamento de dados pessoais são pilares fundamentais. Esta Política de Privacidade explica como coletamos, utilizamos, armazenamos, protegemos e compartilhamos suas informações em estrita observância à <strong>Lei Geral de Proteção de Dados Pessoais (LGPD - Lei nº 13.709/2018)</strong> e ao <strong>Marco Civil da Internet (Lei nº 12.965/2014)</strong>.
+            No <strong>ViraPropo AI! - Sua IA geradora de propostas</strong> (&quot;ViraPropo AI!&quot; ou &quot;nós&quot;), a privacidade, a segurança e a transparência no tratamento de dados pessoais são pilares fundamentais. Esta Política de Privacidade explica como coletamos, utilizamos, armazenamos, protegemos e compartilhamos suas informações em estrita observância à <strong>Lei Geral de Proteção de Dados Pessoais (LGPD - Lei nº 13.709/2018)</strong> e ao <strong>Marco Civil da Internet (Lei nº 12.965/2014)</strong>.
           </p>
         </div>
 
@@ -64,10 +64,10 @@ export default function PoliticaDePrivacidadePage() {
               Controlador e Encarregado de Proteção de Dados (DPO)
             </h2>
             <p>
-              O <strong>Propex AI</strong> atua como <em>Controlador</em> dos dados cadastrais dos usuários contratantes e como <em>Operador</em> no processamento dos dados dos clientes finais inseridos nas propostas comerciais geradas pelo emissor.
+              O <strong>ViraPropo AI!</strong> atua como <em>Controlador</em> dos dados cadastrais dos usuários contratantes e como <em>Operador</em> no processamento dos dados dos clientes finais inseridos nas propostas comerciais geradas pelo emissor.
             </p>
             <p>
-              Para exercer qualquer direito ou esclarecer dúvidas sobre seus dados, entre em contato diretamente com o nosso Encarregado pelo Tratamento de Dados Pessoais (DPO) através do email <strong>dpo@propex-ai.com</strong>.
+              Para exercer qualquer direito ou esclarecer dúvidas sobre seus dados, entre em contato diretamente com o nosso Encarregado pelo Tratamento de Dados Pessoais (DPO) através do email <strong>dpo@virapropo.ai</strong>.
             </p>
           </section>
 
@@ -90,7 +90,7 @@ export default function PoliticaDePrivacidadePage() {
                 <strong>Dados de Assinatura Eletrônica:</strong> Nome do signatário, CPF/CNPJ informado no aceite, endereço IP de conexão, carimbo de data/hora e hash criptográfico SHA-256 do documento.
               </li>
               <li>
-                <strong>Dados de Pagamento:</strong> Transações do Plano Pro são intermediadas pelo gateway <em>Abacate Pay</em>. O Propex AI não armazena dados bancários sensíveis ou chaves PIX privadas em seus servidores.
+                <strong>Dados de Pagamento:</strong> Transações do Plano Pro são intermediadas pelo gateway <em>Abacate Pay</em>. O ViraPropo AI! não armazena dados bancários sensíveis ou chaves PIX privadas em seus servidores.
               </li>
             </ul>
           </section>
@@ -152,7 +152,7 @@ export default function PoliticaDePrivacidadePage() {
             </p>
             <ul className="list-disc pl-5 space-y-1 text-slate-600">
               <li><strong>Essenciais:</strong> Sessões de login JWT seguras, prevenção de CSRF e autenticação.</li>
-              <li><strong>Preferências:</strong> Registro do consentimento de cookies (<code>propex_cookie_consent</code>) e estado da interface (sidebar colapsável).</li>
+              <li><strong>Preferências:</strong> Registro do consentimento de cookies (<code>virapropo_cookie_consent</code>) e estado da interface (sidebar colapsável).</li>
             </ul>
             <p>
               Você pode alterar suas preferências de cookies a qualquer momento através do banner de privacidade ou limpando os dados de navegação do seu navegador.
@@ -188,14 +188,14 @@ export default function PoliticaDePrivacidadePage() {
             Canal de Atendimento de Privacidade & LGPD
           </p>
           <p className="text-xs text-emerald-800">
-            Para exercer seus direitos de privacidade ou contatar o Encarregado de Dados, envie um email para <strong>dpo@propex-ai.com</strong>. Respondemos todas as solicitações no prazo legal.
+            Para exercer seus direitos de privacidade ou contatar o Encarregado de Dados, envie um email para <strong>dpo@virapropo.ai</strong>. Respondemos todas as solicitações no prazo legal.
           </p>
         </div>
       </main>
 
       {/* Page Footer */}
       <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400 bg-white">
-        © {new Date().getFullYear()} Propex AI - Sua IA geradora de propostas • Todos os direitos reservados.
+        © {new Date().getFullYear()} ViraPropo AI! - Sua IA geradora de propostas • Todos os direitos reservados.
       </footer>
     </div>
   );

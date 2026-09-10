@@ -124,7 +124,7 @@ export default function PublicProposalPage({
               Visualização Pública Bloqueada
             </h2>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Esta proposta foi gerada no plano gratuito do Propex AI. O compartilhamento público via link e assinatura eletrônica são exclusivos para assinantes do <strong>Plano Pro</strong>.
+              Esta proposta foi gerada no plano gratuito do ViraPropo AI!. O compartilhamento público via link e assinatura eletrônica são exclusivos para assinantes do <strong>Plano Pro</strong>.
             </p>
           </div>
 
@@ -136,7 +136,7 @@ export default function PublicProposalPage({
             </Link>
             <Link href="/">
               <Button variant="ghost" size="sm" className="w-full justify-center text-xs text-slate-500">
-                Conhecer o Propex AI
+                Conhecer o ViraPropo AI!
               </Button>
             </Link>
           </div>
@@ -284,7 +284,7 @@ export default function PublicProposalPage({
 
       {/* Footer */}
       <footer className="py-6 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
-        Proposta gerada via <strong>Propex AI</strong> • Plataforma de Inteligência Comercial
+        Proposta gerada via <strong>ViraPropo AI!</strong> • Plataforma de Inteligência Comercial
       </footer>
     </div>
   );

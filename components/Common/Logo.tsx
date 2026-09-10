@@ -99,7 +99,7 @@ export function Logo({
               isLight ? "text-slate-900" : "text-white"
             } ${current.text}`}
           >
-            Propex
+            ViraPropo
           </span>
           <span
             className={`font-black rounded-lg ${
@@ -108,7 +108,7 @@ export function Logo({
                 : "bg-sky-500 text-white shadow-xs"
             } tracking-tight uppercase ${current.badge}`}
           >
-            AI
+            AI!
           </span>
         </div>
         {showSubtitle && (

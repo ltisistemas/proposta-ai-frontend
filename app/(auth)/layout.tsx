@@ -24,7 +24,7 @@ export default function AuthLayout({
 
       {/* Footer */}
       <footer className="p-6 text-center text-xs text-slate-500 z-10 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-        <span>© {new Date().getFullYear()} Propex AI. Todos os direitos reservados.</span>
+        <span>© {new Date().getFullYear()} ViraPropo AI!. Todos os direitos reservados.</span>
         <span className="hidden sm:inline text-slate-300">•</span>
         <div className="flex items-center gap-3">
           <Link href="/termos" className="hover:text-blue-600 transition-colors underline-offset-2 hover:underline">
