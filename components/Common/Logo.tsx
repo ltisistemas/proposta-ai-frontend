@@ -52,13 +52,13 @@ export function Logo({
 
   const content = (
     <div className={`inline-flex items-center gap-2.5 select-none group ${className}`}>
-      {/* Brand Icon - Modern Geometric 'Vira' Conversion Mark */}
+      {/* Brand Icon - Vibrant Modern Geometric 'Vira' Conversion Mark */}
       <div
-        className={`${current.icon} bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 border border-blue-500/20 shadow-sm shadow-blue-950/20 group-hover:shadow-md group-hover:shadow-blue-600/25 group-hover:border-blue-400/40 transition-all duration-300 group-hover:scale-[1.03] shrink-0 flex items-center justify-center relative overflow-hidden`}
+        className={`${current.icon} bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border border-blue-400/30 shadow-md shadow-blue-600/25 group-hover:shadow-blue-600/40 group-hover:border-blue-300/50 transition-all duration-300 group-hover:scale-105 shrink-0 flex items-center justify-center relative overflow-hidden`}
         aria-hidden="true"
       >
-        {/* Subtle optical light reflection */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.07] to-transparent pointer-events-none" />
+        {/* Subtle glossy top highlight */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-white/5 to-transparent pointer-events-none" />
 
         <svg
           width={current.svg}
@@ -68,43 +68,23 @@ export function Logo({
           xmlns="http://www.w3.org/2000/svg"
           className="relative z-10 transition-transform duration-300 group-hover:scale-105"
         >
-          <defs>
-            {/* Primary Left Foundation (Proposal Base & Trust) */}
-            <linearGradient id="vp-base-grad" x1="4" y1="4" x2="14" y2="20" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#38BDF8" />
-              <stop offset="100%" stopColor="#1D4ED8" />
-            </linearGradient>
-
-            {/* Ascending Right Wing (The 'Virada' / Conversion & Ascension) */}
-            <linearGradient id="vp-turn-grad" x1="10" y1="20" x2="20" y2="4" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#2563EB" />
-              <stop offset="60%" stopColor="#60A5FA" />
-              <stop offset="100%" stopColor="#93C5FD" />
-            </linearGradient>
-
-            {/* Precision Fold Highlight (Crisp architectural depth) */}
-            <linearGradient id="vp-facet-grad" x1="13" y1="4" x2="19" y2="12" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
-              <stop offset="100%" stopColor="#60A5FA" stopOpacity="0.2" />
-            </linearGradient>
-          </defs>
-
-          {/* Left Foundation Wing - Structural anchor */}
+          {/* Left Wing / Base Foundation (Clean crisp white with subtle opacity) */}
           <path
             d="M4.5 5.5C4.5 4.67 5.17 4 6 4H8.8C9.55 4 10.2 4.42 10.55 5.08L14.2 12.2L10.8 19L4.5 7.5V5.5Z"
-            fill="url(#vp-base-grad)"
+            fill="#ffffff"
+            fillOpacity="0.85"
           />
 
-          {/* Right Ascending Turn - Dynamic momentum & deal closing */}
+          {/* Right Wing / Ascending 'Virada' Turn (Pure solid white for maximum punch & clarity) */}
           <path
             d="M10.8 19L11.55 20.35C11.75 20.7 12.25 20.7 12.45 20.35L19.5 5.5C19.85 4.8 19.35 4 18.5 4H15.6C14.95 4 14.35 4.38 14.05 4.95L10.8 11.8V19Z"
-            fill="url(#vp-turn-grad)"
+            fill="#ffffff"
           />
 
-          {/* Precision Top-Right Light Fold Facet */}
+          {/* Precision Top-Right Light Fold Facet (Ice-cyan accent for high-end depth) */}
           <path
             d="M14.05 4.95L15.6 4H18.5C19.35 4 19.85 4.8 19.5 5.5L16.8 11.2L14.05 4.95Z"
-            fill="url(#vp-facet-grad)"
+            fill="#7dd3fc"
           />
         </svg>
       </div>
@@ -152,4 +132,5 @@ export function Logo({
 
   return content;
 }
+
 
