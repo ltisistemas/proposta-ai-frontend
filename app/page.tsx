@@ -83,7 +83,7 @@ const FAQS = [
   {
     question: "Preciso cadastrar cartão de crédito para começar?",
     answer:
-      "Não! O plano gratuito do Proposta Ai! não exige nenhum dado de pagamento. Você pode se cadastrar em 30 segundos e criar até 3 propostas comerciais completas por mês gratuitamente.",
+      "Não! O plano gratuito do Propex AI não exige nenhum dado de pagamento. Você pode se cadastrar em 30 segundos e criar até 3 propostas comerciais completas por mês gratuitamente.",
   },
   {
     question: "Como o meu cliente recebe e visualiza a proposta?",
@@ -550,7 +550,7 @@ export default function LandingPage() {
 
                 {/* Document Footer */}
                 <div className="pt-3 border-t border-slate-100 text-center text-[10px] text-slate-400">
-                  Proposta gerada via Proposta Ai! • Documento confidencial destinado exclusivamente ao cliente.
+                  Proposta gerada via Propex AI • Documento confidencial destinado exclusivamente ao cliente.
                 </div>
               </div>
             </div>

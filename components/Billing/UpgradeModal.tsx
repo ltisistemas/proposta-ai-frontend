@@ -83,7 +83,7 @@ const FEATURE_CONFIG: Record<
     icon: <Zap className="w-5 h-5 text-blue-600" />,
   },
   general: {
-    title: "Desbloqueie todo o poder do Proposta Ai! Pro",
+    title: "Desbloqueie todo o poder do Propex AI Pro",
     subtitle: "Aumente sua taxa de conversão com propostas executivas e ferramentas de fechamento.",
     icon: <Sparkles className="w-5 h-5 text-blue-600" />,
   },

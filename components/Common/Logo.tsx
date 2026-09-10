@@ -48,11 +48,11 @@ export function Logo({
 
   const content = (
     <div className={`inline-flex items-center gap-2.5 select-none group ${className}`}>
-      {/* Brand Icon - Solid high-contrast gradient badge with crisp white & cyan vector glyph */}
+      {/* Brand Icon - High-contrast modern gradient badge */}
       <div
         className={`${current.icon} bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border border-blue-400/30 shadow-md shadow-blue-600/25 group-hover:shadow-blue-600/40 transition-all duration-300 group-hover:scale-105 shrink-0 flex items-center justify-center relative overflow-hidden`}
       >
-        {/* Subtle glossy top reflection */}
+        {/* Subtle glossy reflection */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/10 pointer-events-none" />
 
         <svg
@@ -99,7 +99,7 @@ export function Logo({
               isLight ? "text-slate-900" : "text-white"
             } ${current.text}`}
           >
-            Proposta
+            Propex
           </span>
           <span
             className={`font-black rounded-lg ${
@@ -108,16 +108,16 @@ export function Logo({
                 : "bg-sky-500 text-white shadow-xs"
             } tracking-tight uppercase ${current.badge}`}
           >
-            Ai!
+            AI
           </span>
         </div>
         {showSubtitle && (
           <span
-            className={`text-[10px] font-medium tracking-wider uppercase -mt-0.5 ${
+            className={`text-[10px] font-medium tracking-wider -mt-0.5 ${
               isLight ? "text-slate-500" : "text-slate-400"
             }`}
           >
-            Propostas Comerciais Inteligentes
+            Sua IA geradora de propostas
           </span>
         )}
       </div>

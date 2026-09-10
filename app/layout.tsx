@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { CookieConsentBanner } from "@/components/Common/CookieConsentBanner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,10 +25,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "https://proposta-ai-pra-mim.vercel.app"
   ),
-  title: "Proposta Ai! | Crie Propostas Comerciais com IA em Minutos",
+  title: "Propex AI - Sua IA geradora de propostas",
   description:
-    "Gere propostas comerciais profissionais, personalizadas e altamente persuasivas com Inteligência Artificial e feche mais contratos.",
+    "Propex AI: gere propostas comerciais profissionais, personalizadas e altamente persuasivas com Inteligência Artificial e feche mais contratos.",
   keywords: [
+    "Propex AI",
     "proposta comercial",
     "gerador de propostas",
     "inteligência artificial",
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
     "freelancer",
     "consultoria",
   ],
-  authors: [{ name: "Proposta Ai!" }],
+  authors: [{ name: "Propex AI" }],
 };
 
 export default function RootLayout({
@@ -51,6 +53,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#FBFBFA] text-slate-900 selection:bg-blue-500 selection:text-white">
         {children}
+        <CookieConsentBanner />
       </body>
     </html>
   );

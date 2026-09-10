@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Logo } from "@/components/Common/Logo";
 
 export default function AuthLayout({
@@ -13,7 +14,7 @@ export default function AuthLayout({
 
       {/* Header */}
       <header className="p-6 sm:p-8 max-w-7xl mx-auto w-full flex items-center justify-between z-10">
-        <Logo href="/" size="md" variant="light" />
+        <Logo href="/" size="md" variant="light" showSubtitle />
       </header>
 
       {/* Content */}
@@ -22,8 +23,18 @@ export default function AuthLayout({
       </main>
 
       {/* Footer */}
-      <footer className="p-6 text-center text-xs text-slate-500 z-10 border-t border-slate-200/80">
-        © {new Date().getFullYear()} Proposta Ai!. Todos os direitos reservados.
+      <footer className="p-6 text-center text-xs text-slate-500 z-10 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+        <span>© {new Date().getFullYear()} Propex AI. Todos os direitos reservados.</span>
+        <span className="hidden sm:inline text-slate-300">•</span>
+        <div className="flex items-center gap-3">
+          <Link href="/termos" className="hover:text-blue-600 transition-colors underline-offset-2 hover:underline">
+            Termos de Uso
+          </Link>
+          <span className="text-slate-300">•</span>
+          <Link href="/privacidade" className="hover:text-blue-600 transition-colors underline-offset-2 hover:underline">
+            Privacidade (LGPD)
+          </Link>
+        </div>
       </footer>
     </div>
   );
