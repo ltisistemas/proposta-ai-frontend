@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { gerarPropostacComIA } from "@/lib/gemini/client";
+import { gerarPropostacComIA, injetarOuAtualizarLogoHtml } from "@/lib/gemini/client";
 import {
   salvarProposta,
   ItemPropostaInput,
@@ -121,6 +121,15 @@ export async function POST(request: NextRequest) {
       plano: (user.plano as "free" | "pro") || "free",
     });
 
+    const finalHtmlContent =
+      user.plano === "pro" && user.empresa_logo_url
+        ? injetarOuAtualizarLogoHtml(
+            htmlContent,
+            user.empresa_logo_url,
+            empresaInfo.empresaNome
+          )
+        : htmlContent;
+
     // 5. Generate proposal number and calculate totals
     const anoAtual = new Date().getFullYear();
     const randomCode = Math.floor(1000 + Math.random() * 9000);
@@ -146,7 +155,7 @@ export async function POST(request: NextRequest) {
       clienteEmail: dados.clienteEmail || undefined,
       clienteTelefone: dados.clienteTelefone,
       descricao: dados.descricao,
-      conteudoHtml: htmlContent,
+      conteudoHtml: finalHtmlContent,
       templateId: dados.templateId,
       subtotal,
       total,

@@ -43,6 +43,84 @@ function formatarMoeda(valor: number): string {
   }).format(valor);
 }
 
+export function renderizarMarkupLogo(logoUrl: string, empresaNome?: string): string {
+  return `<div data-empresa-logo="true" style="margin-bottom: 14px;"><img src="${logoUrl}" alt="${empresaNome || "Logo"}" style="max-height: 64px; max-width: 200px; object-fit: contain; background: #ffffff; padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);" /></div>`;
+}
+
+export function injetarOuAtualizarLogoHtml(
+  conteudoHtml: string,
+  logoUrl?: string | null,
+  empresaNome?: string
+): string {
+  if (!conteudoHtml) return conteudoHtml;
+
+  // Regex to detect existing data-empresa-logo container
+  const logoDivRegex = /<div\s+data-empresa-logo="true"[^>]*>[\s\S]*?<\/div>/i;
+
+  // If logoUrl is empty, null, or undefined, remove any existing logo markup
+  if (!logoUrl) {
+    return conteudoHtml.replace(logoDivRegex, "");
+  }
+
+  const logoMarkup = renderizarMarkupLogo(logoUrl, empresaNome);
+
+  // Case 1: Existing data-empresa-logo container found -> replace it
+  if (logoDivRegex.test(conteudoHtml)) {
+    return conteudoHtml.replace(logoDivRegex, logoMarkup);
+  }
+
+  // Case 2: Legacy <img> with alt or logo styles inside header without data attribute
+  const legacyLogoRegex = /<div style="margin-bottom:\s*14px;"><img src="data:image\/[^"]+"[^>]*><\/div>/i;
+  if (legacyLogoRegex.test(conteudoHtml)) {
+    return conteudoHtml.replace(legacyLogoRegex, logoMarkup);
+  }
+
+  // Case 3: Insert before badge or header title inside header-content
+  const headerContentMatch = /<div class="header-content"[^>]*>/i.exec(conteudoHtml);
+  if (headerContentMatch) {
+    const insertPos = headerContentMatch.index + headerContentMatch[0].length;
+    // Check if there's an inner div inside flex-responsive
+    const flexMatch = /<div class="flex-responsive"[^>]*>\s*<div>/i.exec(conteudoHtml);
+    if (flexMatch && flexMatch.index >= insertPos) {
+      const innerInsertPos = flexMatch.index + flexMatch[0].length;
+      return (
+        conteudoHtml.slice(0, innerInsertPos) +
+        `\n          ${logoMarkup}` +
+        conteudoHtml.slice(innerInsertPos)
+      );
+    }
+    return (
+      conteudoHtml.slice(0, insertPos) +
+      `\n        ${logoMarkup}` +
+      conteudoHtml.slice(insertPos)
+    );
+  }
+
+  // Case 4: Insert before the first <h1>
+  const h1Match = /<h1[^>]*>/i.exec(conteudoHtml);
+  if (h1Match) {
+    return (
+      conteudoHtml.slice(0, h1Match.index) +
+      `${logoMarkup}\n          ` +
+      conteudoHtml.slice(h1Match.index)
+    );
+  }
+
+  // Case 5: Insert after <body> tag
+  const bodyMatch = /<body[^>]*>/i.exec(conteudoHtml);
+  if (bodyMatch) {
+    const insertPos = bodyMatch.index + bodyMatch[0].length;
+    return (
+      conteudoHtml.slice(0, insertPos) +
+      `\n  ${logoMarkup}` +
+      conteudoHtml.slice(insertPos)
+    );
+  }
+
+  // Fallback: prepend
+  return `${logoMarkup}\n${conteudoHtml}`;
+}
+
 export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
   const subtotal = dados.itens.reduce(
     (acc, item) => acc + item.quantidade * item.valorUnitario,
@@ -234,7 +312,7 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
     .join("");
 
   const logoHtml = dados.empresaLogoUrl
-    ? `<div style="margin-bottom: 14px;"><img src="${dados.empresaLogoUrl}" alt="${dados.empresaNome || "Logo"}" style="max-height: 64px; max-width: 200px; object-fit: contain; background: #ffffff; padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);" /></div>`
+    ? renderizarMarkupLogo(dados.empresaLogoUrl, dados.empresaNome)
     : "";
 
   return `
@@ -566,9 +644,15 @@ ${dados.empresaLogoUrl ? `7. Se houver logo, inclua a imagem no topo do cabeçal
         .trim();
 
       if (htmlContent.includes("<html") && htmlContent.includes("</html>")) {
+        if (dados.plano === "pro" && dados.empresaLogoUrl) {
+          return injetarOuAtualizarLogoHtml(htmlContent, dados.empresaLogoUrl, dados.empresaNome);
+        }
         return htmlContent;
       }
       if (htmlContent.length > 500) {
+        if (dados.plano === "pro" && dados.empresaLogoUrl) {
+          return injetarOuAtualizarLogoHtml(htmlContent, dados.empresaLogoUrl, dados.empresaNome);
+        }
         return htmlContent;
       }
     } catch (err: any) {
@@ -578,5 +662,9 @@ ${dados.empresaLogoUrl ? `7. Se houver logo, inclua a imagem no topo do cabeçal
 
   // Fallback
   console.log("Utilizando template estruturado de fallback...");
-  return gerarTemplateFallback(dados);
+  const fallbackHtml = gerarTemplateFallback(dados);
+  if (dados.plano === "pro" && dados.empresaLogoUrl) {
+    return injetarOuAtualizarLogoHtml(fallbackHtml, dados.empresaLogoUrl, dados.empresaNome);
+  }
+  return fallbackHtml;
 }

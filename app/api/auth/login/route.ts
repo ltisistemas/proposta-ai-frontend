@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
       emPeriodoGraca: validacao.emPeriodoGraca,
       diasRestantesGraca: validacao.diasRestantesGraca,
       statusAssinatura: validacao.statusAssinatura,
+      cancelamentoAgendado: !!validacao.cancelamentoAgendado,
     });
   } catch (error: any) {
     console.error("Erro em /api/auth/login:", error);

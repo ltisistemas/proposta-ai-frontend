@@ -20,6 +20,8 @@ import {
   gerarTemplatePro,
   gerarPropostacComIA,
   gerarTemplateFallback,
+  renderizarMarkupLogo,
+  injetarOuAtualizarLogoHtml,
   getGenAIClient,
   DadosGeracaoProposta,
 } from "@/lib/gemini/client";
@@ -165,5 +167,70 @@ describe("lib/gemini/client", () => {
     const result = await gerarPropostacComIA(proData);
     expect(result).toBeDefined();
     expect(result).toContain("Empresa Teste");
+  });
+
+  describe("injetarOuAtualizarLogoHtml & renderizarMarkupLogo", () => {
+    const sampleLogo = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+    const newLogo = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFElEQVR42mNk+M9Qz8DAwMTAwAAACkQBAJq5aZwAAAAASUVORK5CYII=";
+
+    it("should return unchanged when input HTML is empty", () => {
+      expect(injetarOuAtualizarLogoHtml("", sampleLogo)).toBe("");
+    });
+
+    it("should remove logo when logoUrl is empty or null", () => {
+      const htmlWithLogo = `<div><div data-empresa-logo="true"><img src="${sampleLogo}" /></div><h1>Title</h1></div>`;
+      const cleaned = injetarOuAtualizarLogoHtml(htmlWithLogo, null);
+      expect(cleaned).not.toContain("data-empresa-logo");
+      expect(cleaned).toContain("<h1>Title</h1>");
+    });
+
+    it("should replace existing data-empresa-logo container with new logo", () => {
+      const htmlWithLogo = `<div class="header-content"><div data-empresa-logo="true"><img src="${sampleLogo}" /></div><h1>Empresa</h1></div>`;
+      const updated = injetarOuAtualizarLogoHtml(htmlWithLogo, newLogo, "Nova Marca");
+      expect(updated).toContain(newLogo);
+      expect(updated).not.toContain(sampleLogo);
+      expect(updated).toContain('alt="Nova Marca"');
+    });
+
+    it("should replace legacy img logo container", () => {
+      const legacyHtml = `<div><div style="margin-bottom: 14px;"><img src="${sampleLogo}" alt="Old"></div><h1>Empresa</h1></div>`;
+      const updated = injetarOuAtualizarLogoHtml(legacyHtml, newLogo, "Atualizada");
+      expect(updated).toContain(newLogo);
+      expect(updated).toContain('data-empresa-logo="true"');
+    });
+
+    it("should insert logo inside header-content / flex-responsive wrapper", () => {
+      const htmlWithoutLogo = `<html><body><div class="header-content"><div class="flex-responsive"><div><h1>Empresa Pro</h1></div></div></div></body></html>`;
+      const result = injetarOuAtualizarLogoHtml(htmlWithoutLogo, sampleLogo, "Empresa Pro");
+      expect(result).toContain('data-empresa-logo="true"');
+      expect(result.indexOf('data-empresa-logo="true"')).toBeLessThan(result.indexOf("<h1>Empresa Pro</h1>"));
+    });
+
+    it("should insert logo before <h1> when no header-content class is present", () => {
+      const simpleHtml = `<html><body><h1>Empresa Comercial</h1><p>Proposta</p></body></html>`;
+      const result = injetarOuAtualizarLogoHtml(simpleHtml, sampleLogo);
+      expect(result).toContain('data-empresa-logo="true"');
+      expect(result.indexOf('data-empresa-logo="true"')).toBeLessThan(result.indexOf("<h1>Empresa Comercial</h1>"));
+    });
+
+    it("should insert logo after <body> when no <h1> is present", () => {
+      const noH1Html = `<html><body><div><p>Documento sem H1</p></div></body></html>`;
+      const result = injetarOuAtualizarLogoHtml(noH1Html, sampleLogo);
+      expect(result).toContain('data-empresa-logo="true"');
+      expect(result.indexOf('data-empresa-logo="true"')).toBeGreaterThan(result.indexOf("<body>"));
+    });
+
+    it("should fallback to prepending when no body or h1 tags are found", () => {
+      const snippet = `<section><p>Snippet apenas</p></section>`;
+      const result = injetarOuAtualizarLogoHtml(snippet, sampleLogo);
+      expect(result.startsWith('<div data-empresa-logo="true"')).toBe(true);
+    });
+
+    it("should generate valid markup in renderizarMarkupLogo", () => {
+      const markup = renderizarMarkupLogo(sampleLogo, "Minha Empresa");
+      expect(markup).toContain('data-empresa-logo="true"');
+      expect(markup).toContain(sampleLogo);
+      expect(markup).toContain('alt="Minha Empresa"');
+    });
   });
 });

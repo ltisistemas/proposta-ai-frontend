@@ -7,13 +7,19 @@ vi.mock("@/lib/db/users", () => ({
   obterUserPorId: vi.fn(),
   criarUser: vi.fn(),
   atualizarUserProfile: vi.fn(),
+  agendarCancelamentoAssinatura: vi.fn(),
   validarAssinaturaUsuario: vi.fn().mockImplementation(async (user) => ({
     user,
     emPeriodoGraca: false,
     diasRestantesGraca: 0,
     diasAtraso: 0,
     statusAssinatura: user?.plano === "pro" ? "ativa" : "free",
+    cancelamentoAgendado: !!user?.cancelamento_agendado,
   })),
+}));
+
+vi.mock("@/lib/db/propostas", () => ({
+  sincronizarLogoPropostasDoUsuario: vi.fn(),
 }));
 
 vi.mock("@/lib/auth/password", () => ({
@@ -24,13 +30,16 @@ vi.mock("@/lib/auth/password", () => ({
 import { POST as loginHandler } from "@/app/api/auth/login/route";
 import { POST as signupHandler } from "@/app/api/auth/signup/route";
 import { GET as meGetHandler, PUT as mePutHandler } from "@/app/api/auth/me/route";
+import { POST as downgradeHandler } from "@/app/api/auth/downgrade/route";
 import {
   obterUserPorEmail,
   obterUserPorId,
   criarUser,
   atualizarUserProfile,
   validarAssinaturaUsuario,
+  agendarCancelamentoAssinatura,
 } from "@/lib/db/users";
+import { sincronizarLogoPropostasDoUsuario } from "@/lib/db/propostas";
 import { comparePassword } from "@/lib/auth/password";
 import { gerarToken } from "@/lib/auth/jwt";
 
@@ -390,6 +399,46 @@ describe("API /api/auth/me", () => {
     expect(json.usuario.nome).toBe("Updated Name");
   });
 
+  it("should synchronize user proposals logo when updating empresa_logo_url on PUT /api/auth/me", async () => {
+    const token = gerarToken({
+      userId: "u123",
+      email: "me@test.com",
+      nome: "Me User",
+      plano: "pro",
+    });
+
+    vi.mocked(atualizarUserProfile).mockResolvedValueOnce({
+      id: "u123",
+      email: "me@test.com",
+      nome: "Me User",
+      empresa_logo_url: "data:image/png;base64,newlogo",
+      plano: "pro",
+    } as any);
+
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "u123",
+      email: "me@test.com",
+      nome: "Me User",
+      empresa_logo_url: "data:image/png;base64,newlogo",
+      empresa_nome: "Acme",
+      plano: "pro",
+    } as any);
+
+    const req = new NextRequest("http://localhost:3000/api/auth/me", {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ empresa_logo_url: "data:image/png;base64,newlogo" }),
+    });
+
+    const res = await mePutHandler(req);
+    expect(res.status).toBe(200);
+    expect(vi.mocked(sincronizarLogoPropostasDoUsuario)).toHaveBeenCalledWith(
+      "u123",
+      "data:image/png;base64,newlogo",
+      "Acme"
+    );
+  });
+
   it("should return 500 when GET /api/auth/me or PUT /api/auth/me throws", async () => {
     const token = gerarToken({
       userId: "u123",
@@ -415,6 +464,53 @@ describe("API /api/auth/me", () => {
     expect(resPut.status).toBe(500);
   });
 
+  it("should return cancelamentoAgendado and dataFimAcesso in GET /api/auth/me when cancellation is scheduled", async () => {
+    const token = gerarToken({
+      userId: "u_sched_me",
+      email: "schedme@test.com",
+      nome: "Sched Me",
+      plano: "pro",
+    });
+
+    const proximaCobranca = new Date(Date.now() + 86400000 * 15);
+
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "u_sched_me",
+      email: "schedme@test.com",
+      nome: "Sched Me",
+      plano: "pro",
+      cancelamento_agendado: true,
+      data_proxima_cobranca: proximaCobranca,
+    } as any);
+
+    vi.mocked(validarAssinaturaUsuario).mockResolvedValueOnce({
+      user: {
+        id: "u_sched_me",
+        email: "schedme@test.com",
+        nome: "Sched Me",
+        plano: "pro",
+        cancelamento_agendado: true,
+        data_proxima_cobranca: proximaCobranca,
+      } as any,
+      emPeriodoGraca: false,
+      diasRestantesGraca: 0,
+      diasAtraso: 0,
+      statusAssinatura: "ativa",
+      cancelamentoAgendado: true,
+    });
+
+    const req = new NextRequest("http://localhost:3000/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const res = await meGetHandler(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.sucesso).toBe(true);
+    expect(json.cancelamentoAgendado).toBe(true);
+    expect(json.dataFimAcesso).toBeDefined();
+  });
+
   it("should return 500 when loginHandler or signupHandler throws unexpected error", async () => {
     vi.mocked(obterUserPorEmail).mockRejectedValueOnce(new Error("DB Fatal"));
     const reqLogin = new NextRequest("http://localhost:3000/api/auth/login", {
@@ -431,5 +527,221 @@ describe("API /api/auth/me", () => {
     });
     const resSignup = await signupHandler(reqSignup);
     expect(resSignup.status).toBe(500);
+  });
+});
+
+describe("API /api/auth/downgrade", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should return 401 when Authorization header is missing", async () => {
+    const req = new NextRequest("http://localhost:3000/api/auth/downgrade", {
+      method: "POST",
+      body: JSON.stringify({ acao: "agendar" }),
+    });
+
+    const res = await downgradeHandler(req);
+    expect(res.status).toBe(401);
+    const json = await res.json();
+    expect(json.sucesso).toBe(false);
+    expect(json.erro).toContain("Não autenticado");
+  });
+
+  it("should return 401 when token is invalid", async () => {
+    const req = new NextRequest("http://localhost:3000/api/auth/downgrade", {
+      method: "POST",
+      headers: { Authorization: "Bearer invalid_token" },
+      body: JSON.stringify({ acao: "agendar" }),
+    });
+
+    const res = await downgradeHandler(req);
+    expect(res.status).toBe(401);
+    const json = await res.json();
+    expect(json.sucesso).toBe(false);
+    expect(json.erro).toContain("Token inválido");
+  });
+
+  it("should return 404 when user is not found in database", async () => {
+    const token = gerarToken({
+      userId: "u_notfound",
+      email: "notfound@test.com",
+      nome: "Not Found",
+      plano: "pro",
+    });
+
+    vi.mocked(obterUserPorId).mockResolvedValueOnce(null);
+
+    const req = new NextRequest("http://localhost:3000/api/auth/downgrade", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ acao: "agendar" }),
+    });
+
+    const res = await downgradeHandler(req);
+    expect(res.status).toBe(404);
+    const json = await res.json();
+    expect(json.sucesso).toBe(false);
+    expect(json.erro).toContain("Usuário não encontrado");
+  });
+
+  it("should return 400 for invalid body schema", async () => {
+    const token = gerarToken({
+      userId: "u_valid",
+      email: "user@test.com",
+      nome: "User",
+      plano: "pro",
+    });
+
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "u_valid",
+      email: "user@test.com",
+      nome: "User",
+      plano: "pro",
+    } as any);
+
+    const req = new NextRequest("http://localhost:3000/api/auth/downgrade", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ acao: "invalid_action" }),
+    });
+
+    const res = await downgradeHandler(req);
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.sucesso).toBe(false);
+    expect(json.erro).toContain("Ação inválida");
+  });
+
+  it("should return 400 when user is not on Pro plan", async () => {
+    const token = gerarToken({
+      userId: "u_free",
+      email: "free@test.com",
+      nome: "Free User",
+      plano: "free",
+    });
+
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "u_free",
+      email: "free@test.com",
+      nome: "Free User",
+      plano: "free",
+    } as any);
+
+    const req = new NextRequest("http://localhost:3000/api/auth/downgrade", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ acao: "agendar" }),
+    });
+
+    const res = await downgradeHandler(req);
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.sucesso).toBe(false);
+    expect(json.erro).toContain("Apenas usuários com o plano Pro");
+  });
+
+  it("should successfully schedule downgrade when acao is 'agendar'", async () => {
+    const token = gerarToken({
+      userId: "u_pro_sched",
+      email: "pro@test.com",
+      nome: "Pro User",
+      plano: "pro",
+    });
+
+    const cobranca = new Date(Date.now() + 86400000 * 20);
+
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "u_pro_sched",
+      email: "pro@test.com",
+      nome: "Pro User",
+      plano: "pro",
+      data_proxima_cobranca: cobranca,
+    } as any);
+
+    vi.mocked(agendarCancelamentoAssinatura).mockResolvedValueOnce({
+      id: "u_pro_sched",
+      email: "pro@test.com",
+      nome: "Pro User",
+      plano: "pro",
+      cancelamento_agendado: true,
+      data_proxima_cobranca: cobranca,
+    } as any);
+
+    const req = new NextRequest("http://localhost:3000/api/auth/downgrade", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ acao: "agendar" }),
+    });
+
+    const res = await downgradeHandler(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.sucesso).toBe(true);
+    expect(json.cancelamentoAgendado).toBe(true);
+    expect(json.mensagem).toContain("Cancelamento da assinatura agendado");
+    expect(vi.mocked(agendarCancelamentoAssinatura)).toHaveBeenCalledWith("u_pro_sched", true);
+  });
+
+  it("should successfully reactivate subscription when acao is 'reativar'", async () => {
+    const token = gerarToken({
+      userId: "u_pro_reactivate",
+      email: "pro@test.com",
+      nome: "Pro User",
+      plano: "pro",
+    });
+
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "u_pro_reactivate",
+      email: "pro@test.com",
+      nome: "Pro User",
+      plano: "pro",
+      cancelamento_agendado: true,
+    } as any);
+
+    vi.mocked(agendarCancelamentoAssinatura).mockResolvedValueOnce({
+      id: "u_pro_reactivate",
+      email: "pro@test.com",
+      nome: "Pro User",
+      plano: "pro",
+      cancelamento_agendado: false,
+    } as any);
+
+    const req = new NextRequest("http://localhost:3000/api/auth/downgrade", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ acao: "reativar" }),
+    });
+
+    const res = await downgradeHandler(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.sucesso).toBe(true);
+    expect(json.cancelamentoAgendado).toBe(false);
+    expect(json.mensagem).toContain("reativada com sucesso");
+    expect(vi.mocked(agendarCancelamentoAssinatura)).toHaveBeenCalledWith("u_pro_reactivate", false);
+  });
+
+  it("should return 500 when downgradeHandler encounters an unhandled exception", async () => {
+    const token = gerarToken({
+      userId: "u_err",
+      email: "err@test.com",
+      nome: "Err",
+      plano: "pro",
+    });
+
+    vi.mocked(obterUserPorId).mockRejectedValueOnce(new Error("Fatal DB Error"));
+
+    const req = new NextRequest("http://localhost:3000/api/auth/downgrade", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ acao: "agendar" }),
+    });
+
+    const res = await downgradeHandler(req);
+    expect(res.status).toBe(500);
+    const json = await res.json();
+    expect(json.sucesso).toBe(false);
+    expect(json.erro).toContain("Erro interno");
   });
 });

@@ -7,6 +7,7 @@ import {
 } from "@/lib/db/propostas";
 import { obterUserPorId } from "@/lib/db/users";
 import { query } from "@/lib/db/client";
+import { injetarOuAtualizarLogoHtml } from "@/lib/gemini/client";
 
 export async function GET(
   request: NextRequest,
@@ -26,7 +27,28 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ sucesso: true, proposta });
+    const criador = await obterUserPorId(proposta.usuario_id);
+    let conteudoHtml = proposta.conteudo_html;
+
+    if (criador) {
+      if (criador.plano === "pro") {
+        conteudoHtml = injetarOuAtualizarLogoHtml(
+          conteudoHtml,
+          criador.empresa_logo_url,
+          criador.empresa_nome || criador.nome
+        );
+      } else {
+        conteudoHtml = injetarOuAtualizarLogoHtml(conteudoHtml, null);
+      }
+    }
+
+    return NextResponse.json({
+      sucesso: true,
+      proposta: {
+        ...proposta,
+        conteudo_html: conteudoHtml,
+      },
+    });
   } catch (error) {
     console.error("Erro em GET /api/propostas/[id]:", error);
     return NextResponse.json({ erro: "Erro ao buscar proposta" }, { status: 500 });

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { obterTokenDoHeader, obterUserIdDoToken } from "@/lib/auth/jwt";
 import { obterUserPorId, atualizarUserProfile, validarAssinaturaUsuario } from "@/lib/db/users";
+import { sincronizarLogoPropostasDoUsuario } from "@/lib/db/propostas";
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,6 +31,8 @@ export async function GET(request: NextRequest) {
       emPeriodoGraca: validacao.emPeriodoGraca,
       diasRestantesGraca: validacao.diasRestantesGraca,
       statusAssinatura: validacao.statusAssinatura,
+      cancelamentoAgendado: !!validacao.cancelamentoAgendado,
+      dataFimAcesso: (validacao.user as any).data_proxima_cobranca || null,
     });
   } catch (error) {
     console.error("Erro em /api/auth/me GET:", error);
@@ -51,6 +54,17 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json();
     const updated = await atualizarUserProfile(userId, body);
+
+    if (body.empresa_logo_url !== undefined && updated) {
+      const user = await obterUserPorId(userId);
+      if (user && user.plano === "pro") {
+        await sincronizarLogoPropostasDoUsuario(
+          userId,
+          user.empresa_logo_url,
+          user.empresa_nome || user.nome
+        );
+      }
+    }
 
     return NextResponse.json({ sucesso: true, usuario: updated });
   } catch (error) {

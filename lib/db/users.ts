@@ -263,7 +263,7 @@ export async function obterUserPorId(
   id: string
 ): Promise<Omit<UserRow, "password_hash"> | null> {
   const result = await query(
-    `SELECT id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, abacate_customer_id, abacate_subscription_id, criado_em, atualizado_em 
+    `SELECT id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, abacate_customer_id, abacate_subscription_id, criado_em, atualizado_em 
      FROM users WHERE id = $1 AND deletado_em IS NULL`,
     [id]
   );
@@ -280,6 +280,21 @@ export async function obterUserPorAbacateId(
   return result.rows[0] || null;
 }
 
+export async function agendarCancelamentoAssinatura(
+  userId: string,
+  cancelar: boolean
+): Promise<Omit<UserRow, "password_hash"> | null> {
+  await garantirColunaVerificacaoAssinatura();
+  const result = await query(
+    `UPDATE users 
+     SET cancelamento_agendado = $1, atualizado_em = CURRENT_TIMESTAMP 
+     WHERE id = $2 AND deletado_em IS NULL
+     RETURNING id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, abacate_customer_id, abacate_subscription_id, criado_em, atualizado_em`,
+    [cancelar, userId]
+  );
+  return result.rows[0] || null;
+}
+
 export async function atualizarUserPlano(
   abacateCustomerId: string,
   plano: "free" | "pro",
@@ -289,11 +304,12 @@ export async function atualizarUserPlano(
     `UPDATE users 
      SET plano = $1::varchar, 
          abacate_subscription_id = $2, 
+         cancelamento_agendado = FALSE,
          data_assinatura = CASE WHEN $1::varchar = 'pro' THEN CURRENT_TIMESTAMP ELSE data_assinatura END,
          data_proxima_cobranca = CASE WHEN $1::varchar = 'pro' THEN CURRENT_TIMESTAMP + INTERVAL '30 days' ELSE data_proxima_cobranca END,
          atualizado_em = CURRENT_TIMESTAMP
      WHERE abacate_customer_id = $3
-     RETURNING id, email, plano, data_assinatura, data_proxima_cobranca`,
+     RETURNING id, email, plano, data_assinatura, data_proxima_cobranca, cancelamento_agendado`,
     [plano, subscriptionId, abacateCustomerId]
   );
 

@@ -30,6 +30,7 @@ import {
   verificarLimiteProposta,
   incrementarContadorPropostas,
   validarAssinaturaUsuario,
+  agendarCancelamentoAssinatura,
   garantirColunaVerificacaoAssinatura,
   _resetAssinaturaColInitialized,
 } from "@/lib/db/users";
@@ -41,6 +42,7 @@ import {
   deletarProposta,
   obterMetricasDashboard,
   assinarProposta,
+  sincronizarLogoPropostasDoUsuario,
   _resetDualSignatureColumnsInitialized,
 } from "@/lib/db/propostas";
 import {
@@ -354,6 +356,115 @@ describe("lib/db/users", () => {
     });
     expect(resProExpired.statusAssinatura).toBe("expirada_downgrade");
     expect(resProExpired.user.plano).toBe("free");
+
+    // 7. Pro user with cancelamento_agendado = true and billing cycle in the future -> Preserves Pro status
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 }); // update verification date
+    const resProScheduledActive = await validarAssinaturaUsuario({
+      id: "u_pro_sched1",
+      email: "sched1@test.com",
+      plano: "pro",
+      nome: "Scheduled Pro",
+      password_hash: "hash",
+      cancelamento_agendado: true,
+      data_proxima_cobranca: new Date(Date.now() + 86400000 * 12),
+      data_ultima_verificacao_pagamento: "2026-01-01",
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resProScheduledActive.statusAssinatura).toBe("ativa");
+    expect(resProScheduledActive.user.plano).toBe("pro");
+    expect(resProScheduledActive.cancelamentoAgendado).toBe(true);
+
+    // 7b. Pro user with cancelamento_agendado = true checked again on the same day (future)
+    const resProScheduledSameDay = await validarAssinaturaUsuario({
+      id: "u_pro_sched_today",
+      email: "sched_today@test.com",
+      plano: "pro",
+      nome: "Scheduled Today",
+      password_hash: "hash",
+      cancelamento_agendado: true,
+      data_proxima_cobranca: new Date(Date.now() + 86400000 * 5),
+      data_ultima_verificacao_pagamento: hojeStr,
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resProScheduledSameDay.statusAssinatura).toBe("ativa");
+    expect(resProScheduledSameDay.cancelamentoAgendado).toBe(true);
+
+    // 7c. Pro user with cancelamento_agendado = true checked again on the same day (expired)
+    const resProScheduledExpiredSameDay = await validarAssinaturaUsuario({
+      id: "u_pro_sched_exp_today",
+      email: "sched_exp_today@test.com",
+      plano: "pro",
+      nome: "Scheduled Expired Today",
+      password_hash: "hash",
+      cancelamento_agendado: true,
+      data_proxima_cobranca: new Date(Date.now() - 86400000 * 1),
+      data_ultima_verificacao_pagamento: hojeStr,
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resProScheduledExpiredSameDay.statusAssinatura).toBe("expirada_downgrade");
+    expect(resProScheduledExpiredSameDay.user.plano).toBe("free");
+    expect(resProScheduledExpiredSameDay.cancelamentoAgendado).toBe(false);
+
+    // 8. Pro user with cancelamento_agendado = true and billing cycle expired -> Direct downgrade to Free (no grace period)
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 }); // update plano to free
+    const resProScheduledExpired = await validarAssinaturaUsuario({
+      id: "u_pro_sched2",
+      email: "sched2@test.com",
+      plano: "pro",
+      nome: "Scheduled Pro Expired",
+      password_hash: "hash",
+      cancelamento_agendado: true,
+      data_proxima_cobranca: new Date(Date.now() - 86400000 * 1), // 1 day overdue
+      data_ultima_verificacao_pagamento: "2026-01-01",
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resProScheduledExpired.statusAssinatura).toBe("expirada_downgrade");
+    expect(resProScheduledExpired.user.plano).toBe("free");
+    expect(resProScheduledExpired.emPeriodoGraca).toBe(false);
+    expect(resProScheduledExpired.cancelamentoAgendado).toBe(false);
+  });
+
+  it("should schedule and cancel subscription downgrade via agendarCancelamentoAssinatura", async () => {
+    // 1. Schedule downgrade
+    mockQuery.mockResolvedValueOnce({
+      rows: [
+        {
+          id: "u_sched",
+          email: "sched@test.com",
+          plano: "pro",
+          cancelamento_agendado: true,
+        },
+      ],
+      rowCount: 1,
+    });
+
+    const userScheduled = await agendarCancelamentoAssinatura("u_sched", true);
+    expect(userScheduled?.cancelamento_agendado).toBe(true);
+
+    // 2. Reverse/reactivate subscription
+    mockQuery.mockResolvedValueOnce({
+      rows: [
+        {
+          id: "u_sched",
+          email: "sched@test.com",
+          plano: "pro",
+          cancelamento_agendado: false,
+        },
+      ],
+      rowCount: 1,
+    });
+
+    const userReactivated = await agendarCancelamentoAssinatura("u_sched", false);
+    expect(userReactivated?.cancelamento_agendado).toBe(false);
+
+    // 3. Not found
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    const userNotFound = await agendarCancelamentoAssinatura("u_missing", true);
+    expect(userNotFound).toBeNull();
   });
 
   it("should handle error in garantirColunaVerificacaoAssinatura gracefully", async () => {
@@ -514,6 +625,27 @@ describe("lib/db/propostas", () => {
 
     expect(signed?.status).toBe("aceita");
     expect(signed?.assinante_nome).toBe("Signer Name");
+  });
+
+  it("should synchronize user proposals logo via sincronizarLogoPropostasDoUsuario", async () => {
+    const oldHtml = "<html><body><h1>Proposta Sem Logo</h1></body></html>";
+    mockQuery.mockResolvedValueOnce({
+      rows: [
+        { id: "prop_1", conteudo_html: oldHtml },
+        { id: "prop_2", conteudo_html: "" },
+      ],
+      rowCount: 2,
+    });
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 }); // UPDATE query
+
+    const updatedCount = await sincronizarLogoPropostasDoUsuario(
+      "u_1",
+      "data:image/png;base64,newlogo",
+      "Empresa Teste"
+    );
+
+    expect(updatedCount).toBe(1);
+    expect(mockQuery).toHaveBeenCalledTimes(2);
   });
 });
 

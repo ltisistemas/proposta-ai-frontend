@@ -125,18 +125,56 @@ describe("API /api/propostas/[id]", () => {
     expect(res.status).toBe(404);
   });
 
-  it("should return 200 with proposta details", async () => {
+  it("should return 200 with proposta details and enrich HTML with creator Pro logo", async () => {
     vi.mocked(obterPropostaPorId).mockResolvedValueOnce({
       id: "p_1",
+      usuario_id: "u_pro",
       cliente_nome: "Acme",
+      conteudo_html: "<html><body><div class='header-content'><h1>Acme Corp</h1></div></body></html>",
       total: 1000,
     } as any);
 
-    const req = new NextRequest("http://localhost:3000/api/propostas/p_1");
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "u_pro",
+      nome: "Pro Creator",
+      plano: "pro",
+      empresa_logo_url: "data:image/png;base64,logopro123",
+      empresa_nome: "Acme Corp",
+    } as any);
+
+    const req = new NextRequest("http://localhost:3000/api/propostas/p_1", {
+      headers: { Authorization: `Bearer ${tokenPro}` },
+    });
     const res = await getProposta(req, { params: Promise.resolve({ id: "p_1" }) });
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.proposta.id).toBe("p_1");
+    expect(json.proposta.conteudo_html).toContain("data:image/png;base64,logopro123");
+    expect(json.proposta.conteudo_html).toContain('data-empresa-logo="true"');
+  });
+
+  it("should strip logo from HTML if creator is on Free plan", async () => {
+    vi.mocked(obterPropostaPorId).mockResolvedValueOnce({
+      id: "p_free_1",
+      usuario_id: "u_free",
+      cliente_nome: "Free Client",
+      conteudo_html: '<html><body><div data-empresa-logo="true"><img src="data:image/png;base64,old" /></div><h1>Free Client</h1></body></html>',
+      total: 500,
+    } as any);
+
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "u_free",
+      nome: "Free Creator",
+      plano: "free",
+    } as any);
+
+    const req = new NextRequest("http://localhost:3000/api/propostas/p_free_1", {
+      headers: { Authorization: `Bearer ${tokenFree}` },
+    });
+    const res = await getProposta(req, { params: Promise.resolve({ id: "p_free_1" }) });
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.proposta.conteudo_html).not.toContain("data-empresa-logo");
   });
 
   it("should block free users from manually setting status to aceita", async () => {
@@ -440,17 +478,19 @@ describe("API /api/public/propostas/[id]", () => {
     expect(json.bloqueadoPlanoFree).toBe(true);
   });
 
-  it("should return 200 with proposal and issuer info if creator is pro", async () => {
+  it("should return 200 with proposal, enriched HTML, and issuer info if creator is pro", async () => {
     vi.mocked(obterPropostaPorId).mockResolvedValueOnce({
       id: "p_pro",
       usuario_id: "u_pro",
       cliente_nome: "Cliente VIP",
+      conteudo_html: "<html><body><h1>Proposta Pública</h1></body></html>",
     } as any);
     vi.mocked(obterUserPorId).mockResolvedValueOnce({
       id: "u_pro",
       nome: "Emissor Pro",
       plano: "pro",
       empresa_nome: "Minha Empresa Pro",
+      empresa_logo_url: "data:image/png;base64,publiclogopro",
     } as any);
 
     const req = new NextRequest("http://localhost:3000/api/public/propostas/p_pro");
@@ -459,6 +499,7 @@ describe("API /api/public/propostas/[id]", () => {
     const json = await res.json();
     expect(json.sucesso).toBe(true);
     expect(json.emissor.empresaNome).toBe("Minha Empresa Pro");
+    expect(json.proposta.conteudo_html).toContain("data:image/png;base64,publiclogopro");
   });
 
   it("should fallback missing emissor fields for legacy proposals", async () => {

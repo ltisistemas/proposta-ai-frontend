@@ -39,7 +39,13 @@ export default function LoginPage() {
         return;
       }
 
-      setAuth(data.token, data.usuario);
+      setAuth(
+        data.token,
+        data.usuario,
+        data.emPeriodoGraca,
+        data.diasRestantesGraca,
+        data.cancelamentoAgendado
+      );
       addToast({
         type: "success",
         title: "Login realizado com sucesso!",

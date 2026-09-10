@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { obterPropostaPorId } from "@/lib/db/propostas";
 import { obterUserPorId } from "@/lib/db/users";
+import { injetarOuAtualizarLogoHtml } from "@/lib/gemini/client";
 
 export async function GET(
   request: NextRequest,
@@ -31,8 +32,15 @@ export async function GET(
       );
     }
 
+    const conteudoHtml = injetarOuAtualizarLogoHtml(
+      proposta.conteudo_html,
+      criador.empresa_logo_url,
+      criador.empresa_nome || criador.nome
+    );
+
     const propostaCompleta = {
       ...proposta,
+      conteudo_html: conteudoHtml,
       emissor_nome: proposta.emissor_nome || criador.nome || criador.empresa_nome || "Emissor Autorizado",
       emissor_email: proposta.emissor_email || criador.email || criador.empresa_email || "",
       emissor_documento: proposta.emissor_documento || criador.empresa_cnpj || null,

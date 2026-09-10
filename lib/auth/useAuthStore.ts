@@ -15,6 +15,7 @@ export interface AuthUser {
   plano: "free" | "pro";
   propostas_mes_atual?: number;
   data_proxima_cobranca?: Date | string | null;
+  cancelamento_agendado?: boolean;
 }
 
 interface AuthStore {
@@ -24,7 +25,14 @@ interface AuthStore {
   isLoading: boolean;
   emPeriodoGraca: boolean;
   diasRestantesGraca: number;
-  setAuth: (token: string, user: AuthUser, emPeriodoGraca?: boolean, diasRestantesGraca?: number) => void;
+  cancelamentoAgendado: boolean;
+  setAuth: (
+    token: string,
+    user: AuthUser,
+    emPeriodoGraca?: boolean,
+    diasRestantesGraca?: number,
+    cancelamentoAgendado?: boolean
+  ) => void;
   updateUser: (user: Partial<AuthUser>) => void;
   logout: () => void;
   fetchMe: () => Promise<void>;
@@ -39,8 +47,15 @@ export const useAuthStore = create<AuthStore>()(
       isLoading: false,
       emPeriodoGraca: false,
       diasRestantesGraca: 0,
+      cancelamentoAgendado: false,
 
-      setAuth: (token, user, emPeriodoGraca = false, diasRestantesGraca = 0) => {
+      setAuth: (
+        token,
+        user,
+        emPeriodoGraca = false,
+        diasRestantesGraca = 0,
+        cancelamentoAgendado = false
+      ) => {
         if (typeof window !== "undefined") {
           localStorage.setItem("proposta_ai_token", token);
           document.cookie = `proposta_ai_token=${token}; path=/; max-age=604800; SameSite=Lax`;
@@ -52,13 +67,21 @@ export const useAuthStore = create<AuthStore>()(
           isLoading: false,
           emPeriodoGraca: !!emPeriodoGraca,
           diasRestantesGraca: diasRestantesGraca || 0,
+          cancelamentoAgendado: !!cancelamentoAgendado || !!user?.cancelamento_agendado,
         });
       },
 
       updateUser: (updatedFields) => {
         const currentUser = get().user;
         if (currentUser) {
-          set({ user: { ...currentUser, ...updatedFields } });
+          const updated = { ...currentUser, ...updatedFields };
+          set({
+            user: updated,
+            cancelamentoAgendado:
+              updatedFields.cancelamento_agendado !== undefined
+                ? !!updatedFields.cancelamento_agendado
+                : get().cancelamentoAgendado,
+          });
         }
       },
 
@@ -74,6 +97,7 @@ export const useAuthStore = create<AuthStore>()(
           isLoading: false,
           emPeriodoGraca: false,
           diasRestantesGraca: 0,
+          cancelamentoAgendado: false,
         });
       },
 
@@ -98,6 +122,8 @@ export const useAuthStore = create<AuthStore>()(
               isAuthenticated: true,
               emPeriodoGraca: !!data.emPeriodoGraca,
               diasRestantesGraca: data.diasRestantesGraca || 0,
+              cancelamentoAgendado:
+                !!data.cancelamentoAgendado || !!data.usuario.cancelamento_agendado,
             });
           } else {
             get().logout();

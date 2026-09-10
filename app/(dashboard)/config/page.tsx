@@ -15,11 +15,15 @@ import {
   Lock,
   Image as ImageIcon,
   CheckCircle2,
+  AlertTriangle,
+  Calendar,
+  RefreshCw,
 } from "lucide-react";
 import { Input } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
 import { Card } from "@/components/Common/Card";
 import { Badge } from "@/components/Common/Badge";
+import { ConfirmModal } from "@/components/Common/ConfirmModal";
 import { UpgradeModal } from "@/components/Billing/UpgradeModal";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
@@ -29,6 +33,9 @@ export default function ConfigPage() {
   const { addToast } = useToast();
 
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [confirmDowngradeOpen, setConfirmDowngradeOpen] = useState(false);
+  const [isDowngrading, setIsDowngrading] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
 
   const [nome, setNome] = useState(user?.nome || "");
   const [empresaNome, setEmpresaNome] = useState(user?.empresa_nome || "");
@@ -170,6 +177,112 @@ export default function ConfigPage() {
 
   const handleUpgradeCheckout = () => {
     setUpgradeModalOpen(true);
+  };
+
+  const formatarDataExpiracao = (data?: Date | string | null) => {
+    if (!data) return "o fim do ciclo atual";
+    try {
+      const d = new Date(data);
+      if (isNaN(d.getTime())) return "o fim do ciclo atual";
+      return d.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    } catch {
+      return "o fim do ciclo atual";
+    }
+  };
+
+  const dataFimFormatada = formatarDataExpiracao(user?.data_proxima_cobranca);
+
+  const handleAgendarDowngrade = async () => {
+    if (!token) return;
+    setIsDowngrading(true);
+    try {
+      const res = await fetch("/api/auth/downgrade", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ acao: "agendar" }),
+      });
+      const data = await res.json();
+      if (data.sucesso) {
+        updateUser({
+          cancelamento_agendado: true,
+          ...(data.usuario || {}),
+        });
+        setConfirmDowngradeOpen(false);
+        addToast({
+          type: "success",
+          title: "Cancelamento agendado",
+          message:
+            data.mensagem ||
+            "Seus recursos Pro permanecerão ativos até o fim do período pago.",
+        });
+      } else {
+        addToast({
+          type: "error",
+          title: "Erro ao agendar cancelamento",
+          message: data.erro || "Tente novamente mais tarde.",
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao solicitar cancelamento:", err);
+      addToast({
+        type: "error",
+        title: "Erro de conexão",
+        message: "Não foi possível processar a solicitação de cancelamento.",
+      });
+    } finally {
+      setIsDowngrading(false);
+    }
+  };
+
+  const handleReativarAssinatura = async () => {
+    if (!token) return;
+    setIsReactivating(true);
+    try {
+      const res = await fetch("/api/auth/downgrade", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ acao: "reativar" }),
+      });
+      const data = await res.json();
+      if (data.sucesso) {
+        updateUser({
+          cancelamento_agendado: false,
+          ...(data.usuario || {}),
+        });
+        addToast({
+          type: "success",
+          title: "Assinatura reativada!",
+          message:
+            data.mensagem ||
+            "Sua assinatura Pro foi reativada com sucesso.",
+        });
+      } else {
+        addToast({
+          type: "error",
+          title: "Erro ao reativar assinatura",
+          message: data.erro || "Tente novamente mais tarde.",
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao reativar assinatura:", err);
+      addToast({
+        type: "error",
+        title: "Erro de conexão",
+        message: "Não foi possível reativar a assinatura.",
+      });
+    } finally {
+      setIsReactivating(false);
+    }
   };
 
   return (
@@ -365,12 +478,62 @@ export default function ConfigPage() {
 
             {user?.plano === "pro" ? (
               <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-blue-500/20 border border-blue-400/30 text-blue-100 text-xs">
-                  <p className="font-bold text-sm text-white flex items-center gap-1.5 mb-1">
-                    <Check className="w-4 h-4 text-emerald-400" /> Assinatura Pro Ativa
-                  </p>
-                  Você possui propostas executivas ilimitadas com IA, assinatura eletrônica, exportação em PDF, logo em Base64 e link público liberados.
-                </div>
+                {user?.cancelamento_agendado ? (
+                  <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-100 text-xs space-y-3">
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-sm text-white">
+                          Cancelamento Agendado
+                        </p>
+                        <p className="text-amber-200/90 text-xs mt-1 leading-relaxed">
+                          Sua assinatura Pro não será renovada. Você continuará com acesso total a todos os recursos Pro até <strong className="text-white underline decoration-amber-400/60">{dataFimFormatada}</strong>.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-1">
+                      <Button
+                        type="button"
+                        variant="primary"
+                        size="sm"
+                        onClick={handleReativarAssinatura}
+                        isLoading={isReactivating}
+                        leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+                        className="w-full justify-center font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-950/40 text-xs"
+                      >
+                        Reativar Assinatura Pro
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="p-4 rounded-2xl bg-blue-500/20 border border-blue-400/30 text-blue-100 text-xs">
+                      <p className="font-bold text-sm text-white flex items-center gap-1.5 mb-1">
+                        <Check className="w-4 h-4 text-emerald-400" /> Assinatura Pro Ativa
+                      </p>
+                      <p className="text-blue-200/90 text-xs leading-relaxed">
+                        Você possui propostas executivas ilimitadas com IA, assinatura eletrônica, exportação em PDF, logo em Base64 e link público liberados.
+                      </p>
+                      {user?.data_proxima_cobranca && (
+                        <div className="flex items-center gap-1.5 mt-3 text-[11px] text-blue-200 font-medium pt-2 border-t border-blue-400/20">
+                          <Calendar className="w-3.5 h-3.5 text-blue-300" />
+                          <span>Próxima renovação em: <strong>{dataFimFormatada}</strong></span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-1 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDowngradeOpen(true)}
+                        className="text-xs text-rose-300 hover:text-rose-100 underline decoration-rose-400/40 hover:decoration-rose-200 transition-colors cursor-pointer flex items-center gap-1"
+                      >
+                        Cancelar assinatura do plano
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <div className="space-y-5">
@@ -424,6 +587,23 @@ export default function ConfigPage() {
           </Card>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmDowngradeOpen}
+        onClose={() => setConfirmDowngradeOpen(false)}
+        onConfirm={handleAgendarDowngrade}
+        title="Cancelar Assinatura Pro?"
+        description={
+          <span>
+            Ao agendar o cancelamento, seu plano Pro continuará{" "}
+            <strong>100% ativo até {dataFimFormatada}</strong>. Após essa data, sua conta retornará ao plano Free e nenhuma cobrança futura será realizada.
+          </span>
+        }
+        confirmLabel="Confirmar Cancelamento"
+        cancelLabel="Manter Plano Pro"
+        variant="warning"
+        isLoading={isDowngrading}
+      />
 
       <UpgradeModal
         isOpen={upgradeModalOpen}

@@ -1,5 +1,6 @@
 import { query, transaction } from "./client";
 import crypto from "crypto";
+import { injetarOuAtualizarLogoHtml } from "../gemini/client";
 
 export interface ItemPropostaInput {
   descricao: string;
@@ -314,5 +315,31 @@ export async function assinarProposta(dados: {
     ]
   );
   return result.rows[0] || null;
+}
+
+export async function sincronizarLogoPropostasDoUsuario(
+  usuarioId: string,
+  logoUrl?: string | null,
+  empresaNome?: string
+): Promise<number> {
+  const result = await query<Pick<PropostaRow, "id" | "conteudo_html">>(
+    "SELECT id, conteudo_html FROM propostas WHERE usuario_id = $1 AND deletado_em IS NULL",
+    [usuarioId]
+  );
+
+  let atualizadas = 0;
+  for (const row of result.rows) {
+    if (!row.conteudo_html) continue;
+    const novoHtml = injetarOuAtualizarLogoHtml(row.conteudo_html, logoUrl, empresaNome);
+    if (novoHtml !== row.conteudo_html) {
+      await query(
+        "UPDATE propostas SET conteudo_html = $1, atualizado_em = CURRENT_TIMESTAMP WHERE id = $2",
+        [novoHtml, row.id]
+      );
+      atualizadas++;
+    }
+  }
+
+  return atualizadas;
 }
 
