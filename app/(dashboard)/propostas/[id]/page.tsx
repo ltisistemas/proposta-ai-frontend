@@ -28,6 +28,7 @@ import { UpgradeModal, UpgradeFeatureType } from "@/components/Billing/UpgradeMo
 import { SignatureModal } from "@/components/Proposta/SignatureModal";
 import { DigitalCertificate } from "@/components/Proposta/DigitalCertificate";
 import { WhatsAppModal } from "@/components/Proposta/WhatsAppModal";
+import { ajustarHtmlResponsivoProposta } from "@/lib/utils/proposal-html";
 
 export default function VisualizarPropostaPage({
   params,
@@ -180,7 +181,8 @@ export default function VisualizarPropostaPage({
 
     const printWindow = window.open("", "_blank");
     if (printWindow && proposta?.conteudo_html) {
-      printWindow.document.write(proposta.conteudo_html);
+      const htmlResponsivo = ajustarHtmlResponsivoProposta(proposta.conteudo_html);
+      printWindow.document.write(htmlResponsivo);
       printWindow.document.close();
       printWindow.focus();
       setTimeout(() => {
@@ -460,10 +462,10 @@ export default function VisualizarPropostaPage({
         )}
 
         {/* Document Reader Container (Executive Canvas with Mobile Optimization) */}
-        <div className="bg-[#F1F5F9] border border-slate-200/90 rounded-3xl p-2 sm:p-6 md:p-10 shadow-sm flex flex-col items-center overflow-x-hidden">
-          <div className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-200/80 min-h-[85vh]">
+        <div className="bg-[#F1F5F9] border border-slate-200/90 rounded-2xl sm:rounded-3xl p-1.5 sm:p-6 md:p-10 shadow-sm flex flex-col items-center overflow-x-hidden w-full">
+          <div className="w-full max-w-4xl bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-slate-200/80 min-h-[85vh]">
             <iframe
-              srcDoc={proposta.conteudo_html}
+              srcDoc={ajustarHtmlResponsivoProposta(proposta.conteudo_html)}
               title={`Proposta Comercial ${proposta.numero}`}
               className="w-full min-h-[85vh] h-full border-0 block"
               style={{ minHeight: "85vh" }}
