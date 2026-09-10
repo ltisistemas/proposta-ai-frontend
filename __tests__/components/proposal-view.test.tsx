@@ -4,12 +4,13 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import VisualizarPropostaPage from "@/app/(dashboard)/propostas/[id]/page";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 
+const mockPush = vi.fn();
+const mockReplace = vi.fn();
+const mockRouter = { push: mockPush, replace: mockReplace };
+
 // Mock useRouter and useParams
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: vi.fn(),
-    replace: vi.fn(),
-  }),
+  useRouter: () => mockRouter,
 }));
 
 describe("VisualizarPropostaPage Floating Actions & AI Regeneration", () => {
