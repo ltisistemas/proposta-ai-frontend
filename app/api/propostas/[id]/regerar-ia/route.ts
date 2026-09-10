@@ -5,6 +5,9 @@ import { obterUserPorId } from "@/lib/db/users";
 import { gerarPropostacComIA, DadosGeracaoProposta } from "@/lib/gemini/client";
 import { ajustarHtmlResponsivoProposta } from "@/lib/utils/proposal-html";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

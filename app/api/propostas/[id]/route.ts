@@ -9,6 +9,9 @@ import { obterUserPorId } from "@/lib/db/users";
 import { query } from "@/lib/db/client";
 import { injetarOuAtualizarLogoHtml } from "@/lib/gemini/client";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

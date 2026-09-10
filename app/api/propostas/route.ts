@@ -7,6 +7,9 @@ import {
 } from "@/lib/db/propostas";
 import { obterUserPorId } from "@/lib/db/users";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+
 export async function GET(request: NextRequest) {
   try {
     const token = obterTokenDoHeader(request.headers.get("Authorization"));

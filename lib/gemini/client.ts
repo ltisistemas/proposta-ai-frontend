@@ -671,10 +671,8 @@ ${
 
   const modelsToTry = [
     process.env.GEMINI_MODEL,
-    "gemini-3.6-flash",
-    "gemini-2.5-flash",
-    "gemini-1.5-flash",
     "gemini-2.0-flash",
+    "gemini-1.5-flash",
     "gemini-1.5-pro",
   ].filter(Boolean) as string[];
 
@@ -682,10 +680,19 @@ ${
 
   for (const modelName of modelsToTry) {
     try {
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
+      const timeoutMs = 20000;
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error(`Timeout de IA (${modelName})`)), timeoutMs)
+      );
+
+      const generatePromise = (async () => {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        return response.text();
+      })();
+
+      const text = await Promise.race([generatePromise, timeoutPromise]);
 
       const htmlContent = text
         .replace(/```html\n?/gi, "")
