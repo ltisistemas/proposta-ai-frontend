@@ -27,10 +27,10 @@ export async function POST(request: NextRequest) {
     // Cria cobrança PIX transparente no Abacate Pay v2 (R$ 45,90 = 4590 centavos)
     const charge = await criarCobrancaPixTransparente({
       amount: 4590,
-      description: "Assinatura Proposta Ai! Pro (Mensal)",
+      description: "Assinatura Propex AI Pro (Mensal)",
       expiresIn: 3600, // 1 hora
       customer: {
-        name: usuario.nome || "Assinante Proposta Ai",
+        name: usuario.nome || "Assinante Propex AI",
         email: usuario.email,
         taxId: usuario.empresa_cnpj || undefined,
         cellphone: usuario.empresa_telefone || undefined,

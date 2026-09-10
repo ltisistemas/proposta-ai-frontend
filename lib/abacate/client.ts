@@ -70,10 +70,10 @@ export async function criarCobrancaPixTransparente(
         data: {
           amount: payload.amount,
           description:
-            payload.description || "Assinatura Proposta Ai! Pro - Mensal",
+            payload.description || "Assinatura Propex AI Pro - Mensal",
           expiresIn: payload.expiresIn || 3600,
           customer: {
-            name: payload.customer.name || "Cliente Proposta Ai",
+            name: payload.customer.name || "Cliente Propex AI",
             email: payload.customer.email,
             taxId: payload.customer.taxId || "000.000.000-00",
             cellphone: payload.customer.cellphone || "(11) 99999-9999",
@@ -99,7 +99,7 @@ export async function criarCobrancaPixTransparente(
 
   const expiresAt = new Date(Date.now() + (payload.expiresIn || 3600) * 1000).toISOString();
   
-  const samplePixCode = `00020126580014BR.GOV.BCB.PIX0136d2b4e5f6-7890-abcd-ef12-${chargeId.substring(9, 21)}520400005303986540545.905802BR5914PROPOSTA AI PRO6009SAO PAULO62070503***6304`;
+  const samplePixCode = `00020126580014BR.GOV.BCB.PIX0136d2b4e5f6-7890-abcd-ef12-${chargeId.substring(9, 21)}520400005303986540545.905802BR5912PROPEX AI PRO6009SAO PAULO62070503***6304`;
   
   const qrSvg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">

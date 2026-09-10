@@ -68,7 +68,7 @@ ${itensTexto || `• Total do Projeto: ${formatarMoeda(dados.total)}`}
 💰 *INVESTIMENTO TOTAL:* *${formatarMoeda(dados.total)}*
 💳 *Condição de Pagamento:* ${prazo}${linkSecao}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-_Documento confidencial gerado via Proposta Ai! Pro_`.trim();
+_Documento confidencial gerado via Propex AI Pro_`.trim();
 }
 
 export function abrirWhatsAppWeb(texto: string, telefone?: string | null) {

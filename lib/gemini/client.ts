@@ -268,7 +268,7 @@ export function gerarTemplateFree(dados: DadosGeracaoProposta): string {
 
     <!-- Free Tier Footer -->
     <div style="margin-top: 32px; text-align: center; font-size: 11px; color: #6b7280; border-top: 1px dotted #9ca3af; padding-top: 12px;">
-      Proposta gerada no plano gratuito do Proposta Ai! • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF, versão mobile e assinatura eletrônica.
+      Proposta gerada no plano gratuito do Propex AI • Atualize para o Plano Pro para propostas executivas coloridas, logo personalizada, exportação PDF, versão mobile e assinatura eletrônica.
     </div>
 
   </div>
