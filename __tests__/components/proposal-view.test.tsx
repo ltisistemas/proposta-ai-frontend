@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import VisualizarPropostaPage from "@/app/(dashboard)/propostas/[id]/page";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 
@@ -12,7 +12,7 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-describe("VisualizarPropostaPage AI Regeneration", () => {
+describe("VisualizarPropostaPage Floating Actions & AI Regeneration", () => {
   const mockProposta = {
     id: "prop-test-123",
     numero: "PROP-2026-001",
@@ -36,7 +36,7 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
     });
   });
 
-  it("should render proposal details and Regerar com IA button with remaining quota", async () => {
+  it("should render floating action button and open speed dial menu", async () => {
     global.fetch = vi.fn().mockImplementation((url: string) => {
       if (url.includes("/api/propostas/prop-test-123")) {
         return Promise.resolve({
@@ -56,9 +56,25 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
       expect(screen.getByText("Cliente Estratégico")).toBeInTheDocument();
     });
 
+    // Check FAB exists
+    const fabTrigger = screen.getByRole("button", { name: /ações/i });
+    expect(fabTrigger).toBeInTheDocument();
+
+    // Click FAB to expand menu
+    fireEvent.click(fabTrigger);
+
+    await waitFor(() => {
+      expect(screen.getByText(/ações da proposta/i)).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("button", { name: /assinar eletronicamente/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /regerar com ia/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /enviar no whatsapp/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /imprimir \/ salvar pdf/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /excluir proposta comercial/i })).toBeInTheDocument();
+
     // Check button exists with remaining counter
     const regerarBtn = screen.getByRole("button", { name: /regerar com ia/i });
-    expect(regerarBtn).toBeInTheDocument();
     expect(regerarBtn).not.toBeDisabled();
     expect(screen.getByText(/2 restantes/i)).toBeInTheDocument();
 
@@ -70,7 +86,7 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
     });
   });
 
-  it("should disable Regerar com IA button when quota is exhausted (0 remaining)", async () => {
+  it("should disable Regerar com IA in floating actions when quota is exhausted (0 remaining)", async () => {
     global.fetch = vi.fn().mockImplementation((url: string) => {
       if (url.includes("/api/propostas/prop-exhausted")) {
         return Promise.resolve({
@@ -95,12 +111,17 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
       expect(screen.getByText("Cliente Estratégico")).toBeInTheDocument();
     });
 
-    const regerarBtn = screen.getByRole("button", { name: /regerar com ia/i });
-    expect(regerarBtn).toBeDisabled();
-    expect(screen.getByText(/0 restantes/i)).toBeInTheDocument();
+    const fabTrigger = screen.getByRole("button", { name: /ações/i });
+    fireEvent.click(fabTrigger);
+
+    await waitFor(() => {
+      const regerarBtn = screen.getByRole("button", { name: /regerar com ia/i });
+      expect(regerarBtn).toBeDisabled();
+      expect(screen.getByText(/0 restantes/i)).toBeInTheDocument();
+    });
   });
 
-  it("should disable Regerar com IA button when proposal is accepted or signed", async () => {
+  it("should disable Regerar com IA in floating actions when proposal is accepted or signed", async () => {
     global.fetch = vi.fn().mockImplementation((url: string) => {
       if (url.includes("/api/propostas/prop-accepted")) {
         return Promise.resolve({
@@ -126,11 +147,16 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
       expect(screen.getByText("Cliente Estratégico")).toBeInTheDocument();
     });
 
-    const regerarBtn = screen.getByRole("button", { name: /regerar com ia/i });
-    expect(regerarBtn).toBeDisabled();
+    const fabTrigger = screen.getByRole("button", { name: /ações/i });
+    fireEvent.click(fabTrigger);
+
+    await waitFor(() => {
+      const regerarBtn = screen.getByRole("button", { name: /regerar com ia/i });
+      expect(regerarBtn).toBeDisabled();
+    });
   });
 
-  it("should execute AI regeneration on modal confirm and update proposal", async () => {
+  it("should execute AI regeneration on modal confirm via floating action button and update proposal", async () => {
     global.fetch = vi.fn().mockImplementation((url: string, options: any) => {
       if (url.includes("regerar-ia")) {
         return Promise.resolve({
@@ -162,6 +188,14 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
       expect(screen.getByText("Cliente Estratégico")).toBeInTheDocument();
     });
 
+    // Open FAB
+    const fabTrigger = screen.getByRole("button", { name: /ações/i });
+    fireEvent.click(fabTrigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /regerar com ia/i })).toBeInTheDocument();
+    });
+
     const regerarBtn = screen.getByRole("button", { name: /regerar com ia/i });
     fireEvent.click(regerarBtn);
 
@@ -178,6 +212,40 @@ describe("VisualizarPropostaPage AI Regeneration", () => {
         "/api/propostas/prop-test-123/regerar-ia",
         expect.objectContaining({ method: "POST" })
       );
+    });
+  });
+
+  it("should support closing floating actions menu with Escape key and outside click", async () => {
+    global.fetch = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/api/propostas/prop-test-123")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            sucesso: true,
+            proposta: mockProposta,
+          }),
+        } as any);
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) } as any);
+    });
+
+    render(<VisualizarPropostaPage params={{ id: "prop-test-123" } as any} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Cliente Estratégico")).toBeInTheDocument();
+    });
+
+    const fabTrigger = screen.getByRole("button", { name: /ações/i });
+    fireEvent.click(fabTrigger);
+
+    await waitFor(() => {
+      expect(screen.getByText(/ações da proposta/i)).toBeInTheDocument();
+    });
+
+    // Escape closes menu
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => {
+      expect(screen.queryByText(/ações da proposta/i)).not.toBeInTheDocument();
     });
   });
 });

@@ -5,21 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
-  Printer,
   Copy,
   CheckCircle,
-  XCircle,
-  Trash2,
-  Send,
   Check,
   Building2,
   Calendar,
-  PenTool,
   Lock,
-  MessageCircle,
-  FileText,
   Sparkles,
-  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/Common/Button";
 import { Badge, BadgeVariant } from "@/components/Common/Badge";
@@ -30,6 +22,7 @@ import { UpgradeModal, UpgradeFeatureType } from "@/components/Billing/UpgradeMo
 import { SignatureModal } from "@/components/Proposta/SignatureModal";
 import { DigitalCertificate } from "@/components/Proposta/DigitalCertificate";
 import { WhatsAppModal } from "@/components/Proposta/WhatsAppModal";
+import { ProposalFloatingActions } from "@/components/Proposta/ProposalFloatingActions";
 import { ajustarHtmlResponsivoProposta } from "@/lib/utils/proposal-html";
 
 export default function VisualizarPropostaPage({
@@ -333,7 +326,25 @@ export default function VisualizarPropostaPage({
         }}
       />
 
-      <div className="space-y-6 max-w-6xl mx-auto pb-16">
+      {/* Floating Action Button (Speed Dial) */}
+      <ProposalFloatingActions
+        proposta={proposta}
+        isPro={isPro}
+        isAssinada={Boolean(isAssinada)}
+        copiado={copiado}
+        isRegenerating={isRegenerating}
+        isUpdating={isUpdating}
+        onOpenSignature={handleOpenSignature}
+        onUpdateStatus={handleUpdateStatus}
+        onMarcarEnviada={handleMarcarEnviada}
+        onCopyLink={handleCopyLink}
+        onOpenWhatsApp={handleOpenWhatsAppModal}
+        onPrint={handlePrint}
+        onOpenRegerarModal={() => setRegerarModalOpen(true)}
+        onOpenDeleteModal={() => setDeleteModalOpen(true)}
+      />
+
+      <div className="space-y-6 max-w-6xl mx-auto pb-24">
         {/* Breadcrumbs & Navigation */}
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
           <Link
@@ -347,10 +358,10 @@ export default function VisualizarPropostaPage({
           <span className="text-slate-800 font-mono">{proposta.numero}</span>
         </div>
 
-        {/* Top Executive Header Card */}
-        <div className="bg-white border border-slate-200/90 p-4 sm:p-6 rounded-3xl shadow-xs space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div>
+        {/* Clean Executive Header Card */}
+        <div className="bg-white border border-slate-200/90 p-4 sm:p-6 rounded-3xl shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   {proposta.cliente_nome}
@@ -361,9 +372,15 @@ export default function VisualizarPropostaPage({
                     Modo Notepad Free
                   </span>
                 )}
+                {isAssinada && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    <CheckCircle className="w-3 h-3 text-emerald-600" />
+                    <span>Assinada Digitalmente</span>
+                  </span>
+                )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 mt-2 font-medium">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 font-medium">
                 <span className="font-mono bg-slate-100 px-2.5 py-0.5 rounded-md text-slate-700 font-bold">
                   {proposta.numero}
                 </span>
@@ -380,100 +397,17 @@ export default function VisualizarPropostaPage({
               </div>
             </div>
 
-            {/* Action Group */}
-            <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0">
-              {/* Electronic Signature Trigger */}
-              {!isAssinada ? (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleOpenSignature}
-                  leftIcon={<PenTool className="w-4 h-4" />}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20"
-                >
-                  Assinar Eletronicamente
-                </Button>
-              ) : null}
-
-              {/* Status Quick Changer */}
-              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                <button
-                  onClick={() => handleUpdateStatus("aceita")}
-                  disabled={isUpdating}
-                  title={isPro ? "Marcar como Aceita" : "Disponível no Plano Pro"}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-                    proposta.status === "aceita"
-                      ? "bg-emerald-600 text-white shadow-xs"
-                      : "text-slate-700 hover:text-emerald-800 hover:bg-emerald-100/70"
-                  }`}
-                >
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  <span>Aceita</span>
-                  {!isPro && <Lock className="w-3 h-3 text-slate-400" />}
-                </button>
-
-                <button
-                  onClick={() => handleUpdateStatus("recusada")}
-                  disabled={isUpdating}
-                  title={isPro ? "Marcar como Recusada" : "Disponível no Plano Pro"}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-                    proposta.status === "recusada"
-                      ? "bg-rose-600 text-white shadow-xs"
-                      : "text-slate-700 hover:text-rose-800 hover:bg-rose-100/70"
-                  }`}
-                >
-                  <XCircle className="w-3.5 h-3.5" />
-                  <span>Recusada</span>
-                  {!isPro && <Lock className="w-3 h-3 text-slate-400" />}
-                </button>
-              </div>
-
-              {/* AI Redeploy / Regenerate Button (Max 3x per proposal) */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setRegerarModalOpen(true)}
-                disabled={
-                  isRegenerating ||
-                  (proposta.regeneracoes_restantes ?? (3 - (proposta.regeneracoes_ia || 0))) <= 0 ||
-                  proposta.status === "aceita"
-                }
-                leftIcon={
-                  <Sparkles
-                    className={`w-4 h-4 ${
-                      isRegenerating
-                        ? "animate-spin text-amber-600"
-                        : "text-amber-600"
-                    }`}
-                  />
-                }
-                title={
-                  proposta.status === "aceita"
-                    ? "Propostas aceitas ou assinadas não podem ser alteradas"
-                    : (proposta.regeneracoes_restantes ?? (3 - (proposta.regeneracoes_ia || 0))) <= 0
-                    ? "Limite máximo de 3 regenerações por IA atingido para esta proposta"
-                    : "Re-analisar escopo comercial e expandir com copywriting consultivo de alta conversão"
-                }
-                className="text-xs font-bold border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
-                <span className="flex items-center gap-1.5">
-                  <span>Regerar com IA</span>
-                  <span className="text-[10px] bg-amber-200/90 text-amber-950 px-1.5 py-0.5 rounded-full font-mono font-bold">
-                    {proposta.regeneracoes_restantes ?? (3 - (proposta.regeneracoes_ia || 0))} restantes
-                  </span>
-                </span>
-              </Button>
-
-              {/* Share & Copy Link */}
+            {/* Subtle Quick Share & Actions Hint in Header */}
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopyLink}
                 leftIcon={
                   copiado ? (
-                    <Check className="w-4 h-4 text-emerald-600" />
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
                   ) : (
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-3.5 h-3.5" />
                   )
                 }
                 className="text-xs font-bold"
@@ -481,51 +415,6 @@ export default function VisualizarPropostaPage({
                 {copiado ? "Copiado!" : "Copiar Link"}
                 {!isPro && <Lock className="w-3 h-3 text-slate-400 ml-1" />}
               </Button>
-
-              {/* WhatsApp Formatted Share */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleOpenWhatsAppModal}
-                leftIcon={<MessageCircle className="w-4 h-4 text-emerald-600" />}
-                className="text-xs font-bold"
-                title="Abrir prévia e envio formatado no WhatsApp"
-              >
-                WhatsApp
-                {!isPro && <Lock className="w-3 h-3 text-slate-400 ml-1" />}
-              </Button>
-
-              {/* Print / PDF */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePrint}
-                leftIcon={<Printer className="w-4 h-4" />}
-                className="text-xs font-bold"
-              >
-                Imprimir / PDF
-                {!isPro && <Lock className="w-3 h-3 text-slate-400 ml-1" />}
-              </Button>
-
-              {proposta.status === "rascunho" && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleMarcarEnviada}
-                  leftIcon={<Send className="w-4 h-4" />}
-                  className="shadow-md shadow-blue-600/20 font-bold text-xs"
-                >
-                  Marcar Enviada
-                </Button>
-              )}
-
-              <button
-                onClick={() => setDeleteModalOpen(true)}
-                title="Excluir proposta"
-                className="p-2 text-slate-600 hover:text-rose-800 hover:bg-rose-100/70 rounded-xl transition-colors cursor-pointer"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </div>
