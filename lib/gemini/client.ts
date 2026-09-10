@@ -44,7 +44,7 @@ function formatarMoeda(valor: number): string {
 }
 
 export function renderizarMarkupLogo(logoUrl: string, empresaNome?: string): string {
-  return `<div data-empresa-logo="true" style="margin-bottom: 14px;"><img src="${logoUrl}" alt="${empresaNome || "Logo"}" style="max-height: 64px; max-width: 200px; object-fit: contain; background: #ffffff; padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);" /></div>`;
+  return `<div data-empresa-logo="true" style="display: inline-flex; align-items: center; justify-content: center; background: #ffffff; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(226, 232, 240, 0.9); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05); margin-bottom: 16px; max-width: 220px; box-sizing: border-box;"><img src="${logoUrl}" alt="${empresaNome || "Logo"}" style="max-height: 52px; max-width: 190px; width: auto; height: auto; object-fit: contain; display: block;" /></div>`;
 }
 
 export function injetarOuAtualizarLogoHtml(
@@ -326,11 +326,14 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
     body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 32px 12px; color: #0f172a; line-height: 1.5; }
     .pro-card-container { max-width: 820px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.04); overflow: hidden; border: 1px solid #e2e8f0; box-sizing: border-box; }
     
+    [data-empresa-logo="true"] { display: inline-flex; align-items: center; justify-content: center; }
     @media (max-width: 640px) {
       body { padding: 8px !important; }
       .pro-card-container { border-radius: 12px !important; }
       .header-content { padding: 24px 16px !important; }
       .body-content { padding: 20px 16px !important; }
+      [data-empresa-logo="true"] { padding: 6px 10px !important; margin-bottom: 12px !important; }
+      [data-empresa-logo="true"] img { max-height: 40px !important; max-width: 150px !important; }
       .grid-responsive { grid-template-columns: 1fr !important; gap: 16px !important; }
       .flex-responsive { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
       .table-responsive-wrapper { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -340,6 +343,7 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
     @media print {
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #ffffff; padding: 0; }
       .pro-card-container { box-shadow: none; border: none; }
+      [data-empresa-logo="true"] { background: #ffffff !important; box-shadow: none !important; border: 1px solid #cbd5e1 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
   </style>
 </head>
@@ -408,7 +412,7 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
 
       <!-- Scope Section -->
       <div style="margin-bottom: 32px;">
-        <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; border-left: 4px solid #2563eb; padding-left: 12px; text-transform: uppercase; letter-spacing: 0.03em;">
+        <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.04em;">
           1. Diagnóstico, Escopo & Metodologia de Entrega
         </h3>
         <div style="font-size: 14px; line-height: 1.7; color: #334155; background: #ffffff; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0; white-space: pre-line;">
@@ -418,7 +422,7 @@ export function gerarTemplatePro(dados: DadosGeracaoProposta): string {
 
       <!-- Items Table -->
       <div style="margin-bottom: 32px;">
-        <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; border-left: 4px solid #2563eb; padding-left: 12px; text-transform: uppercase; letter-spacing: 0.03em;">
+        <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.04em;">
           2. Investimento & Entregáveis
         </h3>
         <div class="table-responsive-wrapper" style="border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0;">
@@ -586,7 +590,7 @@ DADOS DA EMPRESA EMISSORA (PRESTADOR):
 - CNPJ: ${dados.empresaCNPJ || "Não informado"}
 - Email: ${dados.empresaEmail || "Não informado"}
 - Telefone: ${dados.empresaTelefone || "Não informado"}
-${dados.empresaLogoUrl ? `- Logo em Base64: Disponível para ser inserida como <img src="${dados.empresaLogoUrl}" alt="${dados.empresaNome}" style="max-height: 60px; max-width: 180px; object-fit: contain; margin-bottom: 12px; background: white; padding: 4px; border-radius: 6px;" />` : ""}
+${dados.empresaLogoUrl ? `- Logo em Base64: Disponível para ser inserida como <div data-empresa-logo="true" style="display: inline-flex; align-items: center; justify-content: center; background: #ffffff; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(226, 232, 240, 0.9); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07); margin-bottom: 16px; max-width: 220px;"><img src="${dados.empresaLogoUrl}" alt="${dados.empresaNome || "Logo"}" style="max-height: 52px; max-width: 190px; object-fit: contain; display: block;" /></div>` : ""}
 
 DADOS DO CLIENTE (CONTRATANTE):
 - Nome: ${dados.clienteNome}
