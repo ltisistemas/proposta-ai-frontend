@@ -18,6 +18,8 @@ import {
   Lock,
   MessageCircle,
   FileText,
+  Sparkles,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/Common/Button";
 import { Badge, BadgeVariant } from "@/components/Common/Badge";
@@ -52,6 +54,8 @@ export default function VisualizarPropostaPage({
   const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [regerarModalOpen, setRegerarModalOpen] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const isPro = user?.plano === "pro";
 
@@ -198,6 +202,45 @@ export default function VisualizarPropostaPage({
       return;
     }
     setSignatureModalOpen(true);
+  };
+
+  const handleRegenerarIA = async () => {
+    if (!token) return;
+    setIsRegenerating(true);
+
+    try {
+      const res = await fetch(`/api/propostas/${resolvedParams.id}/regerar-ia`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.sucesso && data.proposta) {
+        setProposta(data.proposta);
+        addToast({
+          type: "success",
+          title: "Proposta reescrita com sucesso!",
+          message: "A IA consultiva re-analisou e expandiu o escopo comercial.",
+        });
+        setRegerarModalOpen(false);
+      } else {
+        addToast({
+          type: "error",
+          title: "Não foi possível regerar",
+          message: data.erro || "Tente novamente mais tarde.",
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao regerar proposta:", err);
+      addToast({
+        type: "error",
+        title: "Erro de conexão",
+        message: "Falha ao conectar com o serviço de IA.",
+      });
+    } finally {
+      setIsRegenerating(false);
+    }
   };
 
   const executeDelete = async () => {
