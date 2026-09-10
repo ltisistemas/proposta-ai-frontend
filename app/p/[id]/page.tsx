@@ -261,7 +261,7 @@ export default function PublicProposalPage({
               variant="primary"
               size="md"
               leftIcon={<PenTool className="w-4 h-4" />}
-              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black shrink-0 shadow-lg shadow-emerald-500/20"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold shrink-0 shadow-lg shadow-emerald-600/20"
             >
               Assinar Proposta Agora
             </Button>
