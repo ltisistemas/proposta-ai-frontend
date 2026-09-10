@@ -14,6 +14,7 @@ export interface AuthUser {
   empresa_logo_url?: string | null;
   plano: "free" | "pro";
   propostas_mes_atual?: number;
+  data_proxima_cobranca?: Date | string | null;
 }
 
 interface AuthStore {
@@ -21,7 +22,9 @@ interface AuthStore {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setAuth: (token: string, user: AuthUser) => void;
+  emPeriodoGraca: boolean;
+  diasRestantesGraca: number;
+  setAuth: (token: string, user: AuthUser, emPeriodoGraca?: boolean, diasRestantesGraca?: number) => void;
   updateUser: (user: Partial<AuthUser>) => void;
   logout: () => void;
   fetchMe: () => Promise<void>;
@@ -34,13 +37,22 @@ export const useAuthStore = create<AuthStore>()(
       user: null,
       isAuthenticated: false,
       isLoading: false,
+      emPeriodoGraca: false,
+      diasRestantesGraca: 0,
 
-      setAuth: (token, user) => {
+      setAuth: (token, user, emPeriodoGraca = false, diasRestantesGraca = 0) => {
         if (typeof window !== "undefined") {
           localStorage.setItem("proposta_ai_token", token);
           document.cookie = `proposta_ai_token=${token}; path=/; max-age=604800; SameSite=Lax`;
         }
-        set({ token, user, isAuthenticated: true, isLoading: false });
+        set({
+          token,
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          emPeriodoGraca: !!emPeriodoGraca,
+          diasRestantesGraca: diasRestantesGraca || 0,
+        });
       },
 
       updateUser: (updatedFields) => {
@@ -55,7 +67,14 @@ export const useAuthStore = create<AuthStore>()(
           localStorage.removeItem("proposta_ai_token");
           document.cookie = "proposta_ai_token=; path=/; max-age=0";
         }
-        set({ token: null, user: null, isAuthenticated: false, isLoading: false });
+        set({
+          token: null,
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          emPeriodoGraca: false,
+          diasRestantesGraca: 0,
+        });
       },
 
       fetchMe: async () => {
@@ -73,7 +92,13 @@ export const useAuthStore = create<AuthStore>()(
           });
           const data = await res.json();
           if (data.sucesso && data.usuario) {
-            set({ token, user: data.usuario, isAuthenticated: true });
+            set({
+              token,
+              user: data.usuario,
+              isAuthenticated: true,
+              emPeriodoGraca: !!data.emPeriodoGraca,
+              diasRestantesGraca: data.diasRestantesGraca || 0,
+            });
           } else {
             get().logout();
           }

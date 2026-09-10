@@ -47,6 +47,10 @@ export interface PropostaRow {
 
 let isColumnsInitialized = false;
 
+export function _resetDualSignatureColumnsInitialized(): void {
+  isColumnsInitialized = false;
+}
+
 export async function garantirColunasDualSignature(): Promise<void> {
   if (isColumnsInitialized) return;
 

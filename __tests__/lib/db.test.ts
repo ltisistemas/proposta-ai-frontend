@@ -29,6 +29,9 @@ import {
   atualizarUserProfile,
   verificarLimiteProposta,
   incrementarContadorPropostas,
+  validarAssinaturaUsuario,
+  garantirColunaVerificacaoAssinatura,
+  _resetAssinaturaColInitialized,
 } from "@/lib/db/users";
 import {
   salvarProposta,
@@ -38,11 +41,13 @@ import {
   deletarProposta,
   obterMetricasDashboard,
   assinarProposta,
+  _resetDualSignatureColumnsInitialized,
 } from "@/lib/db/propostas";
 import {
   garantirTabelaWebhookEventos,
   verificarEventoProcessado,
   registrarEventoProcessado,
+  _resetTableInitialized,
 } from "@/lib/db/webhooks";
 
 describe("lib/db/client", () => {
@@ -107,6 +112,7 @@ describe("lib/db/client", () => {
 describe("lib/db/users", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    _resetAssinaturaColInitialized();
   });
 
   it("should create user with hashed password", async () => {
@@ -241,11 +247,126 @@ describe("lib/db/users", () => {
     await incrementarContadorPropostas("u_1");
     expect(mockQuery).toHaveBeenCalled();
   });
+
+  it("should validate free and pro users subscription lifecycle correctly", async () => {
+    // 1. Free user
+    const resFree = await validarAssinaturaUsuario({
+      id: "u_free",
+      email: "free@test.com",
+      plano: "free",
+      nome: "Free User",
+      password_hash: "hash",
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resFree.statusAssinatura).toBe("free");
+    expect(resFree.emPeriodoGraca).toBe(false);
+
+    // 2. Pro user without data_proxima_cobranca
+    const resProNoDate = await validarAssinaturaUsuario({
+      id: "u_pro1",
+      email: "pro1@test.com",
+      plano: "pro",
+      nome: "Pro User",
+      password_hash: "hash",
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resProNoDate.statusAssinatura).toBe("ativa");
+
+    // 3. Pro user already verified today
+    const hojeStr = new Date().toISOString().split("T")[0];
+    const resProToday = await validarAssinaturaUsuario({
+      id: "u_pro2",
+      email: "pro2@test.com",
+      plano: "pro",
+      nome: "Pro User",
+      password_hash: "hash",
+      data_proxima_cobranca: new Date(Date.now() + 86400000 * 15),
+      data_ultima_verificacao_pagamento: hojeStr,
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resProToday.statusAssinatura).toBe("ativa");
+
+    // 3b. Pro user already verified today but in grace period
+    const resProGraceToday = await validarAssinaturaUsuario({
+      id: "u_pro2b",
+      email: "pro2b@test.com",
+      plano: "pro",
+      nome: "Pro User",
+      password_hash: "hash",
+      data_proxima_cobranca: new Date(Date.now() - 86400000 * 2), // 2 days overdue
+      data_ultima_verificacao_pagamento: hojeStr,
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resProGraceToday.statusAssinatura).toBe("periodo_graca");
+    expect(resProGraceToday.emPeriodoGraca).toBe(true);
+    expect(resProGraceToday.diasRestantesGraca).toBe(2);
+
+    // 4. Pro user active and not overdue (needs DB check)
+    mockQuery.mockResolvedValueOnce({ rows: [] }); // alter table
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 }); // update verification date
+    const resProActive = await validarAssinaturaUsuario({
+      id: "u_pro3",
+      email: "pro3@test.com",
+      plano: "pro",
+      nome: "Pro User",
+      password_hash: "hash",
+      data_proxima_cobranca: new Date(Date.now() + 86400000 * 10),
+      data_ultima_verificacao_pagamento: "2026-01-01",
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resProActive.statusAssinatura).toBe("ativa");
+    expect(resProActive.emPeriodoGraca).toBe(false);
+
+    // 5. Pro user in 3-day grace period (2 days overdue)
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 }); // update verification date
+    const resProGrace = await validarAssinaturaUsuario({
+      id: "u_pro4",
+      email: "pro4@test.com",
+      plano: "pro",
+      nome: "Pro User",
+      password_hash: "hash",
+      data_proxima_cobranca: new Date(Date.now() - 86400000 * 2), // 2 days overdue
+      data_ultima_verificacao_pagamento: "2026-01-01",
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resProGrace.statusAssinatura).toBe("periodo_graca");
+    expect(resProGrace.emPeriodoGraca).toBe(true);
+    expect(resProGrace.diasRestantesGraca).toBe(2);
+
+    // 6. Pro user overdue by 4+ days -> Automatic downgrade to Free
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 }); // update plano to free
+    const resProExpired = await validarAssinaturaUsuario({
+      id: "u_pro5",
+      email: "pro5@test.com",
+      plano: "pro",
+      nome: "Pro User",
+      password_hash: "hash",
+      data_proxima_cobranca: new Date(Date.now() - 86400000 * 5), // 5 days overdue
+      data_ultima_verificacao_pagamento: "2026-01-01",
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resProExpired.statusAssinatura).toBe("expirada_downgrade");
+    expect(resProExpired.user.plano).toBe("free");
+  });
+
+  it("should handle error in garantirColunaVerificacaoAssinatura gracefully", async () => {
+    _resetAssinaturaColInitialized();
+    mockQuery.mockRejectedValueOnce(new Error("Alter table failed"));
+    await garantirColunaVerificacaoAssinatura();
+  });
 });
 
 describe("lib/db/propostas", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    _resetDualSignatureColumnsInitialized();
   });
 
   it("should initialize dual signature columns and ignore if already initialized", async () => {
@@ -399,6 +520,7 @@ describe("lib/db/propostas", () => {
 describe("lib/db/webhooks", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    _resetTableInitialized();
   });
 
   it("should verify and register idempotency event", async () => {
@@ -419,6 +541,7 @@ describe("lib/db/webhooks", () => {
     await registrarEventoProcessado("", "event", {});
 
     // Table creation error
+    _resetTableInitialized();
     mockQuery.mockRejectedValueOnce(new Error("Table creation failed"));
     await garantirTabelaWebhookEventos();
 

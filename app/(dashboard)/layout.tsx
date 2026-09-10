@@ -28,7 +28,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isAuthenticated, logout, fetchMe } = useAuthStore();
+  const { user, isAuthenticated, logout, fetchMe, emPeriodoGraca, diasRestantesGraca } = useAuthStore();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   useEffect(() => {
@@ -182,7 +182,30 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main App Content Area */}
-      <main className="flex-1 bg-[#FBFBFA] min-h-screen p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+      <main className="flex-1 bg-[#FBFBFA] min-h-screen p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full overflow-y-auto space-y-4">
+        {emPeriodoGraca && user?.plano === "pro" && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-950">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-800 flex items-center justify-center shrink-0">
+                <Zap className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-amber-900">
+                  Período de Tolerância Ativo ({diasRestantesGraca} {diasRestantesGraca === 1 ? "dia restante" : "dias restantes"})
+                </h4>
+                <p className="text-[11px] text-amber-800/90 mt-0.5">
+                  Sua mensalidade Pro venceu. Mantenha seu plano regularizado para não perder acesso aos recursos exclusivos.
+                </p>
+              </div>
+            </div>
+            <Link href="/config">
+              <button className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-colors shrink-0 cursor-pointer">
+                Regularizar Plano
+              </button>
+            </Link>
+          </div>
+        )}
+
         {children}
       </main>
     </div>

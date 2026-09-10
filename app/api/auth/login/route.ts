@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { obterUserPorEmail } from "@/lib/db/users";
+import { obterUserPorEmail, validarAssinaturaUsuario, UserRow } from "@/lib/db/users";
 import { comparePassword } from "@/lib/auth/password";
 import { gerarToken } from "@/lib/auth/jwt";
 import { z } from "zod";
@@ -48,19 +48,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const validacao = await validarAssinaturaUsuario(user);
+    const userAtual = validacao.user as UserRow;
+
     const token = gerarToken({
-      userId: user.id,
-      email: user.email,
-      nome: user.nome,
-      plano: user.plano,
+      userId: userAtual.id,
+      email: userAtual.email,
+      nome: userAtual.nome,
+      plano: userAtual.plano,
     });
 
-    const { password_hash, ...userSemSenha } = user;
+    const { password_hash, ...userSemSenha } = userAtual;
 
     return NextResponse.json({
       sucesso: true,
       token,
       usuario: userSemSenha,
+      emPeriodoGraca: validacao.emPeriodoGraca,
+      diasRestantesGraca: validacao.diasRestantesGraca,
+      statusAssinatura: validacao.statusAssinatura,
     });
   } catch (error: any) {
     console.error("Erro em /api/auth/login:", error);

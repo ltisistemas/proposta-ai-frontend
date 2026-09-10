@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { obterTokenDoHeader, obterUserIdDoToken } from "@/lib/auth/jwt";
-import { obterUserPorId, atualizarUserProfile } from "@/lib/db/users";
+import { obterUserPorId, atualizarUserProfile, validarAssinaturaUsuario } from "@/lib/db/users";
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +22,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ sucesso: true, usuario: user });
+    const validacao = await validarAssinaturaUsuario(user);
+
+    return NextResponse.json({
+      sucesso: true,
+      usuario: validacao.user,
+      emPeriodoGraca: validacao.emPeriodoGraca,
+      diasRestantesGraca: validacao.diasRestantesGraca,
+      statusAssinatura: validacao.statusAssinatura,
+    });
   } catch (error) {
     console.error("Erro em /api/auth/me GET:", error);
     return NextResponse.json({ erro: "Erro no servidor" }, { status: 500 });

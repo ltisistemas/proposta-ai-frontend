@@ -2,6 +2,10 @@ import { query } from "./client";
 
 let isTableInitialized = false;
 
+export function _resetTableInitialized(): void {
+  isTableInitialized = false;
+}
+
 /**
  * Garante a criação da tabela de idempotência para webhooks
  */
