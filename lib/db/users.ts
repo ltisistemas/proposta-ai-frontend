@@ -19,6 +19,7 @@ export interface UserRow {
   data_assinatura?: Date | null;
   data_proxima_cobranca?: Date | null;
   data_ultima_verificacao_pagamento?: Date | string | null;
+  cancelamento_agendado?: boolean;
   abacate_customer_id?: string | null;
   abacate_subscription_id?: string | null;
   criado_em: Date;
@@ -37,6 +38,7 @@ export async function garantirColunaVerificacaoAssinatura(): Promise<void> {
     await query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS data_proxima_cobranca TIMESTAMP;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS data_ultima_verificacao_pagamento DATE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS cancelamento_agendado BOOLEAN DEFAULT FALSE;
     `);
     isAssinaturaColInitialized = true;
   } catch (err) {
@@ -50,6 +52,7 @@ export interface ResultadoValidacaoAssinatura {
   diasRestantesGraca: number;
   diasAtraso: number;
   statusAssinatura: "free" | "ativa" | "periodo_graca" | "expirada_downgrade";
+  cancelamentoAgendado?: boolean;
 }
 
 export async function validarAssinaturaUsuario(
@@ -62,6 +65,7 @@ export async function validarAssinaturaUsuario(
       diasRestantesGraca: 0,
       diasAtraso: 0,
       statusAssinatura: "free",
+      cancelamentoAgendado: false,
     };
   }
 
@@ -75,11 +79,13 @@ export async function validarAssinaturaUsuario(
       diasRestantesGraca: 0,
       diasAtraso: 0,
       statusAssinatura: "ativa",
+      cancelamentoAgendado: !!user.cancelamento_agendado,
     };
   }
 
   const hoje = new Date();
   const hojeStr = hoje.toISOString().split("T")[0];
+  const isCancelamentoAgendado = !!user.cancelamento_agendado;
 
   // Daily rate limit: check at most once per calendar day
   if (user.data_ultima_verificacao_pagamento) {
@@ -89,14 +95,33 @@ export async function validarAssinaturaUsuario(
         : new Date(user.data_ultima_verificacao_pagamento).toISOString().split("T")[0];
 
     if (ultimaStr === hojeStr) {
-      // Already checked today - compute grace status in-memory without extra DB queries
       const vencimento = new Date(user.data_proxima_cobranca);
       const diffMs = hoje.getTime() - vencimento.getTime();
       const diasAtraso = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
       if (diasAtraso <= 0) {
-        return { user, emPeriodoGraca: false, diasRestantesGraca: 0, diasAtraso: 0, statusAssinatura: "ativa" };
+        return {
+          user,
+          emPeriodoGraca: false,
+          diasRestantesGraca: 0,
+          diasAtraso: 0,
+          statusAssinatura: "ativa",
+          cancelamentoAgendado: isCancelamentoAgendado,
+        };
       }
+
+      // If cancellation was scheduled and cycle expired:
+      if (isCancelamentoAgendado) {
+        return {
+          user: { ...user, plano: "free" as const, cancelamento_agendado: false },
+          emPeriodoGraca: false,
+          diasRestantesGraca: 0,
+          diasAtraso,
+          statusAssinatura: "expirada_downgrade",
+          cancelamentoAgendado: false,
+        };
+      }
+
       if (diasAtraso <= 3) {
         return {
           user,
@@ -104,6 +129,7 @@ export async function validarAssinaturaUsuario(
           diasRestantesGraca: 4 - diasAtraso,
           diasAtraso,
           statusAssinatura: "periodo_graca",
+          cancelamentoAgendado: false,
         };
       }
     }
@@ -113,7 +139,7 @@ export async function validarAssinaturaUsuario(
   const diffMs = hoje.getTime() - vencimento.getTime();
   const diasAtraso = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  // Case 1: Active and not overdue
+  // Case 1: Active and not overdue (prepaid cycle current)
   if (diasAtraso <= 0) {
     await query(
       "UPDATE users SET data_ultima_verificacao_pagamento = CURRENT_DATE WHERE id = $1",
@@ -125,10 +151,40 @@ export async function validarAssinaturaUsuario(
       diasRestantesGraca: 0,
       diasAtraso: 0,
       statusAssinatura: "ativa",
+      cancelamentoAgendado: isCancelamentoAgendado,
     };
   }
 
-  // Case 2: In 3-day grace period (tolerance days 1, 2, 3)
+  // Case 2: Cancellation was scheduled and cycle expired -> Immediate downgrade to Free
+  if (isCancelamentoAgendado) {
+    await query(
+      `UPDATE users 
+       SET plano = 'free', 
+           cancelamento_agendado = FALSE,
+           data_ultima_verificacao_pagamento = CURRENT_DATE, 
+           atualizado_em = CURRENT_TIMESTAMP 
+       WHERE id = $1`,
+      [user.id]
+    );
+
+    const userDowngraded = {
+      ...user,
+      plano: "free" as const,
+      cancelamento_agendado: false,
+      data_ultima_verificacao_pagamento: hojeStr,
+    };
+
+    return {
+      user: userDowngraded,
+      emPeriodoGraca: false,
+      diasRestantesGraca: 0,
+      diasAtraso,
+      statusAssinatura: "expirada_downgrade",
+      cancelamentoAgendado: false,
+    };
+  }
+
+  // Case 3: In 3-day grace period (tolerance days 1, 2, 3)
   if (diasAtraso <= 3) {
     await query(
       "UPDATE users SET data_ultima_verificacao_pagamento = CURRENT_DATE WHERE id = $1",
@@ -140,10 +196,11 @@ export async function validarAssinaturaUsuario(
       diasRestantesGraca: 4 - diasAtraso,
       diasAtraso,
       statusAssinatura: "periodo_graca",
+      cancelamentoAgendado: false,
     };
   }
 
-  // Case 3: Day 4+ overdue -> Grace period expired, automatic downgrade to Free
+  // Case 4: Day 4+ overdue without renewal -> Grace period expired, automatic downgrade to Free
   await query(
     `UPDATE users 
      SET plano = 'free', 
@@ -165,6 +222,7 @@ export async function validarAssinaturaUsuario(
     diasRestantesGraca: 0,
     diasAtraso,
     statusAssinatura: "expirada_downgrade",
+    cancelamentoAgendado: false,
   };
 }
 

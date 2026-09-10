@@ -18,26 +18,26 @@ export function Logo({
 }: LogoProps) {
   const sizeMap = {
     sm: {
-      icon: "w-7 h-7",
-      svg: 20,
+      icon: "w-7 h-7 rounded-lg",
+      svg: 16,
       text: "text-base",
       badge: "text-[9px] px-1.5 py-0.5",
     },
     md: {
-      icon: "w-9 h-9",
-      svg: 24,
+      icon: "w-9 h-9 rounded-xl",
+      svg: 20,
       text: "text-lg sm:text-xl",
       badge: "text-[10px] px-2 py-0.5",
     },
     lg: {
-      icon: "w-11 h-11",
-      svg: 28,
+      icon: "w-11 h-11 rounded-xl",
+      svg: 24,
       text: "text-2xl",
       badge: "text-xs px-2.5 py-0.5",
     },
     xl: {
-      icon: "w-14 h-14",
-      svg: 36,
+      icon: "w-14 h-14 rounded-2xl",
+      svg: 30,
       text: "text-3xl sm:text-4xl",
       badge: "text-sm px-3 py-1",
     },
@@ -48,75 +48,47 @@ export function Logo({
 
   const content = (
     <div className={`inline-flex items-center gap-2.5 select-none group ${className}`}>
-      {/* Brand Icon */}
+      {/* Brand Icon - Solid high-contrast gradient badge with crisp white & cyan vector glyph */}
       <div
-        className={`${current.icon} rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-sky-400 p-[1.5px] shadow-md shadow-blue-600/15 group-hover:shadow-blue-600/30 transition-all duration-300 group-hover:scale-105 shrink-0 flex items-center justify-center`}
+        className={`${current.icon} bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border border-blue-400/30 shadow-md shadow-blue-600/25 group-hover:shadow-blue-600/40 transition-all duration-300 group-hover:scale-105 shrink-0 flex items-center justify-center relative overflow-hidden`}
       >
-        <div
-          className={`w-full h-full ${
-            isLight ? "bg-white" : "bg-slate-950"
-          } rounded-[10px] flex items-center justify-center relative overflow-hidden`}
-        >
-          {/* Subtle internal shine */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/15 via-transparent to-sky-400/15 pointer-events-none" />
+        {/* Subtle glossy top reflection */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/10 pointer-events-none" />
 
-          <svg
-            width={current.svg}
-            height={current.svg}
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="transform group-hover:rotate-3 transition-transform duration-300 relative z-10"
-          >
-            {/* Origami Document + AI Bolt Symbol */}
-            <path
-              d="M4 6.5C4 5.11929 5.11929 4 6.5 4H14.5L19.5 9V17.5C19.5 18.8807 18.3807 20 17 20H6.5C5.11929 20 4 18.8807 4 17.5V6.5Z"
-              stroke="url(#logo-grad-primary)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M14 4V9H19"
-              stroke="url(#logo-grad-primary)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            {/* Electric Spark / Fast AI Pen */}
-            <path
-              d="M11.5 11L8.5 15H12.5L9.5 19"
-              stroke="url(#logo-grad-accent)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <defs>
-              <linearGradient
-                id="logo-grad-primary"
-                x1="4"
-                y1="4"
-                x2="19.5"
-                y2="20"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#2563eb" />
-                <stop offset="1" stopColor="#0284c7" />
-              </linearGradient>
-              <linearGradient
-                id="logo-grad-accent"
-                x1="8.5"
-                y1="11"
-                x2="12.5"
-                y2="19"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#0284c7" />
-                <stop offset="1" stopColor="#059669" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
+        <svg
+          width={current.svg}
+          height={current.svg}
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="transform group-hover:scale-105 transition-transform duration-200 relative z-10"
+        >
+          {/* Proposal Document Sheet */}
+          <path
+            d="M5 4.5C5 3.67157 5.67157 3 6.5 3H14.5L19 7.5V19.5C19 20.3284 18.3284 21 17.5 21H6.5C5.67157 21 5 20.3284 5 19.5V4.5Z"
+            stroke="#ffffff"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Document Fold Corner */}
+          <path
+            d="M14 3V8H19"
+            stroke="#ffffff"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeOpacity="0.9"
+          />
+          {/* AI Energy Spark / Pen */}
+          <path
+            d="M11.5 10.5L8.5 14.5H12.5L9.5 18.5"
+            stroke="#38bdf8"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </div>
 
       {/* Brand Text */}
@@ -133,7 +105,7 @@ export function Logo({
             className={`font-black rounded-lg ${
               isLight
                 ? "bg-blue-600 text-white shadow-xs"
-                : "bg-sky-400 text-slate-950 shadow-xs"
+                : "bg-sky-500 text-white shadow-xs"
             } tracking-tight uppercase ${current.badge}`}
           >
             Ai!

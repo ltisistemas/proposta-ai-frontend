@@ -7,6 +7,13 @@ vi.mock("@/lib/db/users", () => ({
   obterUserPorId: vi.fn(),
   criarUser: vi.fn(),
   atualizarUserProfile: vi.fn(),
+  validarAssinaturaUsuario: vi.fn().mockImplementation(async (user) => ({
+    user,
+    emPeriodoGraca: false,
+    diasRestantesGraca: 0,
+    diasAtraso: 0,
+    statusAssinatura: user?.plano === "pro" ? "ativa" : "free",
+  })),
 }));
 
 vi.mock("@/lib/auth/password", () => ({
@@ -22,6 +29,7 @@ import {
   obterUserPorId,
   criarUser,
   atualizarUserProfile,
+  validarAssinaturaUsuario,
 } from "@/lib/db/users";
 import { comparePassword } from "@/lib/auth/password";
 import { gerarToken } from "@/lib/auth/jwt";
@@ -99,6 +107,86 @@ describe("API /api/auth/login", () => {
     expect(json.sucesso).toBe(true);
     expect(json.token).toBeDefined();
     expect(json.usuario.email).toBe("user@test.com");
+  });
+
+  it("should return grace period flags when Pro user logs in during 3-day grace period", async () => {
+    vi.mocked(obterUserPorEmail).mockResolvedValueOnce({
+      id: "u_grace",
+      email: "grace@test.com",
+      password_hash: "hashed",
+      nome: "Grace User",
+      plano: "pro",
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    vi.mocked(comparePassword).mockResolvedValueOnce(true);
+    vi.mocked(validarAssinaturaUsuario).mockResolvedValueOnce({
+      user: {
+        id: "u_grace",
+        email: "grace@test.com",
+        nome: "Grace User",
+        plano: "pro",
+        criado_em: new Date(),
+        atualizado_em: new Date(),
+      } as any,
+      emPeriodoGraca: true,
+      diasRestantesGraca: 2,
+      diasAtraso: 2,
+      statusAssinatura: "periodo_graca",
+    });
+
+    const req = new NextRequest("http://localhost:3000/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email: "grace@test.com", password: "Password123" }),
+    });
+
+    const res = await loginHandler(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.sucesso).toBe(true);
+    expect(json.emPeriodoGraca).toBe(true);
+    expect(json.diasRestantesGraca).toBe(2);
+    expect(json.statusAssinatura).toBe("periodo_graca");
+  });
+
+  it("should return downgraded plan when Pro user logs in on day 4+ overdue", async () => {
+    vi.mocked(obterUserPorEmail).mockResolvedValueOnce({
+      id: "u_exp",
+      email: "exp@test.com",
+      password_hash: "hashed",
+      nome: "Expired User",
+      plano: "pro",
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    vi.mocked(comparePassword).mockResolvedValueOnce(true);
+    vi.mocked(validarAssinaturaUsuario).mockResolvedValueOnce({
+      user: {
+        id: "u_exp",
+        email: "exp@test.com",
+        nome: "Expired User",
+        plano: "free",
+        criado_em: new Date(),
+        atualizado_em: new Date(),
+      } as any,
+      emPeriodoGraca: false,
+      diasRestantesGraca: 0,
+      diasAtraso: 5,
+      statusAssinatura: "expirada_downgrade",
+    });
+
+    const req = new NextRequest("http://localhost:3000/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email: "exp@test.com", password: "Password123" }),
+    });
+
+    const res = await loginHandler(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.sucesso).toBe(true);
+    expect(json.usuario.plano).toBe("free");
+    expect(json.emPeriodoGraca).toBe(false);
+    expect(json.statusAssinatura).toBe("expirada_downgrade");
   });
 });
 
@@ -199,6 +287,47 @@ describe("API /api/auth/me", () => {
     const json = await res.json();
     expect(json.sucesso).toBe(true);
     expect(json.usuario.id).toBe("u123");
+  });
+
+  it("should return grace period flags in GET /api/auth/me for account in grace period", async () => {
+    const token = gerarToken({
+      userId: "u_grace_me",
+      email: "graceme@test.com",
+      nome: "Grace Me",
+      plano: "pro",
+    });
+
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "u_grace_me",
+      email: "graceme@test.com",
+      nome: "Grace Me",
+      plano: "pro",
+    } as any);
+
+    vi.mocked(validarAssinaturaUsuario).mockResolvedValueOnce({
+      user: {
+        id: "u_grace_me",
+        email: "graceme@test.com",
+        nome: "Grace Me",
+        plano: "pro",
+      } as any,
+      emPeriodoGraca: true,
+      diasRestantesGraca: 3,
+      diasAtraso: 1,
+      statusAssinatura: "periodo_graca",
+    });
+
+    const req = new NextRequest("http://localhost:3000/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const res = await meGetHandler(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.sucesso).toBe(true);
+    expect(json.emPeriodoGraca).toBe(true);
+    expect(json.diasRestantesGraca).toBe(3);
+    expect(json.statusAssinatura).toBe("periodo_graca");
   });
 
   it("should return 401 for invalid token in meGetHandler and mePutHandler", async () => {

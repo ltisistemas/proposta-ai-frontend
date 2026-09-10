@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -13,6 +13,8 @@ import {
   Menu,
   X,
   User,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { Badge } from "@/components/Common/Badge";
@@ -29,11 +31,28 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, logout, fetchMe, emPeriodoGraca, diasRestantesGraca } = useAuthStore();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     fetchMe();
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("proposta_ai_sidebar_collapsed");
+      if (saved === "true") {
+        setCollapsed(true);
+      }
+    }
   }, [fetchMe]);
+
+  const toggleSidebar = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("proposta_ai_sidebar_collapsed", String(next));
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     const token =
@@ -79,21 +98,51 @@ export default function DashboardLayout({
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="p-2 text-slate-600 hover:text-slate-900 rounded-lg bg-slate-100 hover:bg-slate-200 cursor-pointer transition-colors"
+          title={mobileOpen ? "Fechar menu" : "Abrir menu"}
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
+      {/* Mobile Drawer Backdrop */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-35 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed md:sticky top-0 left-0 z-40 h-screen w-64 bg-white border-r border-slate-200/90 flex flex-col justify-between p-4 sm:p-5 overflow-y-auto shrink-0 transition-transform md:translate-x-0 ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed md:sticky top-0 left-0 z-40 h-screen bg-white border-r border-slate-200/90 flex flex-col justify-between overflow-y-auto shrink-0 transition-all duration-300 ease-in-out ${
+          collapsed ? "md:w-20 p-3" : "md:w-64 p-4 sm:p-5"
+        } w-64 ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
         <div className="space-y-6">
-          {/* Logo */}
-          <div className="px-1 pt-1">
-            <Logo href="/dashboard" size="md" variant="light" />
+          {/* Logo & Toggle Header */}
+          <div className={`flex items-center ${collapsed ? "flex-col gap-3 justify-center" : "justify-between"} px-1 pt-1`}>
+            {collapsed ? (
+              <div title="Proposta Ai!">
+                <Logo href="/dashboard" size="sm" variant="light" />
+              </div>
+            ) : (
+              <Logo href="/dashboard" size="md" variant="light" />
+            )}
+
+            {/* Desktop Collapse/Expand Toggle Button */}
+            <button
+              onClick={toggleSidebar}
+              title={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
+              className="hidden md:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+            >
+              {collapsed ? (
+                <PanelLeftOpen className="w-4 h-4" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4" />
+              )}
+            </button>
           </div>
 
           {/* Navigation Links */}
@@ -105,7 +154,12 @@ export default function DashboardLayout({
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all ${
+                  title={collapsed ? item.label : undefined}
+                  className={`flex items-center rounded-xl text-sm transition-all ${
+                    collapsed
+                      ? "justify-center w-11 h-11 mx-auto"
+                      : "gap-3 px-3.5 py-2.5"
+                  } ${
                     item.highlight && !active
                       ? "bg-blue-600 text-white hover:bg-blue-700 font-bold shadow-md shadow-blue-600/20"
                       : active
@@ -124,7 +178,7 @@ export default function DashboardLayout({
                   >
                     {item.icon}
                   </span>
-                  <span>{item.label}</span>
+                  {!collapsed && <span className="truncate">{item.label}</span>}
                 </Link>
               );
             })}
@@ -133,7 +187,7 @@ export default function DashboardLayout({
 
         {/* User Card & Upgrade Prompt */}
         <div className="space-y-3 pt-4 border-t border-slate-200/80 mt-6 shrink-0">
-          {user?.plano === "free" && (
+          {user?.plano === "free" && !collapsed && (
             <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-100 text-xs">
               <div className="flex items-center justify-between font-bold text-slate-900 mb-1">
                 <span>Plano Free</span>
@@ -150,34 +204,65 @@ export default function DashboardLayout({
             </div>
           )}
 
+          {user?.plano === "free" && collapsed && (
+            <div className="flex justify-center">
+              <Link href="/config" title="Fazer Upgrade Pro (R$ 45,90)">
+                <button className="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors shadow-xs shadow-blue-600/20 cursor-pointer">
+                  <Zap className="w-4 h-4" />
+                </button>
+              </Link>
+            </div>
+          )}
+
           {/* User Profile */}
-          <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200/80">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-blue-100 border border-blue-200 text-blue-700 flex items-center justify-center shrink-0 font-bold text-xs">
+          {collapsed ? (
+            <div className="flex flex-col items-center gap-2 p-1.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <div
+                title={`${user?.nome || "Usuário"} (${user?.plano?.toUpperCase() || "FREE"})`}
+                className="w-9 h-9 rounded-lg bg-blue-100 border border-blue-200 text-blue-700 flex items-center justify-center font-bold text-xs shrink-0 cursor-default"
+              >
                 {user?.nome ? user.nome.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
               </div>
-              <div className="min-w-0">
-                <div className="text-xs font-bold text-slate-900 truncate">
-                  {user?.nome || "Usuário"}
+              <button
+                onClick={() => {
+                  logout();
+                  router.push("/login");
+                }}
+                title="Sair da conta"
+                className="p-1.5 text-slate-500 hover:text-rose-800 hover:bg-rose-100/70 rounded-lg transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200/80">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-blue-100 border border-blue-200 text-blue-700 flex items-center justify-center shrink-0 font-bold text-xs">
+                  {user?.nome ? user.nome.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
                 </div>
-                <div className="text-[10px] text-slate-500 truncate">
-                  <Badge variant={user?.plano === "pro" ? "pro" : "free"} size="sm">
-                    {user?.plano?.toUpperCase() || "FREE"}
-                  </Badge>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-slate-900 truncate">
+                    {user?.nome || "Usuário"}
+                  </div>
+                  <div className="text-[10px] text-slate-500 truncate">
+                    <Badge variant={user?.plano === "pro" ? "pro" : "free"} size="sm">
+                      {user?.plano?.toUpperCase() || "FREE"}
+                    </Badge>
+                  </div>
                 </div>
               </div>
+              <button
+                onClick={() => {
+                  logout();
+                  router.push("/login");
+                }}
+                title="Sair da conta"
+                className="p-1.5 text-slate-500 hover:text-rose-800 hover:bg-rose-100/70 rounded-lg transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={() => {
-                logout();
-                router.push("/login");
-              }}
-              title="Sair da conta"
-              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
+          )}
         </div>
       </aside>
 

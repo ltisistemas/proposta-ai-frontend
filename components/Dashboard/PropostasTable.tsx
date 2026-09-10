@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Badge, BadgeVariant } from "@/components/Common/Badge";
 import { Button } from "@/components/Common/Button";
+import { ConfirmModal } from "@/components/Common/ConfirmModal";
 import { useToast } from "@/components/Common/Toast";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { UpgradeModal, UpgradeFeatureType } from "@/components/Billing/UpgradeModal";
@@ -62,6 +63,8 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [copiadoId, setCopiadoId] = useState<string | null>(null);
+  const [propostaParaExcluir, setPropostaParaExcluir] = useState<PropostaItem | null>(null);
+  const [isExcluindo, setIsExcluindo] = useState(false);
 
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeatureType>("link");
@@ -272,7 +275,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                         <button
                           onClick={() => handleCopyLink(p.id)}
                           title="Copiar Link Público"
-                          className="p-1.5 rounded-[4px] bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-[4px] bg-slate-100 hover:bg-blue-100/70 text-slate-700 hover:text-blue-800 transition-colors cursor-pointer"
                         >
                           {copiadoId === p.id ? (
                             <Check className="w-4 h-4 text-emerald-600" />
@@ -283,17 +286,13 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
 
                         {onDelete && (
                           <button
-                            onClick={() => {
-                            if (confirm("Tem certeza que deseja excluir esta proposta?")) {
-                              onDelete(p.id);
-                            }
-                          }}
-                          title="Excluir"
-                          className="p-1.5 rounded-[4px] bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                            onClick={() => setPropostaParaExcluir(p)}
+                            title="Excluir"
+                            className="p-1.5 rounded-[4px] bg-slate-100 hover:bg-rose-100/70 text-slate-700 hover:text-rose-800 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                     </div>
                   </td>
                 </tr>
@@ -302,6 +301,38 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
           </table>
         </div>
       )}
+
+      {/* Confirmation Modal for Proposal Deletion */}
+      <ConfirmModal
+        isOpen={!!propostaParaExcluir}
+        onClose={() => setPropostaParaExcluir(null)}
+        title="Excluir proposta comercial?"
+        description={
+          propostaParaExcluir ? (
+            <span>
+              Tem certeza que deseja excluir a proposta{" "}
+              <strong className="text-slate-900 font-semibold">{propostaParaExcluir.numero}</strong>{" "}
+              do cliente <strong className="text-slate-900 font-semibold">{propostaParaExcluir.cliente_nome}</strong>?
+              Esta ação removerá a proposta e não poderá ser desfeita.
+            </span>
+          ) : null
+        }
+        confirmLabel="Sim, excluir proposta"
+        cancelLabel="Cancelar"
+        variant="danger"
+        isLoading={isExcluindo}
+        onConfirm={async () => {
+          if (propostaParaExcluir && onDelete) {
+            try {
+              setIsExcluindo(true);
+              await onDelete(propostaParaExcluir.id);
+            } finally {
+              setIsExcluindo(false);
+              setPropostaParaExcluir(null);
+            }
+          }
+        }}
+      />
     </div>
   </>
   );

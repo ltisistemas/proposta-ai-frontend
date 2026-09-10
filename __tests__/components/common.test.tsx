@@ -6,6 +6,7 @@ import { Input, TextArea } from "@/components/Common/Input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/Common/Card";
 import { Badge } from "@/components/Common/Badge";
 import { Modal } from "@/components/Common/Modal";
+import { ConfirmModal } from "@/components/Common/ConfirmModal";
 import { LoadingSpinner } from "@/components/Common/LoadingSpinner";
 import { ToastContainer, useToast } from "@/components/Common/Toast";
 import { Logo } from "@/components/Common/Logo";
@@ -172,6 +173,56 @@ describe("components/Common/Modal", () => {
     const closeBtn = screen.getByRole("button");
     fireEvent.click(closeBtn);
     expect(handleClose).toHaveBeenCalled();
+  });
+});
+
+describe("components/Common/ConfirmModal", () => {
+  it("should render ConfirmModal with title, description, and handle confirm and cancel", async () => {
+    const handleConfirm = vi.fn();
+    const handleClose = vi.fn();
+
+    const { rerender } = render(
+      <ConfirmModal
+        isOpen={true}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+        title="Excluir item?"
+        description="Esta ação é permanente."
+        confirmLabel="Sim, excluir"
+        cancelLabel="Voltar"
+        variant="danger"
+      />
+    );
+
+    expect(screen.getByText("Excluir item?")).toBeInTheDocument();
+    expect(screen.getByText("Esta ação é permanente.")).toBeInTheDocument();
+
+    const cancelBtn = screen.getByRole("button", { name: /voltar/i });
+    fireEvent.click(cancelBtn);
+    expect(handleClose).toHaveBeenCalled();
+
+    const confirmBtn = screen.getByRole("button", { name: /sim, excluir/i });
+    fireEvent.click(confirmBtn);
+    expect(handleConfirm).toHaveBeenCalled();
+
+    // Rerender with warning and primary variants
+    rerender(
+      <ConfirmModal
+        isOpen={true}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+        variant="warning"
+      />
+    );
+
+    rerender(
+      <ConfirmModal
+        isOpen={true}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+        variant="primary"
+      />
+    );
   });
 });
 

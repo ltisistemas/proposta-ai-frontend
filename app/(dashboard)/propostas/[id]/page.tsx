@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/Common/Button";
 import { Badge, BadgeVariant } from "@/components/Common/Badge";
+import { ConfirmModal } from "@/components/Common/ConfirmModal";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
 import { UpgradeModal, UpgradeFeatureType } from "@/components/Billing/UpgradeModal";
@@ -48,6 +49,8 @@ export default function VisualizarPropostaPage({
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeatureType>("general");
   const [signatureModalOpen, setSignatureModalOpen] = useState(false);
   const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const isPro = user?.plano === "pro";
 
@@ -195,11 +198,11 @@ export default function VisualizarPropostaPage({
     setSignatureModalOpen(true);
   };
 
-  const handleDelete = async () => {
-    if (!confirm("Tem certeza que deseja excluir esta proposta?")) return;
+  const executeDelete = async () => {
     if (!token) return;
 
     try {
+      setIsDeleting(true);
       const res = await fetch(`/api/propostas/${resolvedParams.id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -211,9 +214,23 @@ export default function VisualizarPropostaPage({
           title: "Proposta excluída com sucesso!",
         });
         router.push("/propostas");
+      } else {
+        addToast({
+          type: "error",
+          title: "Erro ao excluir",
+          message: data.erro || "Tente novamente.",
+        });
       }
     } catch (err) {
       console.error("Erro ao excluir proposta:", err);
+      addToast({
+        type: "error",
+        title: "Erro de conexão",
+        message: "Não foi possível excluir a proposta no momento.",
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteModalOpen(false);
     }
   };
 
@@ -341,7 +358,7 @@ export default function VisualizarPropostaPage({
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
                     proposta.status === "aceita"
                       ? "bg-emerald-600 text-white shadow-xs"
-                      : "text-slate-600 hover:text-emerald-700 hover:bg-emerald-50"
+                      : "text-slate-700 hover:text-emerald-800 hover:bg-emerald-100/70"
                   }`}
                 >
                   <CheckCircle className="w-3.5 h-3.5" />
@@ -356,7 +373,7 @@ export default function VisualizarPropostaPage({
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
                     proposta.status === "recusada"
                       ? "bg-rose-600 text-white shadow-xs"
-                      : "text-slate-600 hover:text-rose-700 hover:bg-rose-50"
+                      : "text-slate-700 hover:text-rose-800 hover:bg-rose-100/70"
                   }`}
                 >
                   <XCircle className="w-3.5 h-3.5" />
@@ -421,9 +438,9 @@ export default function VisualizarPropostaPage({
               )}
 
               <button
-                onClick={handleDelete}
+                onClick={() => setDeleteModalOpen(true)}
                 title="Excluir proposta"
-                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                className="p-2 text-slate-600 hover:text-rose-800 hover:bg-rose-100/70 rounded-xl transition-colors cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -453,6 +470,30 @@ export default function VisualizarPropostaPage({
             />
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        <ConfirmModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          title="Excluir esta proposta comercial?"
+          description={
+            proposta ? (
+              <span>
+                Tem certeza que deseja excluir a proposta{" "}
+                <strong className="text-slate-900 font-semibold">{proposta.numero}</strong>{" "}
+                do cliente <strong className="text-slate-900 font-semibold">{proposta.cliente_nome}</strong>?
+                Esta ação moverá o documento e não poderá ser desfeita.
+              </span>
+            ) : (
+              "Esta ação removerá a proposta e não poderá ser desfeita."
+            )
+          }
+          confirmLabel="Sim, excluir proposta"
+          cancelLabel="Cancelar"
+          variant="danger"
+          isLoading={isDeleting}
+          onConfirm={executeDelete}
+        />
       </div>
     </>
   );

@@ -465,17 +465,21 @@ describe("components/Dashboard/StatsCards & PropostasTable", () => {
     const filterTodas = screen.getByRole("button", { name: /todas/i });
     fireEvent.click(filterTodas);
 
-    // Test Delete button with confirm = true
+    // Test Delete button with ConfirmModal
     const deleteBtns = screen.getAllByTitle(/excluir/i);
     if (deleteBtns.length > 0) {
       fireEvent.click(deleteBtns[0]);
+      expect(screen.getByText(/excluir proposta comercial\?/i)).toBeInTheDocument();
+      const confirmBtn = screen.getByRole("button", { name: /sim, excluir proposta/i });
+      fireEvent.click(confirmBtn);
       expect(handleDelete).toHaveBeenCalledWith("p1");
     }
 
-    // Test Delete button with confirm = false
-    (window.confirm as any).mockReturnValueOnce(false);
-    if (deleteBtns.length > 0) {
-      fireEvent.click(deleteBtns[0]);
+    // Test Delete modal cancel
+    if (deleteBtns.length > 1) {
+      fireEvent.click(deleteBtns[1]);
+      const cancelBtn = screen.getByRole("button", { name: /cancelar/i });
+      fireEvent.click(cancelBtn);
     }
 
     // Test Copy Link and WhatsApp buttons as PRO
