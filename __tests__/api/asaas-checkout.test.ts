@@ -19,6 +19,7 @@ vi.mock("@/lib/asaas/client", () => ({
   obterPixQrCodeAsaas: vi.fn(),
   obterStatusCobrancaAsaas: vi.fn(),
   simularPagamentoDevAsaas: vi.fn(),
+  getAsaasBaseUrl: vi.fn().mockReturnValue("https://api-sandbox.asaas.com/v3"),
 }));
 
 import { POST as checkoutRoute } from "@/app/api/checkout/route";

@@ -336,9 +336,16 @@ export async function obterPixQrCodeAsaas(
   if (isRealApiKey) {
     try {
       const response = await client.get(`/payments/${paymentId}/pixQrCode`);
-      if (response.data?.encodedImage && response.data?.payload) {
+      if (response.data && response.data.payload) {
+        const rawEncoded = response.data.encodedImage || "";
+        const formattedEncoded = rawEncoded
+          ? rawEncoded.startsWith("data:")
+            ? rawEncoded
+            : `data:image/png;base64,${rawEncoded}`
+          : "";
+
         return {
-          encodedImage: response.data.encodedImage,
+          encodedImage: formattedEncoded,
           payload: response.data.payload,
           expirationDate: response.data.expirationDate,
         };
@@ -391,19 +398,24 @@ export async function obterStatusCobrancaAsaas(paymentId: string): Promise<{
   id: string;
   status: string;
   invoiceUrl?: string;
+  bankSlipUrl?: string;
   devMode?: boolean;
 }> {
   const apiKey = getAsaasApiKey();
   const client = getAsaasClient();
+  const isSandbox = getAsaasBaseUrl().includes("sandbox");
+  const defaultDomain = isSandbox ? "https://sandbox.asaas.com" : "https://www.asaas.com";
 
   if (apiKey && !apiKey.startsWith("mock_") && !apiKey.startsWith("test_mock")) {
     try {
       const response = await client.get(`/payments/${paymentId}`);
       if (response.data) {
+        const rawInvoiceUrl = response.data.invoiceUrl || response.data.bankSlipUrl;
         return {
           id: response.data.id,
           status: response.data.status,
-          invoiceUrl: response.data.invoiceUrl,
+          invoiceUrl: rawInvoiceUrl || `${defaultDomain}/i/${paymentId}`,
+          bankSlipUrl: response.data.bankSlipUrl,
           devMode: false,
         };
       }
@@ -416,7 +428,7 @@ export async function obterStatusCobrancaAsaas(paymentId: string): Promise<{
   return {
     id: paymentId,
     status: stored?.status || "PENDING",
-    invoiceUrl: stored?.invoiceUrl || `https://sandbox.asaas.com/i/${paymentId}`,
+    invoiceUrl: stored?.invoiceUrl || `${defaultDomain}/i/${paymentId}`,
     devMode: true,
   };
 }
@@ -425,9 +437,11 @@ export async function obterStatusCobrancaAsaas(paymentId: string): Promise<{
  * Simula pagamento no sandbox / dev mode
  */
 export function simularPagamentoDevAsaas(paymentId: string): boolean {
+  const isSandbox = getAsaasBaseUrl().includes("sandbox");
+  const defaultDomain = isSandbox ? "https://sandbox.asaas.com" : "https://www.asaas.com";
   devStore.set(paymentId, {
     status: "CONFIRMED",
-    invoiceUrl: `https://sandbox.asaas.com/i/${paymentId}`,
+    invoiceUrl: `${defaultDomain}/i/${paymentId}`,
     updatedAt: new Date(),
   });
   return true;

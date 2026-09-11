@@ -183,7 +183,7 @@ describe("lib/asaas/client", () => {
     expect(createdSub.id).toBe("sub_live_999");
 
     const pixQr = await obterPixQrCodeAsaas("pay_live_123");
-    expect(pixQr.encodedImage).toBe("base64image==");
+    expect(pixQr.encodedImage).toBe("data:image/png;base64,base64image==");
 
     const status = await obterStatusCobrancaAsaas("pay_live_123");
     expect(status.status).toBe("RECEIVED");

@@ -37,6 +37,7 @@ vi.mock("@/lib/asaas/client", () => ({
   }),
   simularPagamentoDevAsaas: vi.fn().mockReturnValue(true),
   validarWebhookTokenAsaas: vi.fn().mockReturnValue(true),
+  getAsaasBaseUrl: vi.fn().mockReturnValue("https://api-sandbox.asaas.com/v3"),
 }));
 
 vi.mock("@/lib/abacate/client", () => ({

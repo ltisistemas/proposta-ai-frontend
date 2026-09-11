@@ -174,6 +174,57 @@ describe("components/Billing/UpgradeModal", () => {
     });
   });
 
+  it("should render Asaas invoice button and handle QR code image error fallback", async () => {
+    useAuthStore.setState({
+      token: "tok_user_pro",
+      user: { id: "u1", email: "user@test.com", nome: "Test", plano: "free" },
+      isAuthenticated: true,
+    });
+
+    global.fetch = vi.fn().mockImplementation((url: string) => {
+      if (url === "/api/checkout") {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            sucesso: true,
+            chargeId: "pix_char_invoice_test",
+            brCode: "00020126580014BR.GOV.BCB.PIX...",
+            brCodeBase64: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+            invoiceUrl: "https://sandbox.asaas.com/i/pay_123456",
+            amount: 45.9,
+            expiresAt: new Date().toISOString(),
+          }),
+        } as any);
+      }
+      return Promise.resolve({ ok: true, json: async () => ({ status: "PENDING" }) } as any);
+    });
+
+    render(<UpgradeModal isOpen={true} onClose={vi.fn()} />);
+
+    const payBtn = screen.getByRole("button", { name: /pagar com pix/i });
+    fireEvent.click(payBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/visualizar fatura completa no asaas/i)).toBeInTheDocument();
+    });
+
+    const invoiceLink = screen.getByRole("link", { name: /visualizar fatura completa no asaas/i });
+    expect(invoiceLink).toHaveAttribute("href", "https://sandbox.asaas.com/i/pay_123456");
+    expect(invoiceLink).toHaveAttribute("target", "_blank");
+    expect(invoiceLink).toHaveAttribute("rel", "noopener noreferrer");
+
+    const qrImg = screen.getByAltText(/qr code pix asaas/i);
+    expect(qrImg).toBeInTheDocument();
+    expect(qrImg).toHaveAttribute("src", expect.stringContaining("data:image/png;base64,"));
+
+    // Trigger onError on image
+    fireEvent.error(qrImg);
+
+    await waitFor(() => {
+      expect(screen.getByText(/utilize o código pix copia e cola ao lado/i)).toBeInTheDocument();
+    });
+  });
+
   it("should not render when isOpen is false", () => {
     render(
       <UpgradeModal

@@ -10,6 +10,7 @@ import {
   criarAssinaturaAsaas,
   obterPagamentosAssinaturaAsaas,
   obterPixQrCodeAsaas,
+  getAsaasBaseUrl,
 } from "@/lib/asaas/client";
 import { query } from "@/lib/db/client";
 
@@ -68,22 +69,32 @@ export async function POST(request: NextRequest) {
       maxPayments: 24,
     });
 
-    // 3. Recupera a cobrança gerada para a assinatura (com breve retry se necessário)
+    // 3. Recupera a cobrança gerada para a assinatura (com retry com backoff)
     let paymentId = "";
     let invoiceUrl = "";
     let payments = await obterPagamentosAssinaturaAsaas(subscription.id);
     
     if ((!payments || payments.length === 0) && subscription.id.startsWith("sub_")) {
-      await new Promise((res) => setTimeout(res, 600));
-      payments = await obterPagamentosAssinaturaAsaas(subscription.id);
+      const delays = [400, 800];
+      for (const delay of delays) {
+        await new Promise((res) => setTimeout(res, delay));
+        payments = await obterPagamentosAssinaturaAsaas(subscription.id);
+        if (payments && payments.length > 0) break;
+      }
     }
+
+    const isSandbox =
+      typeof getAsaasBaseUrl === "function"
+        ? getAsaasBaseUrl().includes("sandbox")
+        : true;
+    const defaultDomain = isSandbox ? "https://sandbox.asaas.com" : "https://www.asaas.com";
 
     if (payments && payments.length > 0) {
       paymentId = payments[0].id;
-      invoiceUrl = payments[0].invoiceUrl || "";
+      invoiceUrl = payments[0].invoiceUrl || payments[0].bankSlipUrl || `${defaultDomain}/i/${paymentId}`;
     } else {
       paymentId = `pay_${subscription.id.replace(/^sub_/, "")}`;
-      invoiceUrl = `https://sandbox.asaas.com/i/${paymentId}`;
+      invoiceUrl = `${defaultDomain}/i/${paymentId}`;
     }
 
     // 4. Obtém o QR Code PIX (Base64 + Copia e Cola)
@@ -101,9 +112,11 @@ export async function POST(request: NextRequest) {
       console.warn("Aviso ao salvar pagamento no banco:", dbErr);
     }
 
-    const brCodeBase64Formatted = pixQr.encodedImage.startsWith("data:")
-      ? pixQr.encodedImage
-      : `data:image/png;base64,${pixQr.encodedImage}`;
+    const brCodeBase64Formatted = pixQr.encodedImage
+      ? pixQr.encodedImage.startsWith("data:")
+        ? pixQr.encodedImage
+        : `data:image/png;base64,${pixQr.encodedImage}`
+      : "";
 
     return NextResponse.json({
       sucesso: true,

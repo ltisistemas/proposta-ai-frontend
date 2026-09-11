@@ -103,9 +103,28 @@ export function UpgradeModal({
   const [pixData, setPixData] = useState<PixChargeData | null>(null);
   const [hasCopied, setHasCopied] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const pollingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const config = FEATURE_CONFIG[feature] || FEATURE_CONFIG.general;
+
+  const getQrCodeSrc = (base64Str?: string): string | null => {
+    if (!base64Str) return null;
+    const trimmed = base64Str.trim();
+    if (!trimmed) return null;
+    if (trimmed.startsWith("data:")) return trimmed;
+    return `data:image/png;base64,${trimmed}`;
+  };
+
+  const isValidInvoiceUrl = (url?: string): boolean => {
+    if (!url || typeof url !== "string") return false;
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
 
   // Limpa estados ao fechar ou reabrir
   useEffect(() => {
@@ -115,6 +134,7 @@ export function UpgradeModal({
         setStep("DETAILS");
         setPixData(null);
         setHasCopied(false);
+        setImgError(false);
       }, 300);
     }
   }, [isOpen]);
@@ -166,6 +186,7 @@ export function UpgradeModal({
     }
 
     setIsLoading(true);
+    setImgError(false);
 
     try {
       const res = await fetch("/api/checkout", {
@@ -215,14 +236,28 @@ export function UpgradeModal({
 
   const handleCopyPix = () => {
     if (!pixData?.brCode) return;
-    navigator.clipboard.writeText(pixData.brCode);
-    setHasCopied(true);
-    addToast({
-      type: "success",
-      title: "Código PIX Copiado!",
-      message: "Cole no aplicativo do seu banco para pagar.",
-    });
-    setTimeout(() => setHasCopied(false), 3000);
+    try {
+      if (navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(pixData.brCode);
+      } else {
+        const input = document.getElementById("pix-copia-cola-input") as HTMLInputElement;
+        if (input) {
+          input.select();
+          document.execCommand("copy");
+        }
+      }
+      setHasCopied(true);
+      addToast({
+        type: "success",
+        title: "Código PIX Copiado!",
+        message: "Cole no aplicativo do seu banco para pagar.",
+      });
+      setTimeout(() => setHasCopied(false), 3000);
+    } catch (err) {
+      console.warn("Falha ao copiar PIX via clipboard API:", err);
+      setHasCopied(true);
+      setTimeout(() => setHasCopied(false), 3000);
+    }
   };
 
   const handleSimularPagamento = async () => {
@@ -269,34 +304,31 @@ export function UpgradeModal({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size={step === "PIX" ? "lg" : "md"}
-      bodyClassName="p-6 sm:p-7"
-    >
-      <div className="text-left space-y-6">
-        {/* STEP 1: DETALHES & BENEFÍCIOS */}
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <div className="p-4 sm:p-6 space-y-5">
+        {/* STEP 1: APRESENTAÇÃO DO PLANO E RECURSOS */}
         {step === "DETAILS" && (
           <>
-            {/* Header with feature icon */}
-            <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-[4px] bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 shadow-2xs">
+            {/* Header */}
+            <div className="flex items-start gap-3.5 pb-4 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-[4px] bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
                 {config.icon}
               </div>
-              <div className="min-w-0 flex-1 pr-6">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200 mb-1">
-                  <Sparkles className="w-3 h-3 text-blue-600" /> PLANO PRO
-                </span>
-                <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-snug">
+              <div className="space-y-0.5">
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] text-[11px] font-bold bg-blue-100 text-blue-800 uppercase tracking-wider">
+                  <Sparkles className="w-3 h-3 text-blue-600" /> Plano Pro
+                </div>
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
                   {config.title}
                 </h3>
-                <p className="text-xs text-slate-600 mt-0.5">{config.subtitle}</p>
+                <p className="text-xs text-slate-600">
+                  {config.subtitle}
+                </p>
               </div>
             </div>
 
-            {/* Pricing Card */}
-            <div className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 rounded-[4px] p-5 text-white border border-blue-500/30 shadow-md relative overflow-hidden">
+            {/* Pricing Box */}
+            <div className="p-4 sm:p-5 rounded-[4px] bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white shadow-sm border border-slate-700">
               <div className="flex items-baseline justify-between mb-4 pb-3 border-b border-white/10">
                 <div>
                   <div className="text-[11px] text-blue-200 font-bold uppercase tracking-wider">
@@ -388,15 +420,19 @@ export function UpgradeModal({
               {/* QR Code Container */}
               <div className="md:col-span-5 flex flex-col items-center justify-center p-4 bg-slate-50 border border-slate-200/80 rounded-[4px]">
                 <div className="p-2.5 bg-white rounded-[4px] border border-slate-200 shadow-2xs">
-                  {pixData.brCodeBase64 ? (
+                  {getQrCodeSrc(pixData.brCodeBase64) && !imgError ? (
                     <img
-                      src={pixData.brCodeBase64}
+                      src={getQrCodeSrc(pixData.brCodeBase64)!}
                       alt="QR Code PIX Asaas"
                       className="w-40 h-40 object-contain rounded-[2px]"
+                      onError={() => setImgError(true)}
                     />
                   ) : (
-                    <div className="w-40 h-40 flex items-center justify-center bg-slate-100 rounded-[2px]">
-                      <QrCode className="w-16 h-16 text-slate-400" />
+                    <div className="w-40 h-40 flex flex-col items-center justify-center bg-slate-100 rounded-[2px] p-2 text-center">
+                      <QrCode className="w-14 h-14 text-slate-400 mb-1" />
+                      <span className="text-[10px] text-slate-500 font-medium leading-tight">
+                        Utilize o código PIX Copia e Cola ao lado
+                      </span>
                     </div>
                   )}
                 </div>
@@ -429,6 +465,7 @@ export function UpgradeModal({
                   </label>
                   <div className="flex gap-2">
                     <input
+                      id="pix-copia-cola-input"
                       type="text"
                       readOnly
                       value={pixData.brCode}
@@ -457,13 +494,13 @@ export function UpgradeModal({
                 </div>
 
                 {/* Invoice Link Option */}
-                {pixData.invoiceUrl && (
+                {isValidInvoiceUrl(pixData.invoiceUrl) && (
                   <div className="pt-0.5">
                     <a
                       href={pixData.invoiceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 text-xs font-semibold text-blue-700 bg-blue-50/80 hover:bg-blue-100/90 border border-blue-200 rounded-[4px] transition"
+                      className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 text-xs font-semibold text-blue-700 bg-blue-50/80 hover:bg-blue-100/90 border border-blue-200 rounded-[4px] transition shadow-2xs"
                     >
                       <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
                       Visualizar Fatura Completa no Asaas
