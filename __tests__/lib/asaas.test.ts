@@ -51,6 +51,7 @@ describe("lib/asaas/client", () => {
   });
 
   it("should create or find customer with fallback when in dev/mock", async () => {
+    process.env.ASAAS_API_KEY = "mock_test_key";
     const customer = await criarOuBuscarClienteAsaas({
       name: "João Silva",
       email: "joao@exemplo.com",
@@ -63,6 +64,7 @@ describe("lib/asaas/client", () => {
   });
 
   it("should create recurring monthly subscription with fallback", async () => {
+    process.env.ASAAS_API_KEY = "mock_test_key";
     const sub = await criarAssinaturaAsaas({
       customer: "cus_123",
       billingType: "PIX",
@@ -80,6 +82,7 @@ describe("lib/asaas/client", () => {
   });
 
   it("should fetch pix qr code with fallback", async () => {
+    process.env.ASAAS_API_KEY = "mock_test_key";
     const qr = await obterPixQrCodeAsaas("pay_123");
     expect(qr).toBeDefined();
     expect(qr.payload).toContain("BR.GOV.BCB.PIX");
