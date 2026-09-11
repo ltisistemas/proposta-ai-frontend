@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { obterTokenDoHeader, obterUserIdDoToken } from "@/lib/auth/jwt";
-import { obterUserPorId, atualizarUserPlano } from "@/lib/db/users";
-import { obterCobrancaPix, simularPagamentoDev } from "@/lib/abacate/client";
+import { obterStatusCobrancaAsaas, simularPagamentoDevAsaas } from "@/lib/asaas/client";
 import { query } from "@/lib/db/client";
+import { garantirColunaVerificacaoAssinatura } from "@/lib/db/users";
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,9 +26,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    await garantirColunaVerificacaoAssinatura();
+
     // 1. Verifica no banco se já foi marcado como pago por webhook
     const pagResult = await query(
-      `SELECT status FROM pagamentos WHERE abacate_transaction_id = $1 AND usuario_id = $2`,
+      `SELECT status, invoice_url FROM pagamentos 
+       WHERE (asaas_payment_id = $1 OR abacate_transaction_id = $1) AND usuario_id = $2`,
       [chargeId, userId]
     );
 
@@ -37,32 +40,42 @@ export async function GET(request: NextRequest) {
         status: "PAID",
         isPro: true,
         plano: "pro",
+        invoiceUrl: pagResult.rows[0].invoice_url,
       });
     }
 
-    // 2. Consulta status na API do Abacate Pay (ou store de dev)
-    const chargeStatus = await obterCobrancaPix(chargeId);
+    // 2. Consulta status na API do Asaas (ou store de dev)
+    const chargeStatus = await obterStatusCobrancaAsaas(chargeId);
+    const isPaid =
+      chargeStatus.status === "RECEIVED" ||
+      chargeStatus.status === "CONFIRMED" ||
+      chargeStatus.status === "PAID" ||
+      chargeStatus.status === "RECEIVED_IN_CASH";
 
-    if (chargeStatus.status === "PAID" || chargeStatus.status === "APPROVED") {
+    if (isPaid) {
       // Atualiza usuário para PRO no banco
       await query(
         `UPDATE users 
-         SET plano = 'pro', data_assinatura = CURRENT_TIMESTAMP, atualizado_em = CURRENT_TIMESTAMP 
+         SET plano = 'pro', 
+             data_assinatura = CURRENT_TIMESTAMP, 
+             data_proxima_cobranca = CURRENT_TIMESTAMP + INTERVAL '30 days',
+             atualizado_em = CURRENT_TIMESTAMP 
          WHERE id = $1`,
         [userId]
       );
 
       await query(
         `UPDATE pagamentos 
-         SET status = 'pago', pago_em = CURRENT_TIMESTAMP 
-         WHERE abacate_transaction_id = $1`,
-        [chargeId]
+         SET status = 'pago', pago_em = CURRENT_TIMESTAMP, invoice_url = COALESCE($2, invoice_url)
+         WHERE asaas_payment_id = $1 OR abacate_transaction_id = $1`,
+        [chargeId, chargeStatus.invoiceUrl || null]
       );
 
       return NextResponse.json({
         status: "PAID",
         isPro: true,
         plano: "pro",
+        invoiceUrl: chargeStatus.invoiceUrl,
       });
     }
 
@@ -70,9 +83,10 @@ export async function GET(request: NextRequest) {
       status: chargeStatus.status || "PENDING",
       isPro: false,
       plano: "free",
+      invoiceUrl: chargeStatus.invoiceUrl,
     });
   } catch (error: any) {
-    console.error("Erro ao verificar status do PIX:", error);
+    console.error("Erro ao verificar status do PIX Asaas:", error);
     return NextResponse.json(
       { erro: "Erro ao verificar status do pagamento" },
       { status: 500 }
@@ -105,13 +119,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    await garantirColunaVerificacaoAssinatura();
+
     if (simulatePaid) {
-      simularPagamentoDev(chargeId);
+      simularPagamentoDevAsaas(chargeId);
 
       // Promove usuário no banco
       await query(
         `UPDATE users 
-         SET plano = 'pro', data_assinatura = CURRENT_TIMESTAMP, atualizado_em = CURRENT_TIMESTAMP 
+         SET plano = 'pro', 
+             data_assinatura = CURRENT_TIMESTAMP, 
+             data_proxima_cobranca = CURRENT_TIMESTAMP + INTERVAL '30 days',
+             atualizado_em = CURRENT_TIMESTAMP 
          WHERE id = $1`,
         [userId]
       );
@@ -119,7 +138,7 @@ export async function POST(request: NextRequest) {
       await query(
         `UPDATE pagamentos 
          SET status = 'pago', pago_em = CURRENT_TIMESTAMP 
-         WHERE abacate_transaction_id = $1`,
+         WHERE asaas_payment_id = $1 OR abacate_transaction_id = $1`,
         [chargeId]
       );
 

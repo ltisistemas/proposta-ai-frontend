@@ -580,7 +580,7 @@ export default function ConfigPage() {
                 </Button>
 
                 <div className="text-center text-[11px] text-slate-400">
-                  Pagamento instantâneo via PIX Transparente (Abacate Pay)
+                  Pagamento instantâneo via PIX Transparente (Asaas)
                 </div>
               </div>
             )}

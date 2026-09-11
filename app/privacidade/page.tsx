@@ -90,7 +90,7 @@ export default function PoliticaDePrivacidadePage() {
                 <strong>Dados de Assinatura Eletrônica:</strong> Nome do signatário, CPF/CNPJ informado no aceite, endereço IP de conexão, carimbo de data/hora e hash criptográfico SHA-256 do documento.
               </li>
               <li>
-                <strong>Dados de Pagamento:</strong> Transações do Plano Pro são intermediadas pelo gateway <em>Abacate Pay</em>. O ViraPropo AI! não armazena dados bancários sensíveis ou chaves PIX privadas em seus servidores.
+                <strong>Dados de Pagamento:</strong> Transações do Plano Pro são intermediadas pelo gateway <em>Asaas</em>. O ViraPropo AI! não armazena dados bancários sensíveis ou chaves PIX privadas em seus servidores.
               </li>
             </ul>
           </section>

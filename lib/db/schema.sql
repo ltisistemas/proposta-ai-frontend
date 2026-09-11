@@ -20,6 +20,10 @@ CREATE TABLE IF NOT EXISTS users (
   propostas_mes_atual INT DEFAULT 0,
   data_assinatura TIMESTAMP,
   data_proxima_cobranca TIMESTAMP,
+  data_ultima_verificacao_pagamento DATE,
+  cancelamento_agendado BOOLEAN DEFAULT FALSE,
+  asaas_customer_id VARCHAR(255),
+  asaas_subscription_id VARCHAR(255),
   abacate_customer_id VARCHAR(255),
   abacate_subscription_id VARCHAR(255),
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -27,8 +31,15 @@ CREATE TABLE IF NOT EXISTS users (
   deletado_em TIMESTAMP
 );
 
+ALTER TABLE users ADD COLUMN IF NOT EXISTS data_proxima_cobranca TIMESTAMP;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS data_ultima_verificacao_pagamento DATE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS cancelamento_agendado BOOLEAN DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_customer_id VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255);
+
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_plano ON users(plano);
+CREATE INDEX IF NOT EXISTS idx_users_asaas_customer ON users(asaas_customer_id);
 
 -- Propostas Table
 CREATE TABLE IF NOT EXISTS propostas (
@@ -55,6 +66,7 @@ CREATE TABLE IF NOT EXISTS propostas (
   assinado_em TIMESTAMP,
   assinatura_ip VARCHAR(50),
   assinatura_hash VARCHAR(255),
+  regeneracoes_ia INT DEFAULT 0,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   deletado_em TIMESTAMP
@@ -102,7 +114,10 @@ CREATE TABLE IF NOT EXISTS emails_log (
 CREATE TABLE IF NOT EXISTS pagamentos (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   usuario_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  asaas_payment_id VARCHAR(255),
+  asaas_subscription_id VARCHAR(255),
   abacate_transaction_id VARCHAR(255),
+  invoice_url TEXT,
   valor DECIMAL(12, 2) NOT NULL,
   status VARCHAR(50) DEFAULT 'pendente',
   tipo VARCHAR(50),
@@ -111,4 +126,9 @@ CREATE TABLE IF NOT EXISTS pagamentos (
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_payment_id VARCHAR(255);
+ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255);
+ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS invoice_url TEXT;
+
 CREATE INDEX IF NOT EXISTS idx_pagamentos_usuario ON pagamentos(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_pagamentos_asaas_payment ON pagamentos(asaas_payment_id);

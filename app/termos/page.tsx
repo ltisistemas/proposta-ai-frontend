@@ -104,7 +104,7 @@ export default function TermosDeUsoPage() {
               Assinaturas, Cobrança e Cancelamento (Plano Pro)
             </h2>
             <p>
-              A assinatura do Plano Pro é cobrada no valor de <strong>R$ 45,90/mês</strong> por meio de transações instantâneas e seguras processadas via PIX pelo gateway parceiro <em>Abacate Pay</em>.
+              A assinatura do Plano Pro é cobrada no valor de <strong>R$ 45,90/mês</strong> por meio de transações instantâneas e seguras processadas via PIX pelo gateway parceiro <em>Asaas</em>.
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
               <li><strong>Renovação e Período Pago:</strong> Ao assinar o plano, o usuário tem acesso irrestrito aos recursos Pro até a data limite da competência contratada.</li>

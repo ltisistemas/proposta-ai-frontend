@@ -93,7 +93,7 @@ const FAQS = [
   {
     question: "Como funciona a assinatura do Plano Pro?",
     answer:
-      "O Plano Pro custa R$ 45,90/mês e libera propostas ilimitadas com IA, personalização completa com a sua logomarca no cabeçalho, templates comerciais exclusivos e suporte prioritário via WhatsApp. O pagamento é 100% instantâneo e seguro via PIX pelo Abacate Pay.",
+      "O Plano Pro custa R$ 45,90/mês e libera propostas ilimitadas com IA, personalização completa com a sua logomarca no cabeçalho, templates comerciais exclusivos e suporte prioritário via WhatsApp. O pagamento é 100% instantâneo e seguro via PIX pelo Asaas.",
   },
   {
     question: "Posso cancelar minha assinatura quando quiser?",
@@ -826,7 +826,7 @@ export default function LandingPage() {
                 </Button>
               </Link>
               <div className="text-center text-[10px] text-slate-500 mt-2">
-                Pagamento instantâneo e seguro via PIX (Abacate Pay)
+                Pagamento instantâneo e seguro via PIX (Asaas)
               </div>
             </div>
           </div>

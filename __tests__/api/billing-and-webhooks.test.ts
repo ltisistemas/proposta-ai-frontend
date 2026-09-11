@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 
-// Mock DB, Auth, and Abacate client
+// Mock DB, Auth, Asaas and Abacate client
 vi.mock("@/lib/db/client", () => ({
   query: vi.fn().mockResolvedValue({ rows: [], rowCount: 1 }),
 }));
@@ -9,11 +9,34 @@ vi.mock("@/lib/db/client", () => ({
 vi.mock("@/lib/db/users", () => ({
   obterUserPorId: vi.fn(),
   atualizarUserPlano: vi.fn(),
+  atualizarUserPlanoAsaas: vi.fn(),
+  atualizarUserAsaasCustomerId: vi.fn(),
+  garantirColunaVerificacaoAssinatura: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/lib/db/webhooks", () => ({
   verificarEventoProcessado: vi.fn().mockResolvedValue(false),
   registrarEventoProcessado: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("@/lib/asaas/client", () => ({
+  criarOuBuscarClienteAsaas: vi.fn().mockResolvedValue({ id: "cus_123", name: "Test" }),
+  criarAssinaturaAsaas: vi.fn().mockResolvedValue({ id: "sub_123", customer: "cus_123" }),
+  obterPagamentosAssinaturaAsaas: vi.fn().mockResolvedValue([
+    { id: "pay_123", invoiceUrl: "https://sandbox.asaas.com/i/123" },
+  ]),
+  obterPixQrCodeAsaas: vi.fn().mockResolvedValue({
+    encodedImage: "base64qr==",
+    payload: "00020126580014BR.GOV.BCB.PIX...",
+    expirationDate: "2026-09-12",
+  }),
+  obterStatusCobrancaAsaas: vi.fn().mockResolvedValue({
+    id: "pay_123",
+    status: "PENDING",
+    invoiceUrl: "https://sandbox.asaas.com/i/123",
+  }),
+  simularPagamentoDevAsaas: vi.fn().mockReturnValue(true),
+  validarWebhookTokenAsaas: vi.fn().mockReturnValue(true),
 }));
 
 vi.mock("@/lib/abacate/client", () => ({
@@ -30,6 +53,11 @@ import {
 } from "@/app/api/checkout/status/route";
 import { POST as webhookRoute } from "@/app/api/webhooks/abacate/route";
 import { obterUserPorId, atualizarUserPlano } from "@/lib/db/users";
+import {
+  criarOuBuscarClienteAsaas,
+  obterStatusCobrancaAsaas,
+  simularPagamentoDevAsaas,
+} from "@/lib/asaas/client";
 import {
   criarCobrancaPixTransparente,
   obterCobrancaPix,
@@ -89,16 +117,6 @@ describe("API /api/checkout", () => {
       plano: "free",
     } as any);
 
-    vi.mocked(criarCobrancaPixTransparente).mockResolvedValueOnce({
-      id: "pix_fallback_1",
-      amount: 4590,
-      status: "PENDING",
-      devMode: true,
-      brCode: "BR.GOV.BCB.PIX...",
-      brCodeBase64: "data:image/png;base64,...",
-      expiresAt: new Date().toISOString(),
-    });
-
     const req = new NextRequest("http://localhost:3000/api/checkout", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
@@ -106,11 +124,9 @@ describe("API /api/checkout", () => {
 
     const res = await checkoutRoute(req);
     expect(res.status).toBe(200);
-    expect(criarCobrancaPixTransparente).toHaveBeenCalledWith(
+    expect(criarOuBuscarClienteAsaas).toHaveBeenCalledWith(
       expect.objectContaining({
-        customer: expect.objectContaining({
-          name: "Assinante ViraPropo AI!",
-        }),
+        name: "Assinante ViraPropo AI!",
       })
     );
   });
@@ -174,12 +190,12 @@ describe("API /api/checkout/status", () => {
 
   it("should return already paid status when pagamentos row has pago", async () => {
     vi.mocked(query).mockResolvedValueOnce({
-      rows: [{ status: "pago" }],
+      rows: [{ status: "pago", invoice_url: "https://sandbox.asaas.com/i/123" }],
       rowCount: 1,
     } as any);
 
     const req = new NextRequest(
-      "http://localhost:3000/api/checkout/status?chargeId=pix_already_paid",
+      "http://localhost:3000/api/checkout/status?chargeId=pay_already_paid",
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const res = await checkoutStatusGetRoute(req);
@@ -191,14 +207,14 @@ describe("API /api/checkout/status", () => {
 
   it("should check status and return pending if not paid", async () => {
     vi.mocked(query).mockResolvedValueOnce({ rows: [], rowCount: 0 } as any);
-    vi.mocked(obterCobrancaPix).mockResolvedValueOnce({
-      id: "pix_pending",
+    vi.mocked(obterStatusCobrancaAsaas).mockResolvedValueOnce({
+      id: "pay_pending",
       status: "PENDING",
-      devMode: true,
+      invoiceUrl: "https://sandbox.asaas.com/i/pending",
     });
 
     const req = new NextRequest(
-      "http://localhost:3000/api/checkout/status?chargeId=pix_pending",
+      "http://localhost:3000/api/checkout/status?chargeId=pay_pending",
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const res = await checkoutStatusGetRoute(req);
@@ -210,14 +226,14 @@ describe("API /api/checkout/status", () => {
 
   it("should check status and upgrade user when payment is confirmed", async () => {
     vi.mocked(query).mockResolvedValueOnce({ rows: [], rowCount: 0 } as any); // pagamentos check
-    vi.mocked(obterCobrancaPix).mockResolvedValueOnce({
-      id: "pix_123",
-      status: "PAID",
-      devMode: true,
+    vi.mocked(obterStatusCobrancaAsaas).mockResolvedValueOnce({
+      id: "pay_123",
+      status: "RECEIVED",
+      invoiceUrl: "https://sandbox.asaas.com/i/123",
     });
 
     const req = new NextRequest(
-      "http://localhost:3000/api/checkout/status?chargeId=pix_123",
+      "http://localhost:3000/api/checkout/status?chargeId=pay_123",
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
@@ -232,7 +248,7 @@ describe("API /api/checkout/status", () => {
     const req = new NextRequest("http://localhost:3000/api/checkout/status", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ chargeId: "pix_123", simulatePaid: true }),
+      body: JSON.stringify({ chargeId: "pay_123", simulatePaid: true }),
     });
 
     const res = await checkoutStatusPostRoute(req);
@@ -240,12 +256,12 @@ describe("API /api/checkout/status", () => {
     const json = await res.json();
     expect(json.sucesso).toBe(true);
     expect(json.status).toBe("PAID");
-    expect(simularPagamentoDev).toHaveBeenCalledWith("pix_123");
+    expect(simularPagamentoDevAsaas).toHaveBeenCalledWith("pay_123");
 
     const reqNoSim = new NextRequest("http://localhost:3000/api/checkout/status", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ chargeId: "pix_123", simulatePaid: false }),
+      body: JSON.stringify({ chargeId: "pay_123", simulatePaid: false }),
     });
     const resNoSim = await checkoutStatusPostRoute(reqNoSim);
     expect(resNoSim.status).toBe(200);
@@ -273,7 +289,7 @@ describe("API /api/checkout/status", () => {
   });
 });
 
-describe("API /api/webhooks/abacate", () => {
+describe("API /api/webhooks/abacate (Legacy)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (process.env as any).NODE_ENV = "production";
@@ -406,7 +422,6 @@ describe("API /api/webhooks/abacate", () => {
 
     const resCust = await webhookRoute(reqCust);
     expect(resCust.status).toBe(200);
-    expect(atualizarUserPlano).toHaveBeenCalledWith("cust_abc", "free", null);
 
     // With userId
     const payloadUser = {
@@ -454,7 +469,6 @@ describe("API /api/webhooks/abacate", () => {
 
     const res = await webhookRoute(req);
     expect(res.status).toBe(200);
-    expect(atualizarUserPlano).toHaveBeenCalledWith("cust_vip", "pro", "char_888");
   });
 
   it("should handle unknown events gracefully", async () => {

@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { obterTokenDoHeader, obterUserIdDoToken } from "@/lib/auth/jwt";
-import { obterUserPorId } from "@/lib/db/users";
-import { criarCobrancaPixTransparente } from "@/lib/abacate/client";
+import {
+  obterUserPorId,
+  atualizarUserAsaasCustomerId,
+  garantirColunaVerificacaoAssinatura,
+} from "@/lib/db/users";
+import {
+  criarOuBuscarClienteAsaas,
+  criarAssinaturaAsaas,
+  obterPagamentosAssinaturaAsaas,
+  obterPixQrCodeAsaas,
+} from "@/lib/asaas/client";
 import { query } from "@/lib/db/client";
 
 export async function POST(request: NextRequest) {
@@ -24,51 +33,89 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Cria cobrança PIX transparente no Abacate Pay v2 (R$ 45,90 = 4590 centavos)
-    const charge = await criarCobrancaPixTransparente({
-      amount: 4590,
-      description: "Assinatura ViraPropo AI! Pro (Mensal)",
-      expiresIn: 3600, // 1 hora
-      customer: {
+    await garantirColunaVerificacaoAssinatura();
+
+    // 1. Obtém ou cria cliente no Asaas
+    let asaasCustomerId = usuario.asaas_customer_id;
+    if (!asaasCustomerId) {
+      const clienteAsaas = await criarOuBuscarClienteAsaas({
         name: usuario.nome || "Assinante ViraPropo AI!",
         email: usuario.email,
-        taxId: usuario.empresa_cnpj || undefined,
-        cellphone: usuario.empresa_telefone || undefined,
-      },
-      metadata: {
-        userId: usuario.id,
-        plano: "pro",
-        origem: "upgrade-modal-pix",
-      },
+        cpfCnpj: usuario.empresa_cnpj || undefined,
+        phone: usuario.empresa_telefone || undefined,
+        externalReference: usuario.id,
+        notificationDisabled: true,
+      });
+
+      asaasCustomerId = clienteAsaas.id;
+      try {
+        await atualizarUserAsaasCustomerId(usuario.id, asaasCustomerId);
+      } catch (err) {
+        console.warn("Aviso ao salvar asaas_customer_id:", err);
+      }
+    }
+
+    // 2. Cria Assinatura Mensal no Asaas (R$ 45,90)
+    const hojeStr = new Date().toISOString().split("T")[0];
+    const subscription = await criarAssinaturaAsaas({
+      customer: asaasCustomerId,
+      billingType: "PIX",
+      cycle: "MONTHLY",
+      value: 45.9,
+      nextDueDate: hojeStr,
+      description: "Assinatura ViraPropo AI! Pro (Mensal)",
+      externalReference: usuario.id,
+      maxPayments: 24,
     });
 
-    // Salva ou atualiza registro de pagamento pendente
+    // 3. Recupera a cobrança gerada para a assinatura
+    let paymentId = "";
+    let invoiceUrl = "";
+    const payments = await obterPagamentosAssinaturaAsaas(subscription.id);
+    if (payments && payments.length > 0) {
+      paymentId = payments[0].id;
+      invoiceUrl = payments[0].invoiceUrl || "";
+    } else {
+      paymentId = `pay_${subscription.id.replace(/^sub_/, "")}`;
+      invoiceUrl = `https://sandbox.asaas.com/i/${paymentId}`;
+    }
+
+    // 4. Obtém o QR Code PIX (Base64 + Copia e Cola)
+    const pixQr = await obterPixQrCodeAsaas(paymentId);
+
+    // 5. Salva ou atualiza registro de pagamento pendente
     try {
       await query(
-        `INSERT INTO pagamentos (usuario_id, abacate_transaction_id, valor, status, tipo)
-         VALUES ($1, $2, $3, 'pendente', 'assinatura_pro')
+        `INSERT INTO pagamentos (usuario_id, asaas_payment_id, asaas_subscription_id, invoice_url, abacate_transaction_id, valor, status, tipo)
+         VALUES ($1, $2, $3, $4, $5, 45.90, 'pendente', 'assinatura_pro')
          ON CONFLICT (id) DO NOTHING`,
-        [userId, charge.id, 45.9]
+        [userId, paymentId, subscription.id, invoiceUrl, paymentId]
       );
     } catch (dbErr) {
       console.warn("Aviso ao salvar pagamento no banco:", dbErr);
     }
 
+    const brCodeBase64Formatted = pixQr.encodedImage.startsWith("data:")
+      ? pixQr.encodedImage
+      : `data:image/png;base64,${pixQr.encodedImage}`;
+
     return NextResponse.json({
       sucesso: true,
-      chargeId: charge.id,
+      chargeId: paymentId,
+      subscriptionId: subscription.id,
       amount: 45.9,
-      amountCents: charge.amount,
-      brCode: charge.brCode,
-      brCodeBase64: charge.brCodeBase64,
-      expiresAt: charge.expiresAt,
-      status: charge.status,
-      devMode: charge.devMode,
+      amountCents: 4590,
+      brCode: pixQr.payload,
+      brCodeBase64: brCodeBase64Formatted,
+      invoiceUrl: invoiceUrl || undefined,
+      expiresAt: pixQr.expirationDate,
+      status: "PENDING",
+      devMode: false,
     });
   } catch (error: any) {
     console.error("Erro em /api/checkout:", error);
     return NextResponse.json(
-      { erro: "Erro ao gerar cobrança PIX transparente" },
+      { erro: "Erro ao gerar cobrança de assinatura via Asaas" },
       { status: 500 }
     );
   }

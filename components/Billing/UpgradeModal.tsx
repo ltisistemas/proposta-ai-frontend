@@ -17,7 +17,7 @@ import {
   RefreshCw,
   ArrowLeft,
   Clock,
-  X,
+  ExternalLink,
 } from "lucide-react";
 import { Modal } from "@/components/Common/Modal";
 import { Button } from "@/components/Common/Button";
@@ -44,7 +44,8 @@ interface PixChargeData {
   amount: number;
   brCode: string;
   brCodeBase64: string;
-  expiresAt: string;
+  invoiceUrl?: string;
+  expiresAt?: string;
   devMode?: boolean;
 }
 
@@ -143,7 +144,7 @@ export function UpgradeModal({
             });
           }
         } catch (err) {
-          console.error("Erro no polling do PIX:", err);
+          console.error("Erro no polling do PIX Asaas:", err);
         }
       };
 
@@ -183,13 +184,14 @@ export function UpgradeModal({
           amount: data.amount || 45.9,
           brCode: data.brCode,
           brCodeBase64: data.brCodeBase64,
+          invoiceUrl: data.invoiceUrl,
           expiresAt: data.expiresAt,
           devMode: data.devMode,
         });
         setStep("PIX");
         addToast({
           type: "info",
-          title: "PIX gerado com sucesso!",
+          title: "PIX gerado com sucesso via Asaas!",
           message: "Escaneie o QR Code ou copie a chave para pagar.",
         });
       } else {
@@ -200,7 +202,7 @@ export function UpgradeModal({
         });
       }
     } catch (err) {
-      console.error("Erro ao gerar checkout PIX:", err);
+      console.error("Erro ao gerar checkout Asaas:", err);
       addToast({
         type: "error",
         title: "Erro de conexão",
@@ -256,6 +258,13 @@ export function UpgradeModal({
       console.error("Erro ao simular pagamento:", err);
     } finally {
       setIsSimulating(false);
+    }
+  };
+
+  const handleFinalizarAtivacao = () => {
+    onClose();
+    if (typeof window !== "undefined") {
+      window.location.reload();
     }
   };
 
@@ -352,7 +361,7 @@ export function UpgradeModal({
             </div>
 
             <div className="text-center text-[11px] text-slate-400 border-t border-slate-100 pt-3">
-              Pagamento instantâneo e seguro via Abacate Pay (PIX Transparente).
+              Pagamento instantâneo e seguro via Asaas Gateway Oficial.
             </div>
           </>
         )}
@@ -370,7 +379,7 @@ export function UpgradeModal({
               </button>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-amber-50 border border-amber-200/60 text-amber-800 text-[11px] font-semibold animate-pulse">
                 <RefreshCw className="w-3 h-3 animate-spin text-amber-600" />
-                Aguardando pagamento...
+                Aguardando confirmação do Asaas...
               </div>
             </div>
 
@@ -382,7 +391,7 @@ export function UpgradeModal({
                   {pixData.brCodeBase64 ? (
                     <img
                       src={pixData.brCodeBase64}
-                      alt="QR Code PIX Abacate Pay"
+                      alt="QR Code PIX Asaas"
                       className="w-40 h-40 object-contain rounded-[2px]"
                     />
                   ) : (
@@ -447,6 +456,21 @@ export function UpgradeModal({
                   </div>
                 </div>
 
+                {/* Invoice Link Option */}
+                {pixData.invoiceUrl && (
+                  <div className="pt-0.5">
+                    <a
+                      href={pixData.invoiceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 text-xs font-semibold text-blue-700 bg-blue-50/80 hover:bg-blue-100/90 border border-blue-200 rounded-[4px] transition"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
+                      Visualizar Fatura Completa no Asaas
+                    </a>
+                  </div>
+                )}
+
                 {/* Steps guide */}
                 <div className="bg-blue-50/70 border border-blue-100 rounded-[4px] p-3 text-xs text-slate-700 space-y-1">
                   <div className="font-bold text-blue-900 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
@@ -454,9 +478,9 @@ export function UpgradeModal({
                     Como funciona a ativação:
                   </div>
                   <ol className="list-decimal list-inside space-y-0.5 text-slate-600 text-[11px] pl-1">
-                    <li>Realize o pagamento no app do seu banco.</li>
-                    <li>O Abacate Pay confirma a transação em segundos.</li>
-                    <li>Sua conta é atualizada para o <strong>Plano Pro</strong> automaticamente.</li>
+                    <li>Realize o pagamento no app do seu banco ou via fatura Asaas.</li>
+                    <li>O Asaas confirma o recebimento automaticamente.</li>
+                    <li>Sua conta é atualizada para o <strong>Plano Pro</strong> na hora.</li>
                   </ol>
                 </div>
 
@@ -470,7 +494,7 @@ export function UpgradeModal({
                     className="w-full text-xs font-semibold border-dashed border-emerald-300 bg-emerald-50/70 text-emerald-800 hover:bg-emerald-100/80 justify-center rounded-[4px]"
                     leftIcon={<Zap className="w-3.5 h-3.5 text-emerald-600" />}
                   >
-                    ⚡ Simular Pagamento Instantâneo (Ambiente de Testes)
+                    ⚡ Simular Pagamento Instantâneo (Ambiente Sandbox)
                   </Button>
                 </div>
               </div>
@@ -478,9 +502,9 @@ export function UpgradeModal({
 
             <div className="flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100 pt-3">
               <span className="inline-flex items-center gap-1">
-                <Clock className="w-3 h-3" /> PIX válido por 1 hora
+                <Clock className="w-3 h-3" /> PIX emitido via Asaas
               </span>
-              <span>Abacate Pay Gateway Oficial</span>
+              <span>Asaas Pagamentos Inteligentes</span>
             </div>
           </div>
         )}
@@ -524,7 +548,7 @@ export function UpgradeModal({
             </div>
 
             <Button
-              onClick={onClose}
+              onClick={handleFinalizarAtivacao}
               variant="primary"
               size="lg"
               className="w-full font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 justify-center rounded-[4px]"

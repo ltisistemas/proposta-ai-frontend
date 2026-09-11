@@ -22,6 +22,8 @@ export interface UserRow {
   cancelamento_agendado?: boolean;
   abacate_customer_id?: string | null;
   abacate_subscription_id?: string | null;
+  asaas_customer_id?: string | null;
+  asaas_subscription_id?: string | null;
   criado_em: Date;
   atualizado_em: Date;
 }
@@ -39,6 +41,11 @@ export async function garantirColunaVerificacaoAssinatura(): Promise<void> {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS data_proxima_cobranca TIMESTAMP;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS data_ultima_verificacao_pagamento DATE;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS cancelamento_agendado BOOLEAN DEFAULT FALSE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_customer_id VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255);
+      ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_payment_id VARCHAR(255);
+      ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255);
+      ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS invoice_url TEXT;
     `);
     isAssinaturaColInitialized = true;
   } catch (err) {
@@ -263,7 +270,7 @@ export async function obterUserPorId(
   id: string
 ): Promise<Omit<UserRow, "password_hash"> | null> {
   const result = await query(
-    `SELECT id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, abacate_customer_id, abacate_subscription_id, criado_em, atualizado_em 
+    `SELECT id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, abacate_customer_id, abacate_subscription_id, asaas_customer_id, asaas_subscription_id, criado_em, atualizado_em 
      FROM users WHERE id = $1 AND deletado_em IS NULL`,
     [id]
   );
@@ -280,6 +287,17 @@ export async function obterUserPorAbacateId(
   return result.rows[0] || null;
 }
 
+export async function obterUserPorAsaasCustomerId(
+  asaasCustomerId: string
+): Promise<UserRow | null> {
+  await garantirColunaVerificacaoAssinatura();
+  const result = await query<UserRow>(
+    "SELECT * FROM users WHERE asaas_customer_id = $1 AND deletado_em IS NULL",
+    [asaasCustomerId]
+  );
+  return result.rows[0] || null;
+}
+
 export async function agendarCancelamentoAssinatura(
   userId: string,
   cancelar: boolean
@@ -289,7 +307,7 @@ export async function agendarCancelamentoAssinatura(
     `UPDATE users 
      SET cancelamento_agendado = $1, atualizado_em = CURRENT_TIMESTAMP 
      WHERE id = $2 AND deletado_em IS NULL
-     RETURNING id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, abacate_customer_id, abacate_subscription_id, criado_em, atualizado_em`,
+     RETURNING id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, abacate_customer_id, abacate_subscription_id, asaas_customer_id, asaas_subscription_id, criado_em, atualizado_em`,
     [cancelar, userId]
   );
   return result.rows[0] || null;
@@ -316,6 +334,28 @@ export async function atualizarUserPlano(
   return result.rows[0];
 }
 
+export async function atualizarUserPlanoAsaas(
+  asaasCustomerId: string,
+  plano: "free" | "pro",
+  subscriptionId: string | null
+) {
+  await garantirColunaVerificacaoAssinatura();
+  const result = await query(
+    `UPDATE users 
+     SET plano = $1::varchar, 
+         asaas_subscription_id = COALESCE($2, asaas_subscription_id), 
+         cancelamento_agendado = FALSE,
+         data_assinatura = CASE WHEN $1::varchar = 'pro' THEN CURRENT_TIMESTAMP ELSE data_assinatura END,
+         data_proxima_cobranca = CASE WHEN $1::varchar = 'pro' THEN CURRENT_TIMESTAMP + INTERVAL '30 days' ELSE data_proxima_cobranca END,
+         atualizado_em = CURRENT_TIMESTAMP
+     WHERE asaas_customer_id = $3
+     RETURNING id, email, plano, data_assinatura, data_proxima_cobranca, cancelamento_agendado, asaas_customer_id, asaas_subscription_id`,
+    [plano, subscriptionId, asaasCustomerId]
+  );
+
+  return result.rows[0];
+}
+
 export async function atualizarUserCustomerId(
   userId: string,
   abacateCustomerId: string
@@ -326,6 +366,21 @@ export async function atualizarUserCustomerId(
      WHERE id = $2
      RETURNING id, email, abacate_customer_id`,
     [abacateCustomerId, userId]
+  );
+  return result.rows[0];
+}
+
+export async function atualizarUserAsaasCustomerId(
+  userId: string,
+  asaasCustomerId: string
+) {
+  await garantirColunaVerificacaoAssinatura();
+  const result = await query(
+    `UPDATE users
+     SET asaas_customer_id = $1, atualizado_em = CURRENT_TIMESTAMP
+     WHERE id = $2
+     RETURNING id, email, asaas_customer_id`,
+    [asaasCustomerId, userId]
   );
   return result.rows[0];
 }
