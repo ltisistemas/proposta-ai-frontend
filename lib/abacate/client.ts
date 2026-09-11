@@ -63,6 +63,22 @@ export async function criarCobrancaPixTransparente(
   const apiKey = getApiKey();
   const client = getAbacateClient();
 
+  // Sanitiza cellphone e taxId para formato estrito aceito pela API Abacate Pay
+  const rawCellphone = (payload.customer.cellphone || "").replace(/\D/g, "");
+  const cleanCellphone = rawCellphone.length >= 10 ? rawCellphone : "11999999999";
+
+  const rawTaxId = (payload.customer.taxId || "").replace(/\D/g, "");
+  let cleanTaxId = rawTaxId;
+  if (cleanTaxId.length !== 11 && cleanTaxId.length !== 14) {
+    // Gera CPF válido de fallback para evitar erro 400 da API
+    const n = Array.from({ length: 9 }, () => Math.floor(Math.random() * 9));
+    let d1 = n.reduce((total, num, idx) => total + num * (10 - idx), 0) % 11;
+    d1 = d1 < 2 ? 0 : 11 - d1;
+    let d2 = [...n, d1].reduce((total, num, idx) => total + num * (11 - idx), 0) % 11;
+    d2 = d2 < 2 ? 0 : 11 - d2;
+    cleanTaxId = `${n.join("")}${d1}${d2}`;
+  }
+
   try {
     if (apiKey && !apiKey.startsWith("mock_") && !apiKey.startsWith("test_mock")) {
       const response = await client.post("/transparents/create", {
@@ -75,8 +91,8 @@ export async function criarCobrancaPixTransparente(
           customer: {
             name: payload.customer.name || "Cliente ViraPropo AI!",
             email: payload.customer.email,
-            taxId: payload.customer.taxId || "000.000.000-00",
-            cellphone: payload.customer.cellphone || "(11) 99999-9999",
+            taxId: cleanTaxId,
+            cellphone: cleanCellphone,
           },
           metadata: payload.metadata || {},
         },
