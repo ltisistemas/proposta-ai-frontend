@@ -38,14 +38,17 @@ export async function garantirColunaVerificacaoAssinatura(): Promise<void> {
   if (isAssinaturaColInitialized) return;
   try {
     await query(`
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS data_proxima_cobranca TIMESTAMP;
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS data_ultima_verificacao_pagamento DATE;
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS cancelamento_agendado BOOLEAN DEFAULT FALSE;
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_customer_id VARCHAR(255);
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255);
-      ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_payment_id VARCHAR(255);
-      ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255);
-      ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS invoice_url TEXT;
+      DO $$ 
+      BEGIN
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS data_proxima_cobranca TIMESTAMP; EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS data_ultima_verificacao_pagamento DATE; EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS cancelamento_agendado BOOLEAN DEFAULT FALSE; EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_customer_id VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_payment_id VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS invoice_url TEXT; EXCEPTION WHEN OTHERS THEN NULL; END;
+      END $$;
     `);
     isAssinaturaColInitialized = true;
   } catch (err) {
@@ -65,6 +68,8 @@ export interface ResultadoValidacaoAssinatura {
 export async function validarAssinaturaUsuario(
   user: UserRow | Omit<UserRow, "password_hash">
 ): Promise<ResultadoValidacaoAssinatura> {
+  await garantirColunaVerificacaoAssinatura();
+
   if (!user || user.plano !== "pro") {
     return {
       user,
@@ -75,8 +80,6 @@ export async function validarAssinaturaUsuario(
       cancelamentoAgendado: false,
     };
   }
-
-  await garantirColunaVerificacaoAssinatura();
 
   // If proxima cobranca is not set, default to active
   if (!user.data_proxima_cobranca) {
@@ -269,12 +272,13 @@ export async function obterUserPorEmail(email: string): Promise<UserRow | null> 
 export async function obterUserPorId(
   id: string
 ): Promise<Omit<UserRow, "password_hash"> | null> {
-  const result = await query(
-    `SELECT id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, abacate_customer_id, abacate_subscription_id, asaas_customer_id, asaas_subscription_id, criado_em, atualizado_em 
-     FROM users WHERE id = $1 AND deletado_em IS NULL`,
+  const result = await query<UserRow>(
+    `SELECT * FROM users WHERE id = $1 AND deletado_em IS NULL`,
     [id]
   );
-  return result.rows[0] || null;
+  if (!result || !result.rows || !result.rows[0]) return null;
+  const { password_hash, ...userSemSenha } = result.rows[0];
+  return userSemSenha;
 }
 
 export async function obterUserPorAbacateId(
@@ -303,14 +307,16 @@ export async function agendarCancelamentoAssinatura(
   cancelar: boolean
 ): Promise<Omit<UserRow, "password_hash"> | null> {
   await garantirColunaVerificacaoAssinatura();
-  const result = await query(
+  const result = await query<UserRow>(
     `UPDATE users 
      SET cancelamento_agendado = $1, atualizado_em = CURRENT_TIMESTAMP 
      WHERE id = $2 AND deletado_em IS NULL
-     RETURNING id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, abacate_customer_id, abacate_subscription_id, asaas_customer_id, asaas_subscription_id, criado_em, atualizado_em`,
+     RETURNING *`,
     [cancelar, userId]
   );
-  return result.rows[0] || null;
+  if (!result || !result.rows || !result.rows[0]) return null;
+  const { password_hash, ...userSemSenha } = result.rows[0];
+  return userSemSenha;
 }
 
 export async function atualizarUserPlano(

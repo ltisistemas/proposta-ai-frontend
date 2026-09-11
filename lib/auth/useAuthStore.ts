@@ -88,7 +88,7 @@ export const useAuthStore = create<AuthStore>()(
       logout: () => {
         if (typeof window !== "undefined") {
           localStorage.removeItem("proposta_ai_token");
-          document.cookie = "proposta_ai_token=; path=/; max-age=0";
+          document.cookie = "proposta_ai_token=; path=/; max-age=0; SameSite=Lax";
         }
         set({
           token: null,
@@ -102,7 +102,12 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       fetchMe: async () => {
-        const token = get().token || (typeof window !== "undefined" ? localStorage.getItem("proposta_ai_token") : null);
+        const token =
+          get().token ||
+          (typeof window !== "undefined"
+            ? localStorage.getItem("proposta_ai_token")
+            : null);
+
         if (!token) {
           set({ isAuthenticated: false, user: null });
           return;
@@ -114,8 +119,15 @@ export const useAuthStore = create<AuthStore>()(
               Authorization: `Bearer ${token}`,
             },
           });
+
+          // Se status for 401 ou 403, desloga
+          if (res.status === 401 || res.status === 403) {
+            get().logout();
+            return;
+          }
+
           const data = await res.json();
-          if (data.sucesso && data.usuario) {
+          if (data && data.sucesso && data.usuario) {
             set({
               token,
               user: data.usuario,
@@ -125,11 +137,11 @@ export const useAuthStore = create<AuthStore>()(
               cancelamentoAgendado:
                 !!data.cancelamentoAgendado || !!data.usuario.cancelamento_agendado,
             });
-          } else {
+          } else if (data && data.sucesso === false) {
             get().logout();
           }
         } catch (error) {
-          console.error("Erro ao verificar sessão:", error);
+          console.error("Erro de conexão ao verificar sessão:", error);
         }
       },
     }),
