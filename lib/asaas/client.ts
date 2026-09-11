@@ -70,6 +70,7 @@ export interface CreateAsaasCustomerPayload {
   mobilePhone?: string;
   externalReference?: string;
   notificationDisabled?: boolean;
+  existingCustomerId?: string | null;
 }
 
 export interface AsaasSubscription {
@@ -144,6 +145,19 @@ export function gerarCpfValidoFallback(): string {
 }
 
 /**
+ * Extrai a mensagem legível de erro do Asaas
+ */
+function extrairErroAsaas(error: any): string {
+  if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+    return error.response.data.errors.map((e: any) => e.description || e.message).join("; ");
+  }
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+  return error.message || "Erro desconhecido na API do Asaas";
+}
+
+/**
  * Busca cliente existente no Asaas ou cria um novo
  */
 export async function criarOuBuscarClienteAsaas(
@@ -152,15 +166,32 @@ export async function criarOuBuscarClienteAsaas(
   const apiKey = getAsaasApiKey();
   const client = getAsaasClient();
 
+  const isRealApiKey =
+    apiKey && !apiKey.startsWith("mock_") && !apiKey.startsWith("test_mock");
+
   const rawCpfCnpj = (payload.cpfCnpj || "").replace(/\D/g, "");
   let cleanCpfCnpj = rawCpfCnpj;
   if (cleanCpfCnpj.length !== 11 && cleanCpfCnpj.length !== 14) {
     cleanCpfCnpj = gerarCpfValidoFallback();
   }
 
-  if (apiKey && !apiKey.startsWith("mock_") && !apiKey.startsWith("test_mock")) {
+  if (isRealApiKey) {
+    // 1. Se foi passado existingCustomerId, valida se ele realmente existe no Asaas
+    if (payload.existingCustomerId && payload.existingCustomerId.startsWith("cus_")) {
+      try {
+        const getRes = await client.get(`/customers/${payload.existingCustomerId}`);
+        if (getRes.data?.id) {
+          return getRes.data;
+        }
+      } catch (err: any) {
+        console.warn(
+          `Customer ${payload.existingCustomerId} não encontrado no Asaas ou inválido, buscando por email/cpf...`
+        );
+      }
+    }
+
     try {
-      // 1. Tenta buscar por CPF/CNPJ ou Email existente
+      // 2. Tenta buscar por CPF/CNPJ ou Email existente
       if (cleanCpfCnpj) {
         const searchRes = await client.get("/customers", {
           params: { cpfCnpj: cleanCpfCnpj },
@@ -179,7 +210,7 @@ export async function criarOuBuscarClienteAsaas(
         }
       }
 
-      // 2. Se não encontrou, cria novo cliente
+      // 3. Se não encontrou, cria novo cliente
       const createRes = await client.post("/customers", {
         name: payload.name || "Cliente ViraPropo AI!",
         email: payload.email || undefined,
@@ -194,14 +225,13 @@ export async function criarOuBuscarClienteAsaas(
         return createRes.data;
       }
     } catch (error: any) {
-      console.warn(
-        "Aviso Asaas API ao buscar/criar cliente (usando fallback se aplicável):",
-        error.response?.data || error.message
-      );
+      const errMsg = extrairErroAsaas(error);
+      console.error("Erro Asaas API ao buscar/criar cliente:", errMsg);
+      throw new Error(`Asaas [Cliente]: ${errMsg}`);
     }
   }
 
-  // Fallback Mock / Sandbox Offline
+  // Fallback Mock / Offline Mode
   const mockCustomerId = `cus_${Math.random().toString(36).substring(2, 10)}`;
   return {
     id: mockCustomerId,
@@ -222,7 +252,10 @@ export async function criarAssinaturaAsaas(
   const apiKey = getAsaasApiKey();
   const client = getAsaasClient();
 
-  if (apiKey && !apiKey.startsWith("mock_") && !apiKey.startsWith("test_mock")) {
+  const isRealApiKey =
+    apiKey && !apiKey.startsWith("mock_") && !apiKey.startsWith("test_mock");
+
+  if (isRealApiKey) {
     try {
       const response = await client.post("/subscriptions", {
         customer: payload.customer,
@@ -230,7 +263,7 @@ export async function criarAssinaturaAsaas(
         cycle: payload.cycle,
         value: payload.value,
         nextDueDate: payload.nextDueDate,
-        description: payload.description || "Plano PRO do ViraPropo-AI",
+        description: payload.description || "Assinatura ViraPropo AI! Pro (Mensal)",
         externalReference: payload.externalReference || undefined,
         maxPayments: payload.maxPayments || 24,
       });
@@ -239,10 +272,9 @@ export async function criarAssinaturaAsaas(
         return response.data;
       }
     } catch (error: any) {
-      console.warn(
-        "Aviso Asaas API ao criar assinatura:",
-        error.response?.data || error.message
-      );
+      const errMsg = extrairErroAsaas(error);
+      console.error("Erro Asaas API ao criar assinatura:", errMsg);
+      throw new Error(`Asaas [Assinatura]: ${errMsg}`);
     }
   }
 
@@ -254,7 +286,7 @@ export async function criarAssinaturaAsaas(
     value: payload.value,
     nextDueDate: payload.nextDueDate,
     cycle: payload.cycle,
-    description: payload.description || "Plano PRO do ViraPropo-AI",
+    description: payload.description || "Assinatura ViraPropo AI! Pro (Mensal)",
     billingType: payload.billingType,
     status: "ACTIVE",
     externalReference: payload.externalReference,
@@ -270,17 +302,19 @@ export async function obterPagamentosAssinaturaAsaas(
   const apiKey = getAsaasApiKey();
   const client = getAsaasClient();
 
-  if (apiKey && !apiKey.startsWith("mock_") && !apiKey.startsWith("test_mock")) {
+  const isRealApiKey =
+    apiKey && !apiKey.startsWith("mock_") && !apiKey.startsWith("test_mock");
+
+  if (isRealApiKey) {
     try {
       const response = await client.get(`/subscriptions/${subscriptionId}/payments`);
       if (response.data?.data) {
         return response.data.data;
       }
     } catch (error: any) {
-      console.warn(
-        "Aviso Asaas API ao listar pagamentos da assinatura:",
-        error.response?.data || error.message
-      );
+      const errMsg = extrairErroAsaas(error);
+      console.error("Erro Asaas API ao listar pagamentos da assinatura:", errMsg);
+      throw new Error(`Asaas [Pagamentos]: ${errMsg}`);
     }
   }
 
@@ -296,7 +330,10 @@ export async function obterPixQrCodeAsaas(
   const apiKey = getAsaasApiKey();
   const client = getAsaasClient();
 
-  if (apiKey && !apiKey.startsWith("mock_") && !apiKey.startsWith("test_mock")) {
+  const isRealApiKey =
+    apiKey && !apiKey.startsWith("mock_") && !apiKey.startsWith("test_mock");
+
+  if (isRealApiKey) {
     try {
       const response = await client.get(`/payments/${paymentId}/pixQrCode`);
       if (response.data?.encodedImage && response.data?.payload) {
@@ -307,14 +344,13 @@ export async function obterPixQrCodeAsaas(
         };
       }
     } catch (error: any) {
-      console.warn(
-        "Aviso Asaas API ao obter PIX QR Code:",
-        error.response?.data || error.message
-      );
+      const errMsg = extrairErroAsaas(error);
+      console.error("Erro Asaas API ao obter PIX QR Code:", errMsg);
+      throw new Error(`Asaas [PIX QR Code]: ${errMsg}`);
     }
   }
 
-  // Mock SVG de fallback para desenvolvimento
+  // Mock SVG de fallback para desenvolvimento / offline
   const samplePixPayload = `00020126580014BR.GOV.BCB.PIX0136d2b4e5f6-7890-abcd-ef12-${paymentId.substring(0, 12)}520400005303986540545.905802BR5915VIRAPROPO AI PRO6009SAO PAULO62070503***6304`;
   const qrSvg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
@@ -342,7 +378,7 @@ export async function obterPixQrCodeAsaas(
   `.trim();
 
   return {
-    encodedImage: Buffer.from(qrSvg).toString("base64"),
+    encodedImage: `data:image/svg+xml;base64,${Buffer.from(qrSvg).toString("base64")}`,
     payload: samplePixPayload,
     expirationDate: new Date(Date.now() + 3600 * 1000).toISOString(),
   };

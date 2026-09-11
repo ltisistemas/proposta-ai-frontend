@@ -35,19 +35,19 @@ export async function POST(request: NextRequest) {
 
     await garantirColunaVerificacaoAssinatura();
 
-    // 1. Obtém ou cria cliente no Asaas
-    let asaasCustomerId = usuario.asaas_customer_id;
-    if (!asaasCustomerId) {
-      const clienteAsaas = await criarOuBuscarClienteAsaas({
-        name: usuario.nome || "Assinante ViraPropo AI!",
-        email: usuario.email,
-        cpfCnpj: usuario.empresa_cnpj || undefined,
-        phone: usuario.empresa_telefone || undefined,
-        externalReference: usuario.id,
-        notificationDisabled: true,
-      });
+    // 1. Obtém, valida ou cria cliente no Asaas
+    const clienteAsaas = await criarOuBuscarClienteAsaas({
+      name: usuario.nome || "Assinante ViraPropo AI!",
+      email: usuario.email,
+      cpfCnpj: usuario.empresa_cnpj || undefined,
+      phone: usuario.empresa_telefone || undefined,
+      externalReference: usuario.id,
+      notificationDisabled: true,
+      existingCustomerId: usuario.asaas_customer_id,
+    });
 
-      asaasCustomerId = clienteAsaas.id;
+    const asaasCustomerId = clienteAsaas.id;
+    if (usuario.asaas_customer_id !== asaasCustomerId) {
       try {
         await atualizarUserAsaasCustomerId(usuario.id, asaasCustomerId);
       } catch (err) {
@@ -68,10 +68,16 @@ export async function POST(request: NextRequest) {
       maxPayments: 24,
     });
 
-    // 3. Recupera a cobrança gerada para a assinatura
+    // 3. Recupera a cobrança gerada para a assinatura (com breve retry se necessário)
     let paymentId = "";
     let invoiceUrl = "";
-    const payments = await obterPagamentosAssinaturaAsaas(subscription.id);
+    let payments = await obterPagamentosAssinaturaAsaas(subscription.id);
+    
+    if ((!payments || payments.length === 0) && subscription.id.startsWith("sub_")) {
+      await new Promise((res) => setTimeout(res, 600));
+      payments = await obterPagamentosAssinaturaAsaas(subscription.id);
+    }
+
     if (payments && payments.length > 0) {
       paymentId = payments[0].id;
       invoiceUrl = payments[0].invoiceUrl || "";
@@ -115,7 +121,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Erro em /api/checkout:", error);
     return NextResponse.json(
-      { erro: "Erro ao gerar cobrança de assinatura via Asaas" },
+      { erro: error.message || "Erro ao gerar cobrança de assinatura via Asaas" },
       { status: 500 }
     );
   }

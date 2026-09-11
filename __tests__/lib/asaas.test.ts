@@ -15,8 +15,14 @@ import {
 } from "@/lib/asaas/client";
 
 describe("lib/asaas/client", () => {
+  const originalEnv = { ...process.env };
+
   beforeEach(() => {
     vi.restoreAllMocks();
+    process.env = { ...originalEnv };
+    delete process.env.ASAAS_API_KEY;
+    delete process.env.ASAAS_API_KEY_SANDBOX;
+    delete process.env.ASAAS_SECRET_KEY;
   });
 
   it("should parse API key and correctly identify sandbox vs production URL", () => {
