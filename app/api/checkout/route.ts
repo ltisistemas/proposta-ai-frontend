@@ -56,26 +56,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. Cria Assinatura Mensal no Asaas (Temporariamente R$ 1,00 para teste)
+    // 2. Cria Assinatura Mensal no Asaas (R$ 5,00 - Valor Mínimo Permitido pelo Asaas)
     const hojeStr = new Date().toISOString().split("T")[0];
     const subscription = await criarAssinaturaAsaas({
       customer: asaasCustomerId,
       billingType: "PIX",
       cycle: "MONTHLY",
-      value: 1.0,
+      value: 5.0,
       nextDueDate: hojeStr,
       description: "Assinatura ViraPropo AI! Pro (Mensal) - Teste",
       externalReference: usuario.id,
       maxPayments: 24,
     });
 
-    // 3. Recupera a cobrança gerada para a assinatura (com retry com backoff)
+    // 3. Recupera a cobrança gerada para a assinatura no Asaas (com retry com backoff)
     let paymentId = "";
     let invoiceUrl = "";
     let payments = await obterPagamentosAssinaturaAsaas(subscription.id);
     
     if ((!payments || payments.length === 0) && subscription.id.startsWith("sub_")) {
-      const delays = [400, 800];
+      const delays = [500, 1000, 1500, 2000];
       for (const delay of delays) {
         await new Promise((res) => setTimeout(res, delay));
         payments = await obterPagamentosAssinaturaAsaas(subscription.id);
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     try {
       await query(
         `INSERT INTO pagamentos (usuario_id, asaas_payment_id, asaas_subscription_id, invoice_url, abacate_transaction_id, valor, status, tipo)
-         VALUES ($1, $2, $3, $4, $5, 1.00, 'pendente', 'assinatura_pro')
+         VALUES ($1, $2, $3, $4, $5, 5.00, 'pendente', 'assinatura_pro')
          ON CONFLICT (id) DO NOTHING`,
         [userId, paymentId, subscription.id, invoiceUrl, paymentId]
       );
@@ -122,8 +122,8 @@ export async function POST(request: NextRequest) {
       sucesso: true,
       chargeId: paymentId,
       subscriptionId: subscription.id,
-      amount: 1.0,
-      amountCents: 100,
+      amount: 5.0,
+      amountCents: 500,
       brCode: pixQr.payload,
       brCodeBase64: brCodeBase64Formatted,
       invoiceUrl: invoiceUrl || undefined,

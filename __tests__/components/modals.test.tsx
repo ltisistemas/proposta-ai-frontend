@@ -45,7 +45,7 @@ describe("components/Billing/UpgradeModal", () => {
             chargeId: "pix_char_test_123",
             brCode: "00020126580014BR.GOV.BCB.PIX...",
             brCodeBase64: "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=",
-            amount: 1.0,
+            amount: 5.0,
             expiresAt: new Date().toISOString(),
           }),
         } as any);
@@ -72,7 +72,7 @@ describe("components/Billing/UpgradeModal", () => {
     );
 
     expect(screen.getByText(/impressão e pdf exclusivos do plano pro/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/1,00/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/5,00/i).length).toBeGreaterThan(0);
 
     // Click to generate PIX
     const payBtn = screen.getByRole("button", { name: /pagar com pix/i });
@@ -138,7 +138,7 @@ describe("components/Billing/UpgradeModal", () => {
             chargeId: "pix_char_back_test",
             brCode: "00020126580014BR.GOV.BCB.PIX...",
             brCodeBase64: "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=",
-            amount: 1.0,
+            amount: 5.0,
             expiresAt: new Date().toISOString(),
           }),
         } as any);
@@ -191,7 +191,7 @@ describe("components/Billing/UpgradeModal", () => {
             brCode: "00020126580014BR.GOV.BCB.PIX...",
             brCodeBase64: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
             invoiceUrl: "https://sandbox.asaas.com/i/pay_123456",
-            amount: 1.0,
+            amount: 5.0,
             expiresAt: new Date().toISOString(),
           }),
         } as any);
@@ -232,7 +232,7 @@ describe("components/Billing/UpgradeModal", () => {
         onClose={vi.fn()}
       />
     );
-    expect(screen.queryByText(/1,00/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/5,00/i)).not.toBeInTheDocument();
   });
 });
 

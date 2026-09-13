@@ -76,7 +76,7 @@ describe("API /api/checkout & /api/checkout/status (Asaas)", () => {
     vi.mocked(criarAssinaturaAsaas).mockResolvedValue({
       id: "sub_asaas_123",
       customer: "cus_asaas_123",
-      value: 1.0,
+      value: 5.0,
       cycle: "MONTHLY",
       billingType: "PIX",
       status: "ACTIVE",
@@ -88,7 +88,7 @@ describe("API /api/checkout & /api/checkout/status (Asaas)", () => {
         id: "pay_asaas_123",
         customer: "cus_asaas_123",
         subscription: "sub_asaas_123",
-        value: 1.0,
+        value: 5.0,
         status: "PENDING",
         dueDate: "2026-09-11",
         invoiceUrl: "https://sandbox.asaas.com/i/pay_asaas_123",
@@ -114,7 +114,7 @@ describe("API /api/checkout & /api/checkout/status (Asaas)", () => {
     expect(json.sucesso).toBe(true);
     expect(json.chargeId).toBe("pay_asaas_123");
     expect(json.subscriptionId).toBe("sub_asaas_123");
-    expect(json.amount).toBe(1.0);
+    expect(json.amount).toBe(5.0);
     expect(json.brCode).toContain("BR.GOV.BCB.PIX");
     expect(json.brCodeBase64).toContain("data:image/png;base64,");
     expect(json.invoiceUrl).toBe("https://sandbox.asaas.com/i/pay_asaas_123");

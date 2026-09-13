@@ -202,7 +202,7 @@ export function UpgradeModal({
       if (data.sucesso && data.brCode) {
         setPixData({
           chargeId: data.chargeId,
-          amount: data.amount || 1.0,
+          amount: data.amount || 5.0,
           brCode: data.brCode,
           brCodeBase64: data.brCodeBase64,
           invoiceUrl: data.invoiceUrl,
@@ -335,7 +335,7 @@ export function UpgradeModal({
                     Assinatura Mensal
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-white mt-0.5">
-                    R$ 1,00{" "}
+                    R$ 5,00{" "}
                     <span className="text-xs text-blue-200 font-normal">/ mês</span>
                   </div>
                 </div>
@@ -372,7 +372,7 @@ export function UpgradeModal({
             <div className="p-3 bg-amber-50 border border-amber-200 rounded-[4px] text-xs text-amber-900 flex items-start gap-2">
               <span className="text-sm shrink-0">🧪</span>
               <p className="leading-snug text-[11px] text-amber-800">
-                <strong>Ambiente de Testes:</strong> O valor simbólico de R$ 1,00 é utilizado apenas para validação técnica da integração. Qualquer pagamento realizado neste período será desfeito posteriormente.
+                <strong>Ambiente de Testes:</strong> O valor simbólico de R$ 5,00 (mínimo Asaas) é utilizado para validação técnica da integração. Qualquer pagamento realizado neste período será desfeito posteriormente.
               </p>
             </div>
 
@@ -387,7 +387,7 @@ export function UpgradeModal({
                 leftIcon={<QrCode className="w-5 h-5" />}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
-                Pagar com PIX (R$ 1,00/mês)
+                Pagar com PIX (R$ 5,00/mês)
               </Button>
 
               <Button

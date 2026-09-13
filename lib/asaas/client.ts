@@ -201,7 +201,17 @@ export async function criarOuBuscarClienteAsaas(
       try {
         const getRes = await client.get(`/customers/${payload.existingCustomerId}`);
         if (getRes.data?.id) {
-          return getRes.data;
+          const cust = getRes.data;
+          // Se o cliente existente não possuir CPF/CNPJ cadastrado no Asaas, atualiza
+          if (!cust.cpfCnpj && cleanCpfCnpj) {
+            try {
+              const putRes = await client.put(`/customers/${cust.id}`, { cpfCnpj: cleanCpfCnpj });
+              return putRes.data || cust;
+            } catch (putErr) {
+              console.warn("Aviso ao atualizar CPF do cliente no Asaas:", putErr);
+            }
+          }
+          return cust;
         }
       } catch (err: any) {
         console.warn(
@@ -217,7 +227,16 @@ export async function criarOuBuscarClienteAsaas(
           params: { cpfCnpj: cleanCpfCnpj },
         });
         if (searchRes.data?.data && searchRes.data.data.length > 0) {
-          return searchRes.data.data[0];
+          const cust = searchRes.data.data[0];
+          if (!cust.cpfCnpj && cleanCpfCnpj) {
+            try {
+              const putRes = await client.put(`/customers/${cust.id}`, { cpfCnpj: cleanCpfCnpj });
+              return putRes.data || cust;
+            } catch (putErr) {
+              console.warn("Aviso ao atualizar CPF do cliente no Asaas:", putErr);
+            }
+          }
+          return cust;
         }
       }
 
@@ -226,7 +245,16 @@ export async function criarOuBuscarClienteAsaas(
           params: { email: payload.email.trim() },
         });
         if (searchRes.data?.data && searchRes.data.data.length > 0) {
-          return searchRes.data.data[0];
+          const cust = searchRes.data.data[0];
+          if (!cust.cpfCnpj && cleanCpfCnpj) {
+            try {
+              const putRes = await client.put(`/customers/${cust.id}`, { cpfCnpj: cleanCpfCnpj });
+              return putRes.data || cust;
+            } catch (putErr) {
+              console.warn("Aviso ao atualizar CPF do cliente no Asaas:", putErr);
+            }
+          }
+          return cust;
         }
       }
 

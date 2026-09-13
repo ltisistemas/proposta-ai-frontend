@@ -93,7 +93,7 @@ const FAQS = [
   {
     question: "Como funciona a assinatura do Plano Pro?",
     answer:
-      "O Plano Pro custa R$ 1,00/mês (valor de teste promocional) e libera propostas ilimitadas com IA, personalização completa com a sua logomarca no cabeçalho, templates comerciais exclusivos e suporte prioritário via WhatsApp. O pagamento é 100% instantâneo e seguro via PIX pelo Asaas.",
+      "O Plano Pro custa R$ 5,00/mês (valor de teste promocional) e libera propostas ilimitadas com IA, personalização completa com a sua logomarca no cabeçalho, templates comerciais exclusivos e suporte prioritário via WhatsApp. O pagamento é 100% instantâneo e seguro via PIX pelo Asaas.",
   },
   {
     question: "Posso cancelar minha assinatura quando quiser?",
@@ -787,7 +787,7 @@ export default function LandingPage() {
               </p>
 
               <div className="text-3xl font-black text-slate-900 mb-6">
-                R$ 1,00{" "}
+                R$ 5,00{" "}
                 <span className="text-xs text-slate-400 font-normal">/ mês</span>
               </div>
 
@@ -822,7 +822,7 @@ export default function LandingPage() {
                   size="md"
                   className="w-full justify-center font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25"
                 >
-                  Assinar Plano Pro (R$ 1,00)
+                  Assinar Plano Pro (R$ 5,00)
                 </Button>
               </Link>
               <div className="text-center text-[10px] text-slate-500 mt-2">
