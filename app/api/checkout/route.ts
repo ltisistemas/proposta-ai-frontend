@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     let payments = await obterPagamentosAssinaturaAsaas(subscription.id);
     
     if ((!payments || payments.length === 0) && subscription.id.startsWith("sub_")) {
-      const delays = [500, 1000, 1500, 2000];
+      const delays = [500, 1000, 1500, 2000, 2500];
       for (const delay of delays) {
         await new Promise((res) => setTimeout(res, delay));
         payments = await obterPagamentosAssinaturaAsaas(subscription.id);
@@ -83,18 +83,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const isSandbox =
-      typeof getAsaasBaseUrl === "function"
-        ? getAsaasBaseUrl().includes("sandbox")
-        : true;
-    const defaultDomain = isSandbox ? "https://sandbox.asaas.com" : "https://www.asaas.com";
-
     if (payments && payments.length > 0) {
       paymentId = payments[0].id;
-      invoiceUrl = payments[0].invoiceUrl || payments[0].bankSlipUrl || `${defaultDomain}/i/${paymentId}`;
+      invoiceUrl = payments[0].invoiceUrl || payments[0].bankSlipUrl || "";
     } else {
-      paymentId = `pay_${subscription.id.replace(/^sub_/, "")}`;
-      invoiceUrl = `${defaultDomain}/i/${paymentId}`;
+      paymentId = subscription.id;
     }
 
     // 4. Obtém o QR Code PIX (Base64 + Copia e Cola)
