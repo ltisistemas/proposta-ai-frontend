@@ -8,6 +8,7 @@ import { Input } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { ToastContainer, useToast } from "@/components/Common/Toast";
+import { tracker } from "@/lib/analytics/tracker";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -61,6 +62,11 @@ export default function SignupPage() {
       }
 
       setAuth(data.token, data.usuario);
+      try {
+        tracker.completeRegistration({ method: "email", user_id: data.usuario?.id });
+      } catch (trackErr) {
+        console.warn("Aviso ao rastrear cadastro:", trackErr);
+      }
       addToast({
         type: "success",
         title: "Conta criada com sucesso!",

@@ -23,6 +23,7 @@ import { Modal } from "@/components/Common/Modal";
 import { Button } from "@/components/Common/Button";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
+import { tracker } from "@/lib/analytics/tracker";
 
 export type UpgradeFeatureType =
   | "pdf"
@@ -156,6 +157,16 @@ export function UpgradeModal({
             await fetchMe();
             setStep("SUCCESS");
             if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
+            try {
+              tracker.purchase({
+                transaction_id: pixData.chargeId,
+                value: pixData.amount || 45.9,
+                currency: "BRL",
+                content_name: "Assinatura ViraPropo AI! Pro",
+              });
+            } catch (trackErr) {
+              console.warn("Aviso ao rastrear Purchase:", trackErr);
+            }
             addToast({
               type: "success",
               title: "🎉 Pagamento Confirmado!",
@@ -209,6 +220,15 @@ export function UpgradeModal({
           devMode: data.devMode,
         });
         setStep("PIX");
+        try {
+          tracker.initiateCheckout({
+            value: data.amount || 45.9,
+            currency: "BRL",
+            content_name: "Assinatura ViraPropo AI! Pro",
+          });
+        } catch (trackErr) {
+          console.warn("Aviso ao rastrear InitiateCheckout:", trackErr);
+        }
         addToast({
           type: "info",
           title: "PIX gerado com sucesso via Asaas!",

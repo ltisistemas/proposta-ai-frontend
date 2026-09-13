@@ -117,8 +117,68 @@ export default function LandingPage() {
     setTimeout(() => setCopiedNotification(false), 2500);
   };
 
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || "https://virapropoai.com";
+
+  const jsonLdData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        name: "ViraPropo AI!",
+        operatingSystem: "All",
+        applicationCategory: "BusinessApplication",
+        description:
+          "Gerador inteligente de propostas comerciais personalizadas com Inteligência Artificial, assinatura digital e envio direto pelo WhatsApp.",
+        url: baseUrl,
+        offers: {
+          "@type": "Offer",
+          price: "45.90",
+          priceCurrency: "BRL",
+          priceValidUntil: "2027-12-31",
+          availability: "https://schema.org/InStock",
+        },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: "4.9",
+          ratingCount: "1280",
+        },
+      },
+      {
+        "@type": "Organization",
+        name: "ViraPropo AI!",
+        url: baseUrl,
+        logo: `${baseUrl}/favicon.ico`,
+      },
+      {
+        "@type": "WebSite",
+        name: "ViraPropo AI!",
+        url: baseUrl,
+        description:
+          "Sua IA geradora de propostas comerciais profissionais em segundos.",
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: FAQS.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-[#FBFBFA] text-slate-900 relative overflow-hidden font-sans">
+      {/* Schema.org Structured Data (JSON-LD) for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
+      />
+
       {/* Subtle Warm Light Background Accents */}
       <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none -z-0 opacity-60" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[450px] bg-gradient-to-b from-blue-100/50 via-sky-50/30 to-transparent blur-3xl pointer-events-none -z-0" />

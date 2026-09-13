@@ -27,6 +27,7 @@ import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
 import { UpgradeModal, UpgradeFeatureType } from "@/components/Billing/UpgradeModal";
 import { WhatsAppModal } from "@/components/Proposta/WhatsAppModal";
+import { tracker } from "@/lib/analytics/tracker";
 
 interface ItemRow {
   descricao: string;
@@ -175,6 +176,15 @@ export default function NovaPropostaPage() {
       setPropostaCriadaId(data.proposta.id);
       setPropostaNumero(data.proposta.numero);
       setPreviewModalOpen(true);
+      try {
+        tracker.customEvent("GenerateProposal", {
+          proposta_id: data.proposta.id,
+          numero: data.proposta.numero,
+          valor_total: data.proposta.valorTotal,
+        });
+      } catch (trackErr) {
+        console.warn("Aviso ao rastrear GenerateProposal:", trackErr);
+      }
       addToast({
         type: "success",
         title: "Proposta gerada com sucesso!",

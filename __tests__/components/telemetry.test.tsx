@@ -36,8 +36,8 @@ describe("Telemetry & Vercel Observability Integration", () => {
   });
 
   it("should have correct metadata and viewport configurations for production", () => {
-    expect(metadata.title).toBe("ViraPropo AI! - Sua IA geradora de propostas");
-    expect(metadata.description).toContain("ViraPropo AI!: gere propostas comerciais");
+    expect((metadata.title as any).default).toBe("ViraPropo AI! - Gerador Inteligente de Propostas Comerciais");
+    expect(metadata.description).toContain("Gere propostas comerciais profissionais");
     expect(viewport.width).toBe("device-width");
     expect(viewport.initialScale).toBe(1);
   });
