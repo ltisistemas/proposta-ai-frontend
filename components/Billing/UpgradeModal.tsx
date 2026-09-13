@@ -102,7 +102,6 @@ export function UpgradeModal({
   const [isLoading, setIsLoading] = useState(false);
   const [pixData, setPixData] = useState<PixChargeData | null>(null);
   const [hasCopied, setHasCopied] = useState(false);
-  const [isSimulating, setIsSimulating] = useState(false);
   const [imgError, setImgError] = useState(false);
 
   const pollingTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -202,7 +201,7 @@ export function UpgradeModal({
       if (data.sucesso && data.brCode) {
         setPixData({
           chargeId: data.chargeId,
-          amount: data.amount || 5.0,
+          amount: data.amount || 45.9,
           brCode: data.brCode,
           brCodeBase64: data.brCodeBase64,
           invoiceUrl: data.invoiceUrl,
@@ -260,42 +259,6 @@ export function UpgradeModal({
     }
   };
 
-  const handleSimularPagamento = async () => {
-    if (!pixData?.chargeId || !token) return;
-    setIsSimulating(true);
-
-    try {
-      const res = await fetch("/api/checkout/status", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chargeId: pixData.chargeId,
-          simulatePaid: true,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data.sucesso || data.isPro || data.status === "PAID") {
-        updateUser({ plano: "pro" });
-        await fetchMe();
-        setStep("SUCCESS");
-        addToast({
-          type: "success",
-          title: "Pagamento Simulado com Sucesso!",
-          message: "Plano Pro ativado.",
-        });
-      }
-    } catch (err) {
-      console.error("Erro ao simular pagamento:", err);
-    } finally {
-      setIsSimulating(false);
-    }
-  };
-
   const handleFinalizarAtivacao = () => {
     onClose();
     if (typeof window !== "undefined") {
@@ -335,7 +298,7 @@ export function UpgradeModal({
                     Assinatura Mensal
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-white mt-0.5">
-                    R$ 5,00{" "}
+                    R$ 45,90{" "}
                     <span className="text-xs text-blue-200 font-normal">/ mês</span>
                   </div>
                 </div>
@@ -368,14 +331,6 @@ export function UpgradeModal({
               </div>
             </div>
 
-            {/* Aviso de Ambiente em Testes */}
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-[4px] text-xs text-amber-900 flex items-start gap-2">
-              <span className="text-sm shrink-0">🧪</span>
-              <p className="leading-snug text-[11px] text-amber-800">
-                <strong>Ambiente de Testes:</strong> O valor simbólico de R$ 5,00 (mínimo Asaas) é utilizado para validação técnica da integração. Qualquer pagamento realizado neste período será desfeito posteriormente.
-              </p>
-            </div>
-
             {/* Actions */}
             <div className="space-y-2 pt-1">
               <Button
@@ -387,7 +342,7 @@ export function UpgradeModal({
                 leftIcon={<QrCode className="w-5 h-5" />}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
-                Pagar com PIX (R$ 5,00/mês)
+                Pagar com PIX (R$ 45,90/mês)
               </Button>
 
               <Button
@@ -527,25 +482,6 @@ export function UpgradeModal({
                     <li>O Asaas confirma o recebimento automaticamente.</li>
                     <li>Sua conta é atualizada para o <strong>Plano Pro</strong> na hora.</li>
                   </ol>
-                </div>
-
-                <div className="p-2.5 bg-amber-50/90 border border-amber-200/80 rounded-[4px] text-[11px] text-amber-900 flex items-center gap-2">
-                  <span className="text-xs">⚠️</span>
-                  <span><strong>Nota de Teste:</strong> Cobrança experimental de validação. O valor será desfeito após os testes.</span>
-                </div>
-
-                {/* Dev Mode Sandbox Simulator Button */}
-                <div className="pt-0.5">
-                  <Button
-                    onClick={handleSimularPagamento}
-                    isLoading={isSimulating}
-                    variant="secondary"
-                    size="sm"
-                    className="w-full text-xs font-semibold border-dashed border-emerald-300 bg-emerald-50/70 text-emerald-800 hover:bg-emerald-100/80 justify-center rounded-[4px]"
-                    leftIcon={<Zap className="w-3.5 h-3.5 text-emerald-600" />}
-                  >
-                    ⚡ Simular Pagamento Instantâneo (Ambiente Sandbox)
-                  </Button>
                 </div>
               </div>
             </div>

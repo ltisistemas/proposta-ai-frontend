@@ -45,12 +45,12 @@ describe("components/Billing/UpgradeModal", () => {
             chargeId: "pix_char_test_123",
             brCode: "00020126580014BR.GOV.BCB.PIX...",
             brCodeBase64: "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=",
-            amount: 5.0,
+            amount: 45.9,
             expiresAt: new Date().toISOString(),
           }),
         } as any);
       }
-      if (url === "/api/checkout/status") {
+      if (url.startsWith("/api/checkout/status")) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
@@ -72,7 +72,7 @@ describe("components/Billing/UpgradeModal", () => {
     );
 
     expect(screen.getByText(/impressão e pdf exclusivos do plano pro/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/5,00/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/45,90/i).length).toBeGreaterThan(0);
 
     // Click to generate PIX
     const payBtn = screen.getByRole("button", { name: /pagar com pix/i });
@@ -88,14 +88,13 @@ describe("components/Billing/UpgradeModal", () => {
     fireEvent.click(copyPixBtn);
     expect(navigator.clipboard.writeText).toHaveBeenCalled();
 
-    // Simulate payment button
-    const simulateBtn = screen.getByRole("button", { name: /simular pagamento instantâneo/i });
-    fireEvent.click(simulateBtn);
-
-    // Wait for step 3 (Success)
-    await waitFor(() => {
-      expect(screen.getByText(/plano pro ativado/i)).toBeInTheDocument();
-    });
+    // Wait for step 3 via polling confirmation (Success)
+    await waitFor(
+      () => {
+        expect(screen.getByText(/plano pro ativado/i)).toBeInTheDocument();
+      },
+      { timeout: 4500 }
+    );
 
     const finishBtn = screen.getByRole("button", { name: /começar a usar recursos pro/i });
     fireEvent.click(finishBtn);
@@ -122,7 +121,7 @@ describe("components/Billing/UpgradeModal", () => {
     expect(screen.getByText(/desbloqueie todo o poder do virapropo ai! pro/i)).toBeInTheDocument();
   });
 
-  it("should support navigating back from PIX step to DETAILS and handle simulation errors", async () => {
+  it("should support navigating back from PIX step to DETAILS", async () => {
     useAuthStore.setState({
       token: "tok_user_pro",
       user: { id: "u1", email: "user@test.com", nome: "Test", plano: "free" },
@@ -138,18 +137,12 @@ describe("components/Billing/UpgradeModal", () => {
             chargeId: "pix_char_back_test",
             brCode: "00020126580014BR.GOV.BCB.PIX...",
             brCodeBase64: "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=",
-            amount: 5.0,
+            amount: 45.9,
             expiresAt: new Date().toISOString(),
           }),
         } as any);
       }
-      if (url === "/api/checkout/status") {
-        return Promise.resolve({
-          ok: false,
-          json: async () => ({ sucesso: false, erro: "Falha na simulação" }),
-        } as any);
-      }
-      return Promise.resolve({ ok: true, json: async () => ({}) } as any);
+      return Promise.resolve({ ok: true, json: async () => ({ status: "PENDING" }) } as any);
     });
 
     render(<UpgradeModal isOpen={true} onClose={vi.fn()} />);
@@ -160,10 +153,6 @@ describe("components/Billing/UpgradeModal", () => {
     await waitFor(() => {
       expect(screen.getByText(/código pix copia e cola/i)).toBeInTheDocument();
     });
-
-    // Test Simulate Failure
-    const simulateBtn = screen.getByRole("button", { name: /simular pagamento instantâneo/i });
-    fireEvent.click(simulateBtn);
 
     // Test Back button
     const backBtn = screen.getByRole("button", { name: /voltar/i });
@@ -190,8 +179,8 @@ describe("components/Billing/UpgradeModal", () => {
             chargeId: "pix_char_invoice_test",
             brCode: "00020126580014BR.GOV.BCB.PIX...",
             brCodeBase64: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-            invoiceUrl: "https://sandbox.asaas.com/i/pay_123456",
-            amount: 5.0,
+            invoiceUrl: "https://www.asaas.com/i/pay_123456",
+            amount: 45.9,
             expiresAt: new Date().toISOString(),
           }),
         } as any);
@@ -209,7 +198,7 @@ describe("components/Billing/UpgradeModal", () => {
     });
 
     const invoiceLink = screen.getByRole("link", { name: /visualizar fatura completa no asaas/i });
-    expect(invoiceLink).toHaveAttribute("href", "https://sandbox.asaas.com/i/pay_123456");
+    expect(invoiceLink).toHaveAttribute("href", "https://www.asaas.com/i/pay_123456");
     expect(invoiceLink).toHaveAttribute("target", "_blank");
     expect(invoiceLink).toHaveAttribute("rel", "noopener noreferrer");
 
@@ -232,7 +221,7 @@ describe("components/Billing/UpgradeModal", () => {
         onClose={vi.fn()}
       />
     );
-    expect(screen.queryByText(/5,00/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/45,90/i)).not.toBeInTheDocument();
   });
 });
 

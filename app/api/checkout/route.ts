@@ -56,15 +56,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. Cria Assinatura Mensal no Asaas (R$ 5,00 - Valor Mínimo Permitido pelo Asaas)
+    // 2. Cria Assinatura Mensal no Asaas (R$ 45,90)
     const hojeStr = new Date().toISOString().split("T")[0];
     const subscription = await criarAssinaturaAsaas({
       customer: asaasCustomerId,
       billingType: "PIX",
       cycle: "MONTHLY",
-      value: 5.0,
+      value: 45.9,
       nextDueDate: hojeStr,
-      description: "Assinatura ViraPropo AI! Pro (Mensal) - Teste",
+      description: "Assinatura ViraPropo AI! Pro (Mensal)",
       externalReference: usuario.id,
       maxPayments: 24,
     });
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     try {
       await query(
         `INSERT INTO pagamentos (usuario_id, asaas_payment_id, asaas_subscription_id, invoice_url, abacate_transaction_id, valor, status, tipo)
-         VALUES ($1, $2, $3, $4, $5, 5.00, 'pendente', 'assinatura_pro')
+         VALUES ($1, $2, $3, $4, $5, 45.90, 'pendente', 'assinatura_pro')
          ON CONFLICT (id) DO NOTHING`,
         [userId, paymentId, subscription.id, invoiceUrl, paymentId]
       );
@@ -115,8 +115,8 @@ export async function POST(request: NextRequest) {
       sucesso: true,
       chargeId: paymentId,
       subscriptionId: subscription.id,
-      amount: 5.0,
-      amountCents: 500,
+      amount: 45.9,
+      amountCents: 4590,
       brCode: pixQr.payload,
       brCodeBase64: brCodeBase64Formatted,
       invoiceUrl: invoiceUrl || undefined,
