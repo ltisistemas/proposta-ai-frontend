@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { DevNoticeBanner } from "@/components/Common/DevNoticeBanner";
 import { CookieConsentBanner } from "@/components/Common/CookieConsentBanner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -55,6 +56,7 @@ export default function RootLayout({
       className={`${inter.variable} ${plusJakarta.variable} h-full antialiased font-sans`}
     >
       <body className="min-h-full flex flex-col bg-[#FBFBFA] text-slate-900 selection:bg-blue-500 selection:text-white">
+        <DevNoticeBanner />
         {children}
         <CookieConsentBanner />
         <Analytics />

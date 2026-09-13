@@ -10,6 +10,7 @@ import { ConfirmModal } from "@/components/Common/ConfirmModal";
 import { LoadingSpinner } from "@/components/Common/LoadingSpinner";
 import { ToastContainer, useToast } from "@/components/Common/Toast";
 import { Logo } from "@/components/Common/Logo";
+import { DevNoticeBanner } from "@/components/Common/DevNoticeBanner";
 
 describe("components/Common/Button", () => {
   it("should render button text and handle click", () => {
@@ -267,5 +268,33 @@ describe("components/Common/LoadingSpinner & ToastContainer", () => {
 
     const btn = screen.getByRole("button");
     fireEvent.click(btn);
+  });
+});
+
+describe("components/Common/DevNoticeBanner", () => {
+  it("should render banner, allow collapse and allow minimize/restore", () => {
+    render(<DevNoticeBanner />);
+
+    expect(screen.getByText(/ambiente de testes/i)).toBeInTheDocument();
+    expect(screen.getByText(/qualquer assinatura ou pagamento realizado nesta fase de testes será cancelado\/desfeito posteriormente/i)).toBeInTheDocument();
+
+    // Test collapse toggle
+    const collapseBtn = screen.getByTitle(/recolher aviso/i);
+    fireEvent.click(collapseBtn);
+    expect(screen.queryByText(/qualquer assinatura ou pagamento/i)).not.toBeInTheDocument();
+
+    const expandBtn = screen.getByTitle(/expandir aviso/i);
+    fireEvent.click(expandBtn);
+    expect(screen.getByText(/qualquer assinatura ou pagamento/i)).toBeInTheDocument();
+
+    // Test minimize
+    const closeBtn = screen.getByTitle(/minimizar aviso/i);
+    fireEvent.click(closeBtn);
+    expect(screen.getByText(/modo de testes ativo/i)).toBeInTheDocument();
+
+    // Restore
+    const restoreBtn = screen.getByText(/ver aviso completo/i);
+    fireEvent.click(restoreBtn);
+    expect(screen.getByText(/ambiente de testes/i)).toBeInTheDocument();
   });
 });
