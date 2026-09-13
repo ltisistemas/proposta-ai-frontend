@@ -1,22 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validarWebhookTokenAsaas } from "@/lib/asaas/client";
 import {
-  atualizarUserPlanoAsaas,
+  obterUserPorId,
   garantirColunaVerificacaoAssinatura,
 } from "@/lib/db/users";
 import {
   verificarEventoProcessado,
-  registrarEventoProcessado,
+  registrarEventoAuditoria,
 } from "@/lib/db/webhooks";
 import { query } from "@/lib/db/client";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Webhook Oficial do Asaas (v3)
+ * Webhook Oficial do Asaas (v3) com Observabilidade & Downgrade Automático
  * Documentação: https://docs.asaas.com/docs/webhook-para-cobrancas
  */
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  let eventId = `asaas_evt_${Date.now()}`;
+  let eventName = "UNKNOWN";
+  let payload: any = {};
+
   try {
     const rawBody = await request.text();
     const tokenHeader =
@@ -46,18 +51,17 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Parsing do payload JSON
-    let payload: any = {};
     try {
       payload = JSON.parse(rawBody);
-    } catch (parseErr) {
+    } catch (parseErr: any) {
       return NextResponse.json(
         { erro: "Payload JSON inválido" },
         { status: 400 }
       );
     }
 
-    const eventId = payload.id || `asaas_evt_${Date.now()}`;
-    const eventName = payload.event || "";
+    eventId = payload.id || eventId;
+    eventName = payload.event || "UNKNOWN";
     const payment = payload.payment || {};
     const subscription = payload.subscription || {};
 
@@ -82,6 +86,16 @@ export async function POST(request: NextRequest) {
       const alreadyProcessed = await verificarEventoProcessado(payload.id);
       if (alreadyProcessed) {
         console.log(`ℹ️ Evento ${payload.id} do Asaas já foi processado anteriormente. Respondendo 200 OK.`);
+        await registrarEventoAuditoria({
+          id: `${payload.id}_dup_${Date.now()}`,
+          evento: eventName,
+          gateway: "asaas",
+          status: "duplicado",
+          acao: "DUPLICATE_SKIPPED",
+          duracaoMs: Date.now() - startTime,
+          payload,
+        });
+
         return NextResponse.json({
           ok: true,
           duplicado: true,
@@ -91,7 +105,31 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. Tratamento dos Eventos de Pagamento e Assinatura
+    // 4. Resolução Multi-Chave do Usuário
+    let targetUserId: string | null = null;
+
+    if (externalReference) {
+      const user = await obterUserPorId(externalReference);
+      if (user) targetUserId = user.id;
+    }
+
+    if (!targetUserId && subscriptionId) {
+      const res = await query<{ id: string }>(
+        "SELECT id FROM users WHERE asaas_subscription_id = $1 AND deletado_em IS NULL",
+        [subscriptionId]
+      );
+      if (res.rows[0]) targetUserId = res.rows[0].id;
+    }
+
+    if (!targetUserId && customerId) {
+      const res = await query<{ id: string }>(
+        "SELECT id FROM users WHERE asaas_customer_id = $1 AND deletado_em IS NULL",
+        [customerId]
+      );
+      if (res.rows[0]) targetUserId = res.rows[0].id;
+    }
+
+    // 5. Categorização e Execução dos Eventos
     const isActivationEvent =
       eventName === "PAYMENT_RECEIVED" ||
       eventName === "PAYMENT_CONFIRMED" ||
@@ -108,9 +146,10 @@ export async function POST(request: NextRequest) {
       eventName === "SUBSCRIPTION_CANCELED" ||
       eventName === "SUBSCRIPTION_DELETED";
 
+    let executedAction = "IGNORED";
+
     if (isActivationEvent) {
-      // Ativa o plano Pro do usuário
-      if (externalReference) {
+      if (targetUserId) {
         await query(
           `UPDATE users 
            SET plano = 'pro', 
@@ -121,10 +160,17 @@ export async function POST(request: NextRequest) {
                asaas_subscription_id = COALESCE(NULLIF($3, ''), asaas_subscription_id),
                atualizado_em = CURRENT_TIMESTAMP 
            WHERE id = $1`,
-          [externalReference, customerId, subscriptionId]
+          [targetUserId, customerId, subscriptionId]
         );
-      } else if (customerId) {
-        await atualizarUserPlanoAsaas(customerId, "pro", subscriptionId || null);
+        executedAction = "PLAN_ACTIVATED";
+        console.log(`✨ Plano PRO ativado/renovado para o usuário ${targetUserId} via [${eventName}].`);
+      } else {
+        executedAction = "UNMATCHED_USER";
+        console.warn(`⚠️ Webhook [${eventName}] não encontrou usuário para ativar PRO:`, {
+          externalReference,
+          subscriptionId,
+          customerId,
+        });
       }
 
       // Atualiza registro de pagamento
@@ -137,54 +183,81 @@ export async function POST(request: NextRequest) {
         );
       }
     } else if (isCancellationEvent) {
-      if (eventName === "PAYMENT_REFUNDED" || eventName === "PAYMENT_DELETED") {
-        if (externalReference) {
-          await query(
-            `UPDATE users 
-             SET plano = 'free', atualizado_em = CURRENT_TIMESTAMP 
-             WHERE id = $1`,
-            [externalReference]
-          );
-        } else if (customerId) {
-          await atualizarUserPlanoAsaas(customerId, "free", null);
-        }
+      if (targetUserId) {
+        // Rebaixa imediatamente o plano para Free e limpa vencimento/concessão
+        await query(
+          `UPDATE users 
+           SET plano = 'free', 
+               cancelamento_agendado = FALSE,
+               data_proxima_cobranca = NULL,
+               pro_tipo_concessao = NULL,
+               atualizado_em = CURRENT_TIMESTAMP 
+           WHERE id = $1`,
+          [targetUserId]
+        );
+        executedAction = "DOWNGRADE_TO_FREE";
+        console.log(`🔻 Downgrade para Free executado com sucesso para o usuário ${targetUserId} via evento Asaas [${eventName}].`);
+      } else {
+        executedAction = "UNMATCHED_USER";
+        console.warn(`⚠️ Webhook [${eventName}] não encontrou usuário para rebaixar para Free:`, {
+          externalReference,
+          subscriptionId,
+          customerId,
+        });
+      }
 
-        if (paymentId) {
-          await query(
-            `UPDATE pagamentos 
-             SET status = 'cancelado' 
-             WHERE asaas_payment_id = $1 OR abacate_transaction_id = $1`,
-            [paymentId]
-          );
-        }
-      } else if (eventName === "SUBSCRIPTION_CANCELED" || eventName === "SUBSCRIPTION_DELETED") {
-        if (externalReference) {
-          await query(
-            `UPDATE users 
-             SET cancelamento_agendado = TRUE, atualizado_em = CURRENT_TIMESTAMP 
-             WHERE id = $1`,
-            [externalReference]
-          );
-        }
+      if (paymentId) {
+        const novoStatus = eventName === "PAYMENT_REFUNDED" ? "estornado" : "cancelado";
+        await query(
+          `UPDATE pagamentos 
+           SET status = $2 
+           WHERE asaas_payment_id = $1 OR abacate_transaction_id = $1`,
+          [paymentId, novoStatus]
+        );
       }
     }
 
-    // 5. Registra idempotência
-    if (payload.id) {
-      await registrarEventoProcessado(payload.id, eventName, payload);
-    }
+    // 6. Registra auditoria completa de observabilidade
+    const durationMs = Date.now() - startTime;
+    await registrarEventoAuditoria({
+      id: eventId,
+      evento: eventName,
+      gateway: "asaas",
+      status: executedAction === "UNMATCHED_USER" ? "aviso" : "sucesso",
+      acao: executedAction,
+      usuarioId: targetUserId,
+      duracaoMs: durationMs,
+      payload,
+    });
 
-    // 6. Resposta de sucesso ao Asaas
+    // 7. Resposta de sucesso ao Asaas
     return NextResponse.json({
       ok: true,
       recebido: true,
       id: eventId,
       evento: eventName,
+      acao: executedAction,
+      duracaoMs: durationMs,
     });
   } catch (error: any) {
     console.error("Erro no processamento do webhook Asaas:", error);
+    const durationMs = Date.now() - startTime;
+
+    try {
+      await registrarEventoAuditoria({
+        id: eventId,
+        evento: eventName,
+        gateway: "asaas",
+        status: "erro",
+        acao: "ERROR",
+        duracaoMs: durationMs,
+        erroMensagem: error.message || "Erro desconhecido",
+        payload,
+      });
+    } catch {}
+
     return NextResponse.json(
-      { erro: "Erro interno ao processar webhook Asaas" },
+      { erro: "Erro interno ao processar webhook Asaas", detalhes: error.message },
       { status: 500 }
     );
   }

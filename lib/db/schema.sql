@@ -137,3 +137,29 @@ ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS invoice_url TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_pagamentos_usuario ON pagamentos(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_pagamentos_asaas_payment ON pagamentos(asaas_payment_id);
+
+-- Webhook Eventos Table (Idempotência & Observabilidade)
+CREATE TABLE IF NOT EXISTS webhook_eventos (
+  id VARCHAR(255) PRIMARY KEY,
+  evento VARCHAR(100) NOT NULL,
+  gateway VARCHAR(50) DEFAULT 'asaas',
+  status VARCHAR(50) DEFAULT 'sucesso',
+  acao VARCHAR(100),
+  usuario_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  duracao_ms INT,
+  erro_mensagem TEXT,
+  payload JSONB,
+  processado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE webhook_eventos ADD COLUMN IF NOT EXISTS gateway VARCHAR(50) DEFAULT 'asaas';
+ALTER TABLE webhook_eventos ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'sucesso';
+ALTER TABLE webhook_eventos ADD COLUMN IF NOT EXISTS acao VARCHAR(100);
+ALTER TABLE webhook_eventos ADD COLUMN IF NOT EXISTS usuario_id UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE webhook_eventos ADD COLUMN IF NOT EXISTS duracao_ms INT;
+ALTER TABLE webhook_eventos ADD COLUMN IF NOT EXISTS erro_mensagem TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_webhook_eventos_processado_em ON webhook_eventos(processado_em DESC);
+CREATE INDEX IF NOT EXISTS idx_webhook_eventos_gateway ON webhook_eventos(gateway);
+CREATE INDEX IF NOT EXISTS idx_webhook_eventos_status ON webhook_eventos(status);
+CREATE INDEX IF NOT EXISTS idx_webhook_eventos_usuario ON webhook_eventos(usuario_id);

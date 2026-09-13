@@ -34,10 +34,16 @@ vi.mock("@/lib/db/users", () => ({
   }),
 }));
 
+vi.mock("@/lib/db/webhooks", () => ({
+  listarEventosWebhookAdmin: vi.fn(),
+  garantirTabelaWebhookEventos: vi.fn().mockResolvedValue(undefined),
+}));
+
 import { GET as usersGetHandler, POST as usersPostHandler } from "@/app/api/admin/users/route";
 import { PATCH as statusPatchHandler } from "@/app/api/admin/users/[id]/status/route";
 import { PATCH as planoPatchHandler } from "@/app/api/admin/users/[id]/plano/route";
 import { PATCH as vencimentoPatchHandler } from "@/app/api/admin/users/[id]/vencimento/route";
+import { GET as webhooksGetHandler } from "@/app/api/admin/webhooks/route";
 import {
   obterUserPorId,
   obterUserPorEmail,
@@ -48,6 +54,7 @@ import {
   atualizarVencimentoUsuarioAdmin,
   validarAssinaturaUsuario,
 } from "@/lib/db/users";
+import { listarEventosWebhookAdmin } from "@/lib/db/webhooks";
 import { gerarToken } from "@/lib/auth/jwt";
 
 describe("Admin API Endpoints & RBAC Guards", () => {
@@ -449,6 +456,73 @@ describe("Admin API Endpoints & RBAC Guards", () => {
         params: Promise.resolve({ id: "client-456" }),
       });
       expect(res.status).toBe(400);
+    });
+  });
+
+  describe("GET /api/admin/webhooks", () => {
+    it("should return paginated webhook audit logs with metrics for authorized admin", async () => {
+      vi.mocked(obterUserPorId).mockResolvedValue(adminUser as any);
+      vi.mocked(listarEventosWebhookAdmin).mockResolvedValue({
+        eventos: [
+          {
+            id: "evt_1",
+            evento: "SUBSCRIPTION_CANCELED",
+            gateway: "asaas",
+            status: "sucesso",
+            acao: "DOWNGRADE_TO_FREE",
+            usuario_id: "client-456",
+            usuario_nome: "Cliente Silva",
+            usuario_email: "cliente@empresa.com",
+            duracao_ms: 45,
+            erro_mensagem: null,
+            payload: { id: "evt_1" },
+            processado_em: new Date(),
+          },
+        ],
+        total: 1,
+        pagina: 1,
+        limite: 20,
+        totalPaginas: 1,
+        metricas: {
+          total: 1,
+          sucesso: 1,
+          downgrades: 1,
+          ativacoes: 0,
+          erros: 0,
+        },
+      });
+
+      const req = new NextRequest(
+        "http://localhost:3000/api/admin/webhooks?gateway=asaas&status=sucesso&pagina=1&limite=20",
+        {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        }
+      );
+
+      const res = await webhooksGetHandler(req);
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.sucesso).toBe(true);
+      expect(data.eventos).toHaveLength(1);
+      expect(data.metricas.downgrades).toBe(1);
+      expect(listarEventosWebhookAdmin).toHaveBeenCalledWith({
+        gateway: "asaas",
+        status: "sucesso",
+        evento: undefined,
+        pagina: 1,
+        limite: 20,
+      });
+    });
+
+    it("should reject unauthorized non-admin access to webhooks", async () => {
+      vi.mocked(obterUserPorId).mockResolvedValue(clientUser as any);
+
+      const req = new NextRequest("http://localhost:3000/api/admin/webhooks", {
+        headers: { Authorization: `Bearer ${clientToken}` },
+      });
+
+      const res = await webhooksGetHandler(req);
+      expect(res.status).toBe(403);
     });
   });
 });

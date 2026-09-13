@@ -7,24 +7,25 @@ vi.mock("@/lib/db/client", () => ({
 }));
 
 vi.mock("@/lib/db/users", () => ({
-  atualizarUserPlanoAsaas: vi.fn(),
+  obterUserPorId: vi.fn(),
   garantirColunaVerificacaoAssinatura: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/lib/db/webhooks", () => ({
   verificarEventoProcessado: vi.fn().mockResolvedValue(false),
+  registrarEventoAuditoria: vi.fn().mockResolvedValue(undefined),
   registrarEventoProcessado: vi.fn().mockResolvedValue(undefined),
 }));
 
 import { POST as webhookRoute } from "@/app/api/webhooks/asaas/route";
-import { atualizarUserPlanoAsaas } from "@/lib/db/users";
+import { obterUserPorId } from "@/lib/db/users";
 import {
   verificarEventoProcessado,
-  registrarEventoProcessado,
+  registrarEventoAuditoria,
 } from "@/lib/db/webhooks";
 import { query } from "@/lib/db/client";
 
-describe("API /api/webhooks/asaas", () => {
+describe("API /api/webhooks/asaas Observability & Downgrades", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.ASAAS_WEBHOOK_SECRET = "whsec_test_secret_123";
@@ -42,7 +43,12 @@ describe("API /api/webhooks/asaas", () => {
     expect(res.status).toBe(401);
   });
 
-  it("should process PAYMENT_RECEIVED event and upgrade user to pro", async () => {
+  it("should process PAYMENT_RECEIVED event and upgrade user to pro with PLAN_ACTIVATED audit", async () => {
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "usr_456",
+      email: "cliente@teste.com",
+    } as any);
+
     const payload = {
       id: "evt_asaas_001",
       event: "PAYMENT_RECEIVED",
@@ -71,13 +77,89 @@ describe("API /api/webhooks/asaas", () => {
 
     expect(res.status).toBe(200);
     expect(json.ok).toBe(true);
-    expect(json.evento).toBe("PAYMENT_RECEIVED");
+    expect(json.acao).toBe("PLAN_ACTIVATED");
     expect(query).toHaveBeenCalled();
-    expect(registrarEventoProcessado).toHaveBeenCalledWith(
-      "evt_asaas_001",
-      "PAYMENT_RECEIVED",
-      expect.any(Object)
+    expect(registrarEventoAuditoria).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "evt_asaas_001",
+        evento: "PAYMENT_RECEIVED",
+        status: "sucesso",
+        acao: "PLAN_ACTIVATED",
+        usuarioId: "usr_456",
+      })
     );
+  });
+
+  it("should fallback to resolving user by subscriptionId when externalReference is absent", async () => {
+    // externalReference is missing; query returns user for asaas_subscription_id
+    vi.mocked(query).mockResolvedValueOnce({
+      rows: [{ id: "usr_by_sub_789" }],
+      rowCount: 1,
+    } as any);
+
+    const payload = {
+      id: "evt_asaas_sub_002",
+      event: "SUBSCRIPTION_CANCELED",
+      subscription: {
+        id: "sub_asaas_999",
+        customer: "cus_asaas_888",
+      },
+    };
+
+    const req = new NextRequest("http://localhost:3000/api/webhooks/asaas", {
+      method: "POST",
+      headers: {
+        "asaas-access-token": "whsec_test_secret_123",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const res = await webhookRoute(req);
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.acao).toBe("DOWNGRADE_TO_FREE");
+    expect(registrarEventoAuditoria).toHaveBeenCalledWith(
+      expect.objectContaining({
+        acao: "DOWNGRADE_TO_FREE",
+        usuarioId: "usr_by_sub_789",
+      })
+    );
+  });
+
+  it("should fallback to resolving user by customerId when externalReference and subscriptionId are absent", async () => {
+    // customer fallback
+    vi.mocked(query).mockResolvedValueOnce({
+      rows: [{ id: "usr_by_cus_321" }],
+      rowCount: 1,
+    } as any);
+
+    const payload = {
+      id: "evt_asaas_cus_003",
+      event: "PAYMENT_REFUNDED",
+      payment: {
+        id: "pay_refund_111",
+        customer: "cus_asaas_555",
+      },
+    };
+
+    const req = new NextRequest("http://localhost:3000/api/webhooks/asaas", {
+      method: "POST",
+      headers: {
+        "asaas-access-token": "whsec_test_secret_123",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const res = await webhookRoute(req);
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.acao).toBe("DOWNGRADE_TO_FREE");
   });
 
   it("should skip processing if event was already processed (idempotency)", async () => {
@@ -103,15 +185,25 @@ describe("API /api/webhooks/asaas", () => {
 
     expect(res.status).toBe(200);
     expect(json.duplicado).toBe(true);
-    expect(query).not.toHaveBeenCalled();
+    expect(registrarEventoAuditoria).toHaveBeenCalledWith(
+      expect.objectContaining({
+        acao: "DUPLICATE_SKIPPED",
+        status: "duplicado",
+      })
+    );
   });
 
-  it("should handle PAYMENT_REFUNDED and downgrade user", async () => {
+  it("should handle SUBSCRIPTION_DELETED and execute immediate downgrade to free", async () => {
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "usr_456",
+      email: "cliente@teste.com",
+    } as any);
+
     const payload = {
-      id: "evt_refund_001",
-      event: "PAYMENT_REFUNDED",
-      payment: {
-        id: "pay_123",
+      id: "evt_cancel_del_004",
+      event: "SUBSCRIPTION_DELETED",
+      subscription: {
+        id: "sub_del_123",
         customer: "cus_123",
         externalReference: "usr_456",
       },
@@ -131,17 +223,21 @@ describe("API /api/webhooks/asaas", () => {
 
     expect(res.status).toBe(200);
     expect(json.ok).toBe(true);
+    expect(json.acao).toBe("DOWNGRADE_TO_FREE");
     expect(query).toHaveBeenCalled();
   });
 
-  it("should handle SUBSCRIPTION_CANCELED by scheduling cancellation", async () => {
+  it("should handle UNMATCHED_USER when user cannot be located and record warning audit", async () => {
+    vi.mocked(obterUserPorId).mockResolvedValueOnce(null);
+    vi.mocked(query).mockResolvedValue({ rows: [], rowCount: 0 } as any);
+
     const payload = {
-      id: "evt_cancel_001",
+      id: "evt_unmatched_005",
       event: "SUBSCRIPTION_CANCELED",
       subscription: {
-        id: "sub_123",
-        customer: "cus_123",
-        externalReference: "usr_456",
+        id: "sub_unknown",
+        customer: "cus_unknown",
+        externalReference: "usr_ghost",
       },
     };
 
@@ -158,7 +254,12 @@ describe("API /api/webhooks/asaas", () => {
     const json = await res.json();
 
     expect(res.status).toBe(200);
-    expect(json.ok).toBe(true);
-    expect(query).toHaveBeenCalled();
+    expect(json.acao).toBe("UNMATCHED_USER");
+    expect(registrarEventoAuditoria).toHaveBeenCalledWith(
+      expect.objectContaining({
+        acao: "UNMATCHED_USER",
+        status: "aviso",
+      })
+    );
   });
 });

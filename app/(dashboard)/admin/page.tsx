@@ -6,8 +6,8 @@ import {
   Shield,
   UserPlus,
   RefreshCw,
-  ShieldAlert,
   Users,
+  Activity,
   Lock,
   ArrowLeft,
 } from "lucide-react";
@@ -18,15 +18,22 @@ import { CreateUserModal } from "@/components/Admin/CreateUserModal";
 import { GrantProModal } from "@/components/Admin/GrantProModal";
 import { AdjustDueDateModal } from "@/components/Admin/AdjustDueDateModal";
 import { ConfirmSuspendModal } from "@/components/Admin/ConfirmSuspendModal";
+import { WebhookLogsTable } from "@/components/Admin/WebhookLogsTable";
+import { WebhookAuditModal } from "@/components/Admin/WebhookAuditModal";
 import { Button } from "@/components/Common/Button";
 import { addToast } from "@/components/Common/Toast";
 import { UserRow } from "@/lib/db/users";
+import { WebhookEventoRow } from "@/lib/db/webhooks";
 import Link from "next/link";
 
 export default function AdminPage() {
   const router = useRouter();
   const { user, token, isAuthenticated, isLoading: authLoading } = useAuthStore();
 
+  // Tab State
+  const [activeTab, setActiveTab] = useState<"usuarios" | "webhooks">("usuarios");
+
+  // Users State
   const [usuarios, setUsuarios] = useState<UserRow[]>([]);
   const [metricas, setMetricas] = useState({
     total: 0,
@@ -43,6 +50,24 @@ export default function AdminPage() {
   const [roleFiltro, setRoleFiltro] = useState("");
   const [statusFiltro, setStatusFiltro] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Webhooks State
+  const [webhookEventos, setWebhookEventos] = useState<WebhookEventoRow[]>([]);
+  const [webhookMetricas, setWebhookMetricas] = useState({
+    total: 0,
+    sucesso: 0,
+    downgrades: 0,
+    ativacoes: 0,
+    erros: 0,
+  });
+  const [webhookTotal, setWebhookTotal] = useState(0);
+  const [webhookPagina, setWebhookPagina] = useState(1);
+  const [webhookTotalPaginas, setWebhookTotalPaginas] = useState(1);
+  const [webhookGatewayFiltro, setWebhookGatewayFiltro] = useState("");
+  const [webhookStatusFiltro, setWebhookStatusFiltro] = useState("");
+  const [webhookEventoBusca, setWebhookEventoBusca] = useState("");
+  const [webhookIsLoading, setWebhookIsLoading] = useState(false);
+  const [selectedWebhookEvento, setSelectedWebhookEvento] = useState<WebhookEventoRow | null>(null);
 
   // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -91,11 +116,55 @@ export default function AdminPage() {
     }
   }, [token, busca, planoFiltro, roleFiltro, statusFiltro, pagina]);
 
+  const carregarWebhooks = useCallback(async () => {
+    if (!token) return;
+    setWebhookIsLoading(true);
+
+    try {
+      const params = new URLSearchParams();
+      if (webhookGatewayFiltro) params.set("gateway", webhookGatewayFiltro);
+      if (webhookStatusFiltro) params.set("status", webhookStatusFiltro);
+      if (webhookEventoBusca) params.set("evento", webhookEventoBusca);
+      params.set("pagina", String(webhookPagina));
+      params.set("limite", "20");
+
+      const res = await fetch(`/api/admin/webhooks?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.sucesso) {
+        throw new Error(data.erro || "Falha ao carregar logs de webhook");
+      }
+
+      setWebhookEventos(data.eventos || []);
+      setWebhookTotal(data.total || 0);
+      setWebhookTotalPaginas(data.totalPaginas || 1);
+      if (data.metricas) {
+        setWebhookMetricas(data.metricas);
+      }
+    } catch (err: any) {
+      addToast({
+        title: "Erro ao buscar webhooks",
+        message: err.message || "Não foi possível carregar o histórico de webhooks.",
+        type: "error",
+      });
+    } finally {
+      setWebhookIsLoading(false);
+    }
+  }, [token, webhookGatewayFiltro, webhookStatusFiltro, webhookEventoBusca, webhookPagina]);
+
   useEffect(() => {
     if (isAuthenticated && user?.role === "admin") {
-      carregarUsuarios();
+      if (activeTab === "usuarios") {
+        carregarUsuarios();
+      } else {
+        carregarWebhooks();
+      }
     }
-  }, [isAuthenticated, user?.role, carregarUsuarios]);
+  }, [isAuthenticated, user?.role, activeTab, carregarUsuarios, carregarWebhooks]);
 
   // Auth & Access Guard
   if (authLoading) {
@@ -150,7 +219,7 @@ export default function AdminPage() {
               Painel Administrativo
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Gestão central de usuários, concessão de planos, vencimentos e suspensão.
+              Gestão de usuários, auditoria e observabilidade de webhooks em tempo real.
             </p>
           </div>
         </div>
@@ -159,47 +228,102 @@ export default function AdminPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => carregarUsuarios()}
-            disabled={isLoading}
+            onClick={() => (activeTab === "usuarios" ? carregarUsuarios() : carregarWebhooks())}
+            disabled={isLoading || webhookIsLoading}
             title="Atualizar lista"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading || webhookIsLoading ? "animate-spin" : ""}`} />
             <span className="hidden sm:inline">Atualizar</span>
           </Button>
 
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setIsCreateOpen(true)}
-          >
-            <UserPlus className="w-4 h-4 mr-1.5" /> Adicionar Usuário
-          </Button>
+          {activeTab === "usuarios" && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setIsCreateOpen(true)}
+            >
+              <UserPlus className="w-4 h-4 mr-1.5" /> Adicionar Usuário
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Metrics Cards */}
-      <StatsSummaryCards metricas={metricas} isLoading={isLoading && usuarios.length === 0} />
+      {/* Tabs Navigation */}
+      <div className="flex border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab("usuarios")}
+          className={`flex items-center gap-2 py-3 px-4 font-bold text-xs border-b-2 transition-colors cursor-pointer ${
+            activeTab === "usuarios"
+              ? "border-blue-600 text-blue-600"
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          Gestão de Usuários
+        </button>
 
-      {/* Users Table & Filters */}
-      <AdminUsersTable
-        usuarios={usuarios}
-        total={total}
-        pagina={pagina}
-        totalPaginas={totalPaginas}
-        busca={busca}
-        setBusca={setBusca}
-        planoFiltro={planoFiltro}
-        setPlanoFiltro={setPlanoFiltro}
-        roleFiltro={roleFiltro}
-        setRoleFiltro={setRoleFiltro}
-        statusFiltro={statusFiltro}
-        setStatusFiltro={setStatusFiltro}
-        onPageChange={(pag) => setPagina(pag)}
-        onGrantPro={(u) => setSelectedUserForPro(u)}
-        onAdjustDueDate={(u) => setSelectedUserForDueDate(u)}
-        onToggleSuspend={(u) => setSelectedUserForSuspend(u)}
-        isLoading={isLoading}
-      />
+        <button
+          onClick={() => setActiveTab("webhooks")}
+          className={`flex items-center gap-2 py-3 px-4 font-bold text-xs border-b-2 transition-colors cursor-pointer ${
+            activeTab === "webhooks"
+              ? "border-blue-600 text-blue-600"
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          Auditoria de Webhooks
+        </button>
+      </div>
+
+      {/* Tab 1: Gestão de Usuários */}
+      {activeTab === "usuarios" && (
+        <div className="space-y-6">
+          <StatsSummaryCards metricas={metricas} isLoading={isLoading && usuarios.length === 0} />
+
+          <AdminUsersTable
+            usuarios={usuarios}
+            total={total}
+            pagina={pagina}
+            totalPaginas={totalPaginas}
+            busca={busca}
+            setBusca={setBusca}
+            planoFiltro={planoFiltro}
+            setPlanoFiltro={setPlanoFiltro}
+            roleFiltro={roleFiltro}
+            setRoleFiltro={setRoleFiltro}
+            statusFiltro={statusFiltro}
+            setStatusFiltro={setStatusFiltro}
+            onPageChange={(pag) => setPagina(pag)}
+            onGrantPro={(u) => setSelectedUserForPro(u)}
+            onAdjustDueDate={(u) => setSelectedUserForDueDate(u)}
+            onToggleSuspend={(u) => setSelectedUserForSuspend(u)}
+            isLoading={isLoading}
+          />
+        </div>
+      )}
+
+      {/* Tab 2: Auditoria de Webhooks */}
+      {activeTab === "webhooks" && (
+        <div className="space-y-6">
+          <WebhookLogsTable
+            eventos={webhookEventos}
+            total={webhookTotal}
+            pagina={webhookPagina}
+            totalPaginas={webhookTotalPaginas}
+            metricas={webhookMetricas}
+            gatewayFiltro={webhookGatewayFiltro}
+            setGatewayFiltro={setWebhookGatewayFiltro}
+            statusFiltro={webhookStatusFiltro}
+            setStatusFiltro={setWebhookStatusFiltro}
+            eventoBusca={webhookEventoBusca}
+            setEventoBusca={setWebhookEventoBusca}
+            onPageChange={(pag) => setWebhookPagina(pag)}
+            onSelectEvento={(ev) => setSelectedWebhookEvento(ev)}
+            onRefresh={() => carregarWebhooks()}
+            isLoading={webhookIsLoading}
+          />
+        </div>
+      )}
 
       {/* Action Modals */}
       <CreateUserModal
@@ -227,6 +351,13 @@ export default function AdminPage() {
         isOpen={!!selectedUserForSuspend}
         onClose={() => setSelectedUserForSuspend(null)}
         onSuccess={() => carregarUsuarios()}
+      />
+
+      {/* Webhook Audit Detail Modal */}
+      <WebhookAuditModal
+        evento={selectedWebhookEvento}
+        isOpen={!!selectedWebhookEvento}
+        onClose={() => setSelectedWebhookEvento(null)}
       />
     </div>
   );
