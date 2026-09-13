@@ -106,28 +106,29 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Resolução Multi-Chave do Usuário
-    let targetUserId: string | null = null;
+    let targetUser: any = null;
 
     if (externalReference) {
-      const user = await obterUserPorId(externalReference);
-      if (user) targetUserId = user.id;
+      targetUser = await obterUserPorId(externalReference);
     }
 
-    if (!targetUserId && subscriptionId) {
-      const res = await query<{ id: string }>(
-        "SELECT id FROM users WHERE asaas_subscription_id = $1 AND deletado_em IS NULL",
+    if (!targetUser && subscriptionId) {
+      const res = await query(
+        "SELECT id, email, nome, role, plano FROM users WHERE asaas_subscription_id = $1 AND deletado_em IS NULL",
         [subscriptionId]
       );
-      if (res.rows[0]) targetUserId = res.rows[0].id;
+      if (res.rows[0]) targetUser = res.rows[0];
     }
 
-    if (!targetUserId && customerId) {
-      const res = await query<{ id: string }>(
-        "SELECT id FROM users WHERE asaas_customer_id = $1 AND deletado_em IS NULL",
+    if (!targetUser && customerId) {
+      const res = await query(
+        "SELECT id, email, nome, role, plano FROM users WHERE asaas_customer_id = $1 AND deletado_em IS NULL",
         [customerId]
       );
-      if (res.rows[0]) targetUserId = res.rows[0].id;
+      if (res.rows[0]) targetUser = res.rows[0];
     }
+
+    const targetUserId = targetUser?.id || null;
 
     // 5. Categorização e Execução dos Eventos
     const isActivationEvent =
@@ -184,19 +185,24 @@ export async function POST(request: NextRequest) {
       }
     } else if (isCancellationEvent) {
       if (targetUserId) {
-        // Rebaixa imediatamente o plano para Free e limpa vencimento/concessão
-        await query(
-          `UPDATE users 
-           SET plano = 'free', 
-               cancelamento_agendado = FALSE,
-               data_proxima_cobranca = NULL,
-               pro_tipo_concessao = NULL,
-               atualizado_em = CURRENT_TIMESTAMP 
-           WHERE id = $1`,
-          [targetUserId]
-        );
-        executedAction = "DOWNGRADE_TO_FREE";
-        console.log(`🔻 Downgrade para Free executado com sucesso para o usuário ${targetUserId} via evento Asaas [${eventName}].`);
+        if (targetUser?.role === "admin") {
+          executedAction = "ADMIN_DOWNGRADE_SKIPPED";
+          console.log(`🛡️ Usuário administrador ${targetUserId} protegido contra downgrade via evento Asaas [${eventName}].`);
+        } else {
+          // Rebaixa imediatamente o plano para Free e limpa vencimento/concessão
+          await query(
+            `UPDATE users 
+             SET plano = 'free', 
+                 cancelamento_agendado = FALSE,
+                 data_proxima_cobranca = NULL,
+                 pro_tipo_concessao = NULL,
+                 atualizado_em = CURRENT_TIMESTAMP 
+             WHERE id = $1`,
+            [targetUserId]
+          );
+          executedAction = "DOWNGRADE_TO_FREE";
+          console.log(`🔻 Downgrade para Free executado com sucesso para o usuário ${targetUserId} via evento Asaas [${eventName}].`);
+        }
       } else {
         executedAction = "UNMATCHED_USER";
         console.warn(`⚠️ Webhook [${eventName}] não encontrou usuário para rebaixar para Free:`, {

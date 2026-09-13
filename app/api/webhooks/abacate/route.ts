@@ -137,12 +137,12 @@ export async function POST(request: NextRequest) {
         );
       }
     } else if (isCancellationEvent) {
-      // Reverte o plano para Free em cancelamento ou disputa
+      // Reverte o plano para Free em cancelamento ou disputa (exceto administradores)
       if (userId) {
         await query(
           `UPDATE users 
            SET plano = 'free', atualizado_em = CURRENT_TIMESTAMP 
-           WHERE id = $1`,
+           WHERE id = $1 AND (role IS NULL OR role != 'admin')`,
           [userId]
         );
       } else if (customerId) {

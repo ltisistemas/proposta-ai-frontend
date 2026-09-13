@@ -84,6 +84,23 @@ export async function validarAssinaturaUsuario(
 ): Promise<ResultadoValidacaoAssinatura> {
   await garantirColunaVerificacaoAssinatura();
 
+  // Admin Role Exemption: Admins intrinsically hold permanent lifetime PRO
+  if (user?.role === "admin") {
+    return {
+      user: {
+        ...user,
+        plano: "pro",
+        pro_tipo_concessao: "manual_vitalicio",
+        cancelamento_agendado: false,
+      },
+      emPeriodoGraca: false,
+      diasRestantesGraca: 0,
+      diasAtraso: 0,
+      statusAssinatura: "ativa",
+      cancelamentoAgendado: false,
+    };
+  }
+
   if (!user || user.plano !== "pro") {
     return {
       user,
@@ -273,11 +290,12 @@ export async function criarUser(dados: {
 }): Promise<Omit<UserRow, "password_hash">> {
   const senhaHash = await bcrypt.hash(dados.password, 10);
   const userRole = dados.role || "cliente";
-  const userPlano = dados.plano || "free";
+  const userPlano = userRole === "admin" ? "pro" : (dados.plano || "free");
+  const proConcessao = userRole === "admin" ? "manual_vitalicio" : (userPlano === "pro" ? "manual_vitalicio" : null);
 
   const result = await query(
-    `INSERT INTO users (email, password_hash, nome, empresa_nome, empresa_cnpj, plano, role, suspenso, propostas_mes_atual, criado_em)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE, 0, CURRENT_TIMESTAMP)
+    `INSERT INTO users (email, password_hash, nome, empresa_nome, empresa_cnpj, plano, role, pro_tipo_concessao, suspenso, propostas_mes_atual, criado_em)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE, 0, CURRENT_TIMESTAMP)
      RETURNING id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, role, suspenso, pro_tipo_concessao, propostas_mes_atual, criado_em, atualizado_em`,
     [
       dados.email.toLowerCase().trim(),
@@ -287,6 +305,7 @@ export async function criarUser(dados: {
       dados.empresaCnpj || null,
       userPlano,
       userRole,
+      proConcessao,
     ]
   );
 
@@ -364,7 +383,7 @@ export async function atualizarUserPlano(
          data_assinatura = CASE WHEN $1::varchar = 'pro' THEN CURRENT_TIMESTAMP ELSE data_assinatura END,
          data_proxima_cobranca = CASE WHEN $1::varchar = 'pro' THEN CURRENT_TIMESTAMP + INTERVAL '30 days' ELSE data_proxima_cobranca END,
          atualizado_em = CURRENT_TIMESTAMP
-     WHERE abacate_customer_id = $3
+     WHERE abacate_customer_id = $3 AND (role IS NULL OR role != 'admin' OR $1::varchar = 'pro')
      RETURNING id, email, plano, data_assinatura, data_proxima_cobranca, cancelamento_agendado`,
     [plano, subscriptionId, abacateCustomerId]
   );
@@ -386,7 +405,7 @@ export async function atualizarUserPlanoAsaas(
          data_assinatura = CASE WHEN $1::varchar = 'pro' THEN CURRENT_TIMESTAMP ELSE data_assinatura END,
          data_proxima_cobranca = CASE WHEN $1::varchar = 'pro' THEN CURRENT_TIMESTAMP + INTERVAL '30 days' ELSE data_proxima_cobranca END,
          atualizado_em = CURRENT_TIMESTAMP
-     WHERE asaas_customer_id = $3
+     WHERE asaas_customer_id = $3 AND (role IS NULL OR role != 'admin' OR $1::varchar = 'pro')
      RETURNING id, email, plano, data_assinatura, data_proxima_cobranca, cancelamento_agendado, asaas_customer_id, asaas_subscription_id`,
     [plano, subscriptionId, asaasCustomerId]
   );

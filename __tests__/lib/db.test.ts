@@ -251,6 +251,22 @@ describe("lib/db/users", () => {
   });
 
   it("should validate free and pro users subscription lifecycle correctly", async () => {
+    // 0. Admin user -> intrinsically permanent lifetime PRO
+    const resAdmin = await validarAssinaturaUsuario({
+      id: "u_admin",
+      email: "admin@test.com",
+      nome: "Admin User",
+      role: "admin",
+      plano: "free",
+      password_hash: "hash",
+      criado_em: new Date(),
+      atualizado_em: new Date(),
+    });
+    expect(resAdmin.statusAssinatura).toBe("ativa");
+    expect(resAdmin.user.plano).toBe("pro");
+    expect(resAdmin.user.pro_tipo_concessao).toBe("manual_vitalicio");
+    expect(resAdmin.emPeriodoGraca).toBe(false);
+
     // 1. Free user
     const resFree = await validarAssinaturaUsuario({
       id: "u_free",

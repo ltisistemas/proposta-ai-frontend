@@ -471,12 +471,23 @@ export default function ConfigPage() {
                 <Sparkles className="w-5 h-5 text-blue-300" />
                 <span className="text-sm font-bold text-white">Plano Atual</span>
               </div>
-              <Badge variant={user?.plano === "pro" ? "pro" : "free"}>
-                {user?.plano?.toUpperCase() || "FREE"}
+              <Badge variant="pro">
+                {user?.role === "admin" ? "ADMIN VITALÍCIO" : (user?.plano?.toUpperCase() || "FREE")}
               </Badge>
             </div>
 
-            {user?.plano === "pro" ? (
+            {user?.role === "admin" ? (
+              <div className="space-y-4">
+                <div className="p-4 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 text-indigo-100 text-xs space-y-2">
+                  <p className="font-bold text-sm text-white flex items-center gap-1.5">
+                    <Check className="w-4 h-4 text-emerald-400" /> Administrador Master
+                  </p>
+                  <p className="text-indigo-200/90 text-xs leading-relaxed">
+                    Sua conta possui acesso <strong>PRO Vitalício</strong> com geração ilimitada de propostas por IA, exportação PDF, assinatura eletrônica e gestão completa do sistema, isenta de assinaturas ou cobranças.
+                  </p>
+                </div>
+              </div>
+            ) : user?.plano === "pro" ? (
               <div className="space-y-4">
                 {user?.cancelamento_agendado ? (
                   <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-100 text-xs space-y-3">

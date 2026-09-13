@@ -227,6 +227,47 @@ describe("API /api/webhooks/asaas Observability & Downgrades", () => {
     expect(query).toHaveBeenCalled();
   });
 
+  it("should protect admin users against downgrade on SUBSCRIPTION_CANCELED and record ADMIN_DOWNGRADE_SKIPPED", async () => {
+    vi.mocked(obterUserPorId).mockResolvedValueOnce({
+      id: "usr_admin_123",
+      email: "admin@proposta.ai",
+      role: "admin",
+      plano: "pro",
+    } as any);
+
+    const payload = {
+      id: "evt_admin_cancel_006",
+      event: "SUBSCRIPTION_CANCELED",
+      subscription: {
+        id: "sub_admin_123",
+        customer: "cus_admin_123",
+        externalReference: "usr_admin_123",
+      },
+    };
+
+    const req = new NextRequest("http://localhost:3000/api/webhooks/asaas", {
+      method: "POST",
+      headers: {
+        "asaas-access-token": "whsec_test_secret_123",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const res = await webhookRoute(req);
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.acao).toBe("ADMIN_DOWNGRADE_SKIPPED");
+    expect(registrarEventoAuditoria).toHaveBeenCalledWith(
+      expect.objectContaining({
+        acao: "ADMIN_DOWNGRADE_SKIPPED",
+        usuarioId: "usr_admin_123",
+        status: "sucesso",
+      })
+    );
+  });
+
   it("should handle UNMATCHED_USER when user cannot be located and record warning audit", async () => {
     vi.mocked(obterUserPorId).mockResolvedValueOnce(null);
     vi.mocked(query).mockResolvedValue({ rows: [], rowCount: 0 } as any);
