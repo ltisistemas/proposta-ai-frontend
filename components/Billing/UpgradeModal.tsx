@@ -202,7 +202,7 @@ export function UpgradeModal({
       if (data.sucesso && data.brCode) {
         setPixData({
           chargeId: data.chargeId,
-          amount: data.amount || 45.9,
+          amount: data.amount || 1.0,
           brCode: data.brCode,
           brCodeBase64: data.brCodeBase64,
           invoiceUrl: data.invoiceUrl,
@@ -335,7 +335,7 @@ export function UpgradeModal({
                     Assinatura Mensal
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-white mt-0.5">
-                    R$ 45,90{" "}
+                    R$ 1,00{" "}
                     <span className="text-xs text-blue-200 font-normal">/ mês</span>
                   </div>
                 </div>
@@ -379,7 +379,7 @@ export function UpgradeModal({
                 leftIcon={<QrCode className="w-5 h-5" />}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
-                Pagar com PIX (R$ 45,90/mês)
+                Pagar com PIX (R$ 1,00/mês)
               </Button>
 
               <Button

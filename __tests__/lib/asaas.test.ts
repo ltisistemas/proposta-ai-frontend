@@ -30,9 +30,19 @@ describe("lib/asaas/client", () => {
     expect(getAsaasApiKey()).toBe("$aact_hmlg_000123");
     expect(getAsaasBaseUrl()).toBe("https://api-sandbox.asaas.com/v3");
 
+    process.env.ASAAS_API_KEY = "$aact_prod_0009999";
+    expect(getAsaasApiKey()).toBe("$aact_prod_0009999");
+    expect(getAsaasBaseUrl()).toBe("https://api.asaas.com/v3");
+
+    delete process.env.ASAAS_API_KEY;
+    process.env.ASAAS_API_KEY_PRODUCAO = "$aact_prod_direct_key";
+    expect(getAsaasApiKey()).toBe("$aact_prod_direct_key");
+    expect(getAsaasBaseUrl()).toBe("https://api.asaas.com/v3");
+
     process.env.ASAAS_API_KEY = "live_prod_key";
     (process.env as any).NODE_ENV = "production";
     delete process.env.ASAAS_BASE_URL;
+    delete process.env.ASAAS_API_KEY_PRODUCAO;
     expect(getAsaasBaseUrl()).toBe("https://api.asaas.com/v3");
   });
 

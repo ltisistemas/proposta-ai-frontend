@@ -539,7 +539,7 @@ export default function ConfigPage() {
               <div className="space-y-5">
                 <div>
                   <div className="text-3xl font-black text-white">
-                    R$ 45,90 <span className="text-xs text-blue-200 font-normal">/ mês</span>
+                    R$ 1,00 <span className="text-xs text-blue-200 font-normal">/ mês</span>
                   </div>
                   <p className="text-xs text-slate-300 mt-1">
                     Eleve o nível das suas vendas com recursos comerciais de alto valor.
@@ -576,7 +576,7 @@ export default function ConfigPage() {
                   className="w-full justify-center font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25"
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
-                  Fazer Upgrade com PIX (R$ 45,90/mês)
+                  Fazer Upgrade com PIX (R$ 1,00/mês)
                 </Button>
 
                 <div className="text-center text-[11px] text-slate-400">

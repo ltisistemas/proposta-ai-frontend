@@ -8,6 +8,7 @@ const devStore = new Map<string, { status: string; invoiceUrl?: string; updatedA
  */
 export const getAsaasApiKey = (): string => {
   const rawKey =
+    process.env.ASAAS_API_KEY_PRODUCAO ||
     process.env.ASAAS_API_KEY ||
     process.env.ASAAS_API_KEY_SANDBOX ||
     process.env.ASAAS_SECRET_KEY ||
@@ -20,16 +21,35 @@ export const getAsaasApiKey = (): string => {
  * Obtém a URL base da API v3 do Asaas
  */
 export const getAsaasBaseUrl = (): string => {
+  const apiKey = getAsaasApiKey();
+
+  // Se a chave for de produção ($aact_prod_), usa o endpoint oficial de produção
+  if (apiKey.startsWith("$aact_prod_")) {
+    return (
+      process.env.ASAAS_BASE_URL_PRODUCAO ||
+      process.env.ASAAS_BASE_URL ||
+      "https://api.asaas.com/v3"
+    ).replace(/\/+$/, "");
+  }
+
+  // Se a chave for de homologação ($aact_hmlg_), usa sandbox
+  if (apiKey.startsWith("$aact_hmlg_")) {
+    return (
+      process.env.ASAAS_BASE_URL_SANDBOX ||
+      process.env.ASAAS_BASE_URL ||
+      "https://api-sandbox.asaas.com/v3"
+    ).replace(/\/+$/, "");
+  }
+
   if (process.env.ASAAS_BASE_URL) {
     return process.env.ASAAS_BASE_URL.replace(/\/+$/, "");
   }
 
-  const apiKey = getAsaasApiKey();
-  if (apiKey.startsWith("$aact_hmlg_") || process.env.NODE_ENV !== "production") {
-    return "https://api-sandbox.asaas.com/v3";
+  if (process.env.NODE_ENV === "production") {
+    return "https://api.asaas.com/v3";
   }
 
-  return "https://api.asaas.com/v3";
+  return "https://api-sandbox.asaas.com/v3";
 };
 
 /**

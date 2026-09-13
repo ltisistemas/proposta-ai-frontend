@@ -198,7 +198,7 @@ export default function DashboardLayout({
               </p>
               <Link href="/config">
                 <button className="w-full py-1.5 px-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition-colors shadow-xs shadow-blue-600/20 cursor-pointer">
-                  Fazer Upgrade Pro (R$ 45,90)
+                  Fazer Upgrade Pro (R$ 1,00)
                 </button>
               </Link>
             </div>
@@ -206,7 +206,7 @@ export default function DashboardLayout({
 
           {user?.plano === "free" && collapsed && (
             <div className="flex justify-center">
-              <Link href="/config" title="Fazer Upgrade Pro (R$ 45,90)">
+              <Link href="/config" title="Fazer Upgrade Pro (R$ 1,00)">
                 <button className="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors shadow-xs shadow-blue-600/20 cursor-pointer">
                   <Zap className="w-4 h-4" />
                 </button>
