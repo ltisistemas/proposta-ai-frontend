@@ -15,6 +15,9 @@ export interface UserRow {
   idioma?: string;
   notificacoes_email?: boolean;
   plano: "free" | "pro";
+  role?: "admin" | "cliente";
+  suspenso?: boolean;
+  pro_tipo_concessao?: "manual_vitalicio" | "manual_temporario" | "asaas" | string | null;
   propostas_mes_atual?: number;
   data_assinatura?: Date | null;
   data_proxima_cobranca?: Date | null;
@@ -34,6 +37,10 @@ export function _resetAssinaturaColInitialized(): void {
   isAssinaturaColInitialized = false;
 }
 
+export function _resetAdminColsInitialized(): void {
+  isAssinaturaColInitialized = false;
+}
+
 export async function garantirColunaVerificacaoAssinatura(): Promise<void> {
   if (isAssinaturaColInitialized) return;
   try {
@@ -45,6 +52,9 @@ export async function garantirColunaVerificacaoAssinatura(): Promise<void> {
         BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS cancelamento_agendado BOOLEAN DEFAULT FALSE; EXCEPTION WHEN OTHERS THEN NULL; END;
         BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_customer_id VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
         BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'cliente'; EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS suspenso BOOLEAN DEFAULT FALSE; EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS pro_tipo_concessao VARCHAR(50); EXCEPTION WHEN OTHERS THEN NULL; END;
         BEGIN ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_payment_id VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
         BEGIN ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
         BEGIN ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS invoice_url TEXT; EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -52,8 +62,12 @@ export async function garantirColunaVerificacaoAssinatura(): Promise<void> {
     `);
     isAssinaturaColInitialized = true;
   } catch (err) {
-    console.warn("Aviso ao inicializar colunas de verificacao de assinatura:", err);
+    console.warn("Aviso ao inicializar colunas de verificacao de assinatura e admin:", err);
   }
+}
+
+export async function garantirColunasAdmin(): Promise<void> {
+  await garantirColunaVerificacaoAssinatura();
 }
 
 export interface ResultadoValidacaoAssinatura {
@@ -77,6 +91,18 @@ export async function validarAssinaturaUsuario(
       diasRestantesGraca: 0,
       diasAtraso: 0,
       statusAssinatura: "free",
+      cancelamentoAgendado: false,
+    };
+  }
+
+  // Lifetime PRO exemption: never downgrade
+  if (user.pro_tipo_concessao === "manual_vitalicio") {
+    return {
+      user,
+      emPeriodoGraca: false,
+      diasRestantesGraca: 0,
+      diasAtraso: 0,
+      statusAssinatura: "ativa",
       cancelamentoAgendado: false,
     };
   }
@@ -242,19 +268,25 @@ export async function criarUser(dados: {
   nome: string;
   empresaNome?: string;
   empresaCnpj?: string;
+  role?: "admin" | "cliente";
+  plano?: "free" | "pro";
 }): Promise<Omit<UserRow, "password_hash">> {
   const senhaHash = await bcrypt.hash(dados.password, 10);
+  const userRole = dados.role || "cliente";
+  const userPlano = dados.plano || "free";
 
   const result = await query(
-    `INSERT INTO users (email, password_hash, nome, empresa_nome, empresa_cnpj, plano, propostas_mes_atual, criado_em)
-     VALUES ($1, $2, $3, $4, $5, 'free', 0, CURRENT_TIMESTAMP)
-     RETURNING id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, propostas_mes_atual, criado_em, atualizado_em`,
+    `INSERT INTO users (email, password_hash, nome, empresa_nome, empresa_cnpj, plano, role, suspenso, propostas_mes_atual, criado_em)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE, 0, CURRENT_TIMESTAMP)
+     RETURNING id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, role, suspenso, pro_tipo_concessao, propostas_mes_atual, criado_em, atualizado_em`,
     [
       dados.email.toLowerCase().trim(),
       senhaHash,
       dados.nome.trim(),
       dados.empresaNome || null,
       dados.empresaCnpj || null,
+      userPlano,
+      userRole,
     ]
   );
 
@@ -447,4 +479,178 @@ export async function incrementarContadorPropostas(usuarioId: string) {
      WHERE id = $1`,
     [usuarioId]
   );
+}
+
+export interface FiltrosListagemUsuariosAdmin {
+  busca?: string;
+  plano?: string;
+  role?: string;
+  status?: string; // 'ativo' | 'suspenso'
+  pagina?: number;
+  limite?: number;
+}
+
+export async function listarUsuariosAdmin(filtros: FiltrosListagemUsuariosAdmin = {}) {
+  await garantirColunasAdmin();
+  const pagina = Math.max(1, filtros.pagina || 1);
+  const limite = Math.max(1, Math.min(100, filtros.limite || 20));
+  const offset = (pagina - 1) * limite;
+
+  const conditions: string[] = ["deletado_em IS NULL"];
+  const values: any[] = [];
+  let paramIndex = 1;
+
+  if (filtros.busca && filtros.busca.trim()) {
+    conditions.push(`(LOWER(nome) LIKE $${paramIndex} OR LOWER(email) LIKE $${paramIndex} OR LOWER(COALESCE(empresa_nome, '')) LIKE $${paramIndex})`);
+    values.push(`%${filtros.busca.trim().toLowerCase()}%`);
+    paramIndex++;
+  }
+
+  if (filtros.plano && (filtros.plano === "pro" || filtros.plano === "free")) {
+    conditions.push(`plano = $${paramIndex}`);
+    values.push(filtros.plano);
+    paramIndex++;
+  }
+
+  if (filtros.role && (filtros.role === "admin" || filtros.role === "cliente")) {
+    conditions.push(`role = $${paramIndex}`);
+    values.push(filtros.role);
+    paramIndex++;
+  }
+
+  if (filtros.status) {
+    if (filtros.status === "suspenso") {
+      conditions.push(`suspenso = TRUE`);
+    } else if (filtros.status === "ativo") {
+      conditions.push(`(suspenso IS FALSE OR suspenso IS NULL)`);
+    }
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  // Query metrics
+  const metricasRes = await query(`
+    SELECT 
+      COUNT(*) FILTER (WHERE deletado_em IS NULL) as total,
+      COUNT(*) FILTER (WHERE deletado_em IS NULL AND plano = 'pro') as pro,
+      COUNT(*) FILTER (WHERE deletado_em IS NULL AND (plano = 'free' OR plano IS NULL)) as free,
+      COUNT(*) FILTER (WHERE deletado_em IS NULL AND suspenso = TRUE) as suspensos,
+      COUNT(*) FILTER (WHERE deletado_em IS NULL AND role = 'admin') as admins
+    FROM users
+  `);
+
+  const metricas = {
+    total: parseInt(metricasRes.rows[0]?.total || "0", 10),
+    pro: parseInt(metricasRes.rows[0]?.pro || "0", 10),
+    free: parseInt(metricasRes.rows[0]?.free || "0", 10),
+    suspensos: parseInt(metricasRes.rows[0]?.suspensos || "0", 10),
+    admins: parseInt(metricasRes.rows[0]?.admins || "0", 10),
+  };
+
+  // Count filtered
+  const countRes = await query(`SELECT COUNT(*) as total FROM users ${whereClause}`, values);
+  const totalFiltrado = parseInt(countRes.rows[0]?.total || "0", 10);
+
+  // Query users
+  values.push(limite);
+  const limitIndex = paramIndex++;
+  values.push(offset);
+  const offsetIndex = paramIndex++;
+
+  const usersRes = await query<UserRow>(
+    `SELECT id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, role, suspenso, pro_tipo_concessao, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, criado_em, atualizado_em
+     FROM users 
+     ${whereClause}
+     ORDER BY criado_em DESC
+     LIMIT $${limitIndex} OFFSET $${offsetIndex}`,
+    values
+  );
+
+  return {
+    usuarios: usersRes.rows,
+    total: totalFiltrado,
+    pagina,
+    limite,
+    totalPaginas: Math.ceil(totalFiltrado / limite) || 1,
+    metricas,
+  };
+}
+
+export async function atualizarStatusUsuarioAdmin(userId: string, suspenso: boolean): Promise<Omit<UserRow, "password_hash"> | null> {
+  await garantirColunasAdmin();
+  const res = await query<UserRow>(
+    `UPDATE users 
+     SET suspenso = $1, atualizado_em = CURRENT_TIMESTAMP 
+     WHERE id = $2 AND deletado_em IS NULL
+     RETURNING id, email, nome, empresa_nome, empresa_cnpj, plano, role, suspenso, pro_tipo_concessao, data_proxima_cobranca, criado_em, atualizado_em`,
+    [suspenso, userId]
+  );
+  return res.rows[0] || null;
+}
+
+export async function atualizarPlanoUsuarioAdmin(
+  userId: string,
+  tipo: "vitalicio" | "temporario" | "free",
+  meses?: number
+): Promise<Omit<UserRow, "password_hash"> | null> {
+  await garantirColunasAdmin();
+  if (tipo === "vitalicio") {
+    const res = await query<UserRow>(
+      `UPDATE users 
+       SET plano = 'pro', 
+           pro_tipo_concessao = 'manual_vitalicio', 
+           data_proxima_cobranca = NULL,
+           cancelamento_agendado = FALSE,
+           data_assinatura = COALESCE(data_assinatura, CURRENT_TIMESTAMP),
+           atualizado_em = CURRENT_TIMESTAMP
+       WHERE id = $1 AND deletado_em IS NULL
+       RETURNING id, email, nome, empresa_nome, empresa_cnpj, plano, role, suspenso, pro_tipo_concessao, data_proxima_cobranca, criado_em, atualizado_em`,
+      [userId]
+    );
+    return res.rows[0] || null;
+  } else if (tipo === "temporario") {
+    const mesesInt = Math.max(1, meses || 1);
+    const res = await query<UserRow>(
+      `UPDATE users 
+       SET plano = 'pro', 
+           pro_tipo_concessao = 'manual_temporario', 
+           data_proxima_cobranca = CURRENT_TIMESTAMP + ($2 || ' months')::INTERVAL,
+           cancelamento_agendado = FALSE,
+           data_assinatura = COALESCE(data_assinatura, CURRENT_TIMESTAMP),
+           atualizado_em = CURRENT_TIMESTAMP
+       WHERE id = $1 AND deletado_em IS NULL
+       RETURNING id, email, nome, empresa_nome, empresa_cnpj, plano, role, suspenso, pro_tipo_concessao, data_proxima_cobranca, criado_em, atualizado_em`,
+      [userId, `${mesesInt}`]
+    );
+    return res.rows[0] || null;
+  } else {
+    // Revert to free
+    const res = await query<UserRow>(
+      `UPDATE users 
+       SET plano = 'free', 
+           pro_tipo_concessao = NULL, 
+           data_proxima_cobranca = NULL,
+           cancelamento_agendado = FALSE,
+           atualizado_em = CURRENT_TIMESTAMP
+       WHERE id = $1 AND deletado_em IS NULL
+       RETURNING id, email, nome, empresa_nome, empresa_cnpj, plano, role, suspenso, pro_tipo_concessao, data_proxima_cobranca, criado_em, atualizado_em`,
+      [userId]
+    );
+    return res.rows[0] || null;
+  }
+}
+
+export async function atualizarVencimentoUsuarioAdmin(
+  userId: string,
+  novaData: string | Date
+): Promise<Omit<UserRow, "password_hash"> | null> {
+  await garantirColunasAdmin();
+  const res = await query<UserRow>(
+    `UPDATE users 
+     SET data_proxima_cobranca = $1, atualizado_em = CURRENT_TIMESTAMP 
+     WHERE id = $2 AND deletado_em IS NULL
+     RETURNING id, email, nome, empresa_nome, empresa_cnpj, plano, role, suspenso, pro_tipo_concessao, data_proxima_cobranca, criado_em, atualizado_em`,
+    [new Date(novaData), userId]
+  );
+  return res.rows[0] || null;
 }

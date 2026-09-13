@@ -15,6 +15,7 @@ import {
   User,
   PanelLeftClose,
   PanelLeftOpen,
+  Shield,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { Badge } from "@/components/Common/Badge";
@@ -86,6 +87,15 @@ export default function DashboardLayout({
       label: "Configurações & Plano",
       icon: <Settings className="w-4 h-4" />,
     },
+    ...(user?.role === "admin"
+      ? [
+          {
+            href: "/admin",
+            label: "Painel Admin",
+            icon: <Shield className="w-4 h-4 text-indigo-600" />,
+          },
+        ]
+      : []),
   ];
 
   return (

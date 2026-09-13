@@ -13,6 +13,9 @@ export interface AuthUser {
   empresa_telefone?: string | null;
   empresa_logo_url?: string | null;
   plano: "free" | "pro";
+  role?: "admin" | "cliente";
+  suspenso?: boolean;
+  pro_tipo_concessao?: "manual_vitalicio" | "manual_temporario" | "asaas" | string | null;
   propostas_mes_atual?: number;
   data_proxima_cobranca?: Date | string | null;
   cancelamento_agendado?: boolean;

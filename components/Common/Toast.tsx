@@ -34,6 +34,9 @@ export const useToast = create<ToastStore>((set) => ({
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));
 
+export const addToast = (toast: Omit<ToastItem, "id">) =>
+  useToast.getState().addToast(toast);
+
 export const ToastContainer: React.FC = () => {
   const { toasts, removeToast } = useToast();
 

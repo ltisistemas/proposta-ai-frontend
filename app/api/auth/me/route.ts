@@ -23,6 +23,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (user.suspenso) {
+      return NextResponse.json(
+        { erro: "Sua conta está suspensa.", suspenso: true },
+        { status: 403 }
+      );
+    }
+
     const validacao = await validarAssinaturaUsuario(user);
 
     return NextResponse.json({

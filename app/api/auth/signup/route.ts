@@ -53,6 +53,8 @@ export async function POST(request: NextRequest) {
       email: user.email,
       nome: user.nome,
       plano: user.plano,
+      role: user.role || "cliente",
+      suspenso: !!user.suspenso,
     });
 
     return NextResponse.json(

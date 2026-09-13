@@ -36,9 +36,14 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS data_ultima_verificacao_pagamento DAT
 ALTER TABLE users ADD COLUMN IF NOT EXISTS cancelamento_agendado BOOLEAN DEFAULT FALSE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_customer_id VARCHAR(255);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'cliente';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS suspenso BOOLEAN DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS pro_tipo_concessao VARCHAR(50);
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_plano ON users(plano);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_suspenso ON users(suspenso);
 CREATE INDEX IF NOT EXISTS idx_users_asaas_customer ON users(asaas_customer_id);
 
 -- Propostas Table

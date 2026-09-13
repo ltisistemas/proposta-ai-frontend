@@ -8,6 +8,8 @@ export interface JWTPayload {
   email: string;
   nome: string;
   plano: "free" | "pro";
+  role?: "admin" | "cliente";
+  suspenso?: boolean;
 }
 
 export function gerarToken(payload: JWTPayload): string {

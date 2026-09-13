@@ -48,6 +48,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (user.suspenso) {
+      return NextResponse.json(
+        {
+          sucesso: false,
+          erro: "Sua conta está suspensa. Entre em contato com o suporte ou administrador.",
+          suspenso: true,
+        },
+        { status: 403 }
+      );
+    }
+
     const validacao = await validarAssinaturaUsuario(user);
     const userAtual = validacao.user as UserRow;
 
@@ -56,6 +67,8 @@ export async function POST(request: NextRequest) {
       email: userAtual.email,
       nome: userAtual.nome,
       plano: userAtual.plano,
+      role: userAtual.role || "cliente",
+      suspenso: !!userAtual.suspenso,
     });
 
     const { password_hash, ...userSemSenha } = userAtual;
