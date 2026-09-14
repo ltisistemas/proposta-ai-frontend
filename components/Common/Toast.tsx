@@ -68,12 +68,12 @@ export const ToastContainer: React.FC = () => {
             <div className="flex-1 min-w-0">
               <h4 className="text-sm font-semibold text-slate-900 dark:text-[#f8f8f2]">{toast.title}</h4>
               {toast.message && (
-                <p className="text-xs text-slate-600 dark:text-[#6272a4] mt-0.5 leading-relaxed">{toast.message}</p>
+                <p className="text-xs text-slate-600 dark:text-[#cbd5e1] mt-0.5 leading-relaxed">{toast.message}</p>
               )}
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="p-1 text-slate-400 dark:text-[#6272a4] hover:text-slate-600 dark:hover:text-[#f8f8f2] rounded-lg transition-colors -mr-1 -mt-1 cursor-pointer"
+              className="p-1 text-slate-400 dark:text-[#94a3b8] hover:text-slate-600 dark:hover:text-[#f8f8f2] rounded-lg transition-colors -mr-1 -mt-1 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>

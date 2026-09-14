@@ -333,7 +333,7 @@ export default function ConfigPage() {
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
           Configurações da Conta & Plano
         </h1>
-        <p className="text-slate-600 dark:text-[#6272a4] text-sm mt-1">
+        <p className="text-slate-600 dark:text-[#cbd5e1] text-sm mt-1">
           Personalize a aparência do sistema, os dados da sua empresa, logotipo e gerencie sua assinatura do ViraPropo AI!.
         </p>
       </div>
@@ -397,7 +397,7 @@ export default function ConfigPage() {
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-500 dark:text-[#6272a4] mt-2 leading-relaxed">
+                <p className="text-xs text-slate-500 dark:text-[#cbd5e1] mt-2 leading-relaxed">
                   {opt.description}
                 </p>
               </button>
@@ -489,7 +489,7 @@ export default function ConfigPage() {
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-[#50fa7b]" />
                             Logotipo carregada em Base64
                           </p>
-                          <p className="text-[11px] text-slate-500 dark:text-[#6272a4] mt-0.5">
+                          <p className="text-[11px] text-slate-500 dark:text-[#cbd5e1] mt-0.5">
                             A logo será renderizada no topo de todas as propostas executivas Pro.
                           </p>
                           <div className="flex items-center gap-2 mt-2">
@@ -517,7 +517,7 @@ export default function ConfigPage() {
                         <p className="text-xs font-bold text-slate-800 dark:text-[#f8f8f2]">
                           Clique para fazer upload da sua logo
                         </p>
-                        <p className="text-[11px] text-slate-500 dark:text-[#6272a4] mt-0.5">
+                        <p className="text-[11px] text-slate-500 dark:text-[#cbd5e1] mt-0.5">
                           PNG, JPG ou SVG (salvo diretamente em Base64)
                         </p>
                       </div>
@@ -533,14 +533,14 @@ export default function ConfigPage() {
                 ) : (
                   <div className="p-4 rounded-2xl border border-slate-200 dark:border-[#44475a] bg-slate-50/70 dark:bg-[#282a36]/60 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] flex items-center justify-center text-slate-400 dark:text-[#6272a4]">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] flex items-center justify-center text-slate-400 dark:text-[#94a3b8]">
                         <ImageIcon className="w-5 h-5" />
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-700 dark:text-[#f8f8f2]">
                           Personalização de Logo em Base64
                         </p>
-                        <p className="text-[11px] text-slate-500 dark:text-[#6272a4]">
+                        <p className="text-[11px] text-slate-500 dark:text-[#cbd5e1]">
                           Faça upgrade para o Pro para adicionar sua marca oficial nas propostas.
                         </p>
                       </div>

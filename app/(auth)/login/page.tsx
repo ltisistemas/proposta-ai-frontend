@@ -67,7 +67,7 @@ export default function LoginPage() {
         <h1 className="text-2xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
           Acesse sua conta
         </h1>
-        <p className="text-slate-500 dark:text-[#6272a4] text-sm mt-1.5">
+        <p className="text-slate-500 dark:text-[#cbd5e1] text-sm mt-1.5">
           Entre para gerenciar suas propostas e fechar negócios
         </p>
       </div>

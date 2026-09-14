@@ -54,7 +54,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative flex items-center">
           {leftIcon && (
-            <div className="absolute left-3.5 text-slate-400 dark:text-[#6272a4] pointer-events-none flex items-center z-10">
+            <div className="absolute left-3.5 text-slate-400 dark:text-[#94a3b8] pointer-events-none flex items-center z-10">
               {leftIcon}
             </div>
           )}
@@ -69,7 +69,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3.5 text-slate-400 dark:text-[#6272a4] pointer-events-none flex items-center z-10">
+            <div className="absolute right-3.5 text-slate-400 dark:text-[#94a3b8] pointer-events-none flex items-center z-10">
               {rightIcon}
             </div>
           )}
@@ -79,7 +79,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         ) : helperText ? (
           <p
             className={`text-xs mt-1 ${
-              isLight ? "text-slate-500 dark:text-[#6272a4]" : "text-[#6272a4]"
+              isLight ? "text-slate-500 dark:text-[#cbd5e1]" : "text-[#cbd5e1]"
             }`}
           >
             {helperText}
@@ -152,7 +152,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         ) : helperText ? (
           <p
             className={`text-xs mt-1 ${
-              isLight ? "text-slate-500 dark:text-[#6272a4]" : "text-[#6272a4]"
+              isLight ? "text-slate-500 dark:text-[#cbd5e1]" : "text-[#cbd5e1]"
             }`}
           >
             {helperText}

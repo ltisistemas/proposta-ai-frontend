@@ -281,7 +281,7 @@ export default function NovaPropostaPage() {
                 <Sparkles className="w-7 h-7 text-blue-600 dark:text-[#bd93f9]" />
                 Gerador de Proposta com IA
               </h1>
-              <p className="text-slate-600 dark:text-[#6272a4] text-sm mt-1">
+              <p className="text-slate-600 dark:text-[#cbd5e1] text-sm mt-1">
                 Preencha os dados do cliente e escopo. O motor de IA formatará a proposta comercial ideal.
               </p>
             </div>
@@ -432,7 +432,7 @@ export default function NovaPropostaPage() {
                     type="button"
                     onClick={() => handleRemoveItem(idx)}
                     title="Remover Item"
-                    className="p-2 text-slate-500 dark:text-[#6272a4] hover:text-rose-700 dark:hover:text-[#ff5555] hover:bg-rose-100/70 dark:hover:bg-[#ff5555]/15 rounded-xl transition-colors cursor-pointer"
+                    className="p-2 text-slate-500 dark:text-[#ff5555] hover:text-rose-700 dark:hover:text-[#ff7777] hover:bg-rose-100/70 dark:hover:bg-[#ff5555]/15 rounded-xl transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -515,7 +515,7 @@ export default function NovaPropostaPage() {
         }}
         size="full"
         icon={
-          <div className="w-10 h-10 rounded-[4px] bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-[4px] bg-blue-50 dark:bg-[#bd93f9]/20 border border-blue-200 dark:border-[#bd93f9]/30 text-blue-600 dark:text-[#bd93f9] flex items-center justify-center">
             <Sparkles className="w-5 h-5" />
           </div>
         }
@@ -533,7 +533,7 @@ export default function NovaPropostaPage() {
               onClick={handleCopyLink}
               leftIcon={
                 copiadoLink ? (
-                  <Check className="w-4 h-4 text-emerald-600" />
+                  <Check className="w-4 h-4 text-emerald-600 dark:text-[#50fa7b]" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )
@@ -554,7 +554,7 @@ export default function NovaPropostaPage() {
                 }
                 setWhatsAppModalOpen(true);
               }}
-              leftIcon={<MessageCircle className="w-4 h-4 text-emerald-600" />}
+              leftIcon={<MessageCircle className="w-4 h-4 text-emerald-600 dark:text-[#50fa7b]" />}
               className="text-xs"
             >
               WhatsApp
@@ -571,11 +571,11 @@ export default function NovaPropostaPage() {
             </Button>
           </div>
         }
-        bodyClassName="bg-slate-100/80 p-4 sm:p-6 md:p-8 flex justify-center items-start min-h-0"
+        bodyClassName="bg-slate-100/80 dark:bg-[#21222c] p-4 sm:p-6 md:p-8 flex justify-center items-start min-h-0"
         footer={
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
-            <div className="flex items-center gap-2 text-xs text-slate-600">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-[#cbd5e1]">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#50fa7b] shrink-0" />
               <span>
                 Documento salvo automaticamente em <strong>Minhas Propostas</strong>.
               </span>
@@ -610,7 +610,7 @@ export default function NovaPropostaPage() {
           </div>
         }
       >
-        <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200/90 min-h-[68vh]">
+        <div className="w-full max-w-4xl mx-auto bg-white dark:bg-[#282a36] rounded-2xl shadow-xl overflow-hidden border border-slate-200/90 dark:border-[#44475a] min-h-[68vh]">
           {generatedHtml && (
             <iframe
               srcDoc={generatedHtml}

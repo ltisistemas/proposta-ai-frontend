@@ -63,7 +63,7 @@ export const StatsCards: React.FC<{ metricas?: MetricasDashboard | null }> = ({
         >
           <div className="flex items-start justify-between">
             <div>
-              <div className="text-xs font-bold text-slate-500 dark:text-[#6272a4] uppercase tracking-wider">
+              <div className="text-xs font-bold text-slate-500 dark:text-[#cbd5e1] uppercase tracking-wider">
                 {stat.label}
               </div>
               <div className="text-2xl font-black text-slate-900 dark:text-[#f8f8f2] mt-1.5 tracking-tight">
@@ -76,7 +76,7 @@ export const StatsCards: React.FC<{ metricas?: MetricasDashboard | null }> = ({
               {stat.icon}
             </div>
           </div>
-          <div className="text-xs text-slate-500 dark:text-[#6272a4] mt-3 pt-3 border-t border-slate-100 dark:border-[#44475a]">
+          <div className="text-xs text-slate-500 dark:text-[#cbd5e1] mt-3 pt-3 border-t border-slate-100 dark:border-[#44475a]">
             {stat.subtext}
           </div>
         </Card>

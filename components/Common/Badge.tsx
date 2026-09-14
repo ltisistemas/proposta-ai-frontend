@@ -37,7 +37,7 @@ export const Badge: React.FC<BadgeProps> = ({
         return {
           style: "bg-slate-100 dark:bg-[#44475a]/50 text-slate-700 dark:text-[#f8f8f2] border-slate-200 dark:border-[#44475a]",
           label: "Rascunho",
-          dot: "bg-slate-400 dark:bg-[#6272a4]",
+          dot: "bg-slate-400 dark:bg-[#94a3b8]",
         };
       case "enviada":
         return {
@@ -70,7 +70,7 @@ export const Badge: React.FC<BadgeProps> = ({
         return {
           style: "bg-slate-100 dark:bg-[#44475a]/50 text-slate-600 dark:text-[#f8f8f2]/80 border-slate-200 dark:border-[#44475a] font-medium",
           label: "FREE",
-          dot: "bg-slate-400 dark:bg-[#6272a4]",
+          dot: "bg-slate-400 dark:bg-[#94a3b8]",
         };
       case "warning":
         return {
@@ -85,7 +85,7 @@ export const Badge: React.FC<BadgeProps> = ({
       default:
         return {
           style: "bg-slate-100 dark:bg-[#44475a]/50 text-slate-700 dark:text-[#f8f8f2] border-slate-200 dark:border-[#44475a]",
-          dot: "bg-slate-400 dark:bg-[#6272a4]",
+          dot: "bg-slate-400 dark:bg-[#94a3b8]",
         };
     }
   };

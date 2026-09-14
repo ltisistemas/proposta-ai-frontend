@@ -88,7 +88,7 @@ export default function SignupPage() {
         <h1 className="text-2xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
           Crie sua conta no ViraPropo AI!
         </h1>
-        <p className="text-slate-500 dark:text-[#6272a4] text-sm mt-1.5">
+        <p className="text-slate-500 dark:text-[#cbd5e1] text-sm mt-1.5">
           Comece a gerar propostas comerciais profissionais com IA hoje
         </p>
       </div>

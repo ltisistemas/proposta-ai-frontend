@@ -171,7 +171,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
 
           {/* Search Input */}
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-slate-400 dark:text-[#6272a4] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 dark:text-[#94a3b8] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Buscar por cliente, número..."
@@ -184,7 +184,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
 
         {/* Table Content */}
         {isLoading ? (
-          <div className="p-12 text-center text-slate-400 dark:text-[#6272a4] text-sm">
+          <div className="p-12 text-center text-slate-400 dark:text-[#cbd5e1] text-sm">
             Carregando propostas...
           </div>
         ) : propostasFiltradas.length === 0 ? (
@@ -193,7 +193,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
               <FileText className="w-6 h-6" />
             </div>
             <h4 className="text-base font-bold text-slate-900 dark:text-[#f8f8f2]">Nenhuma proposta encontrada</h4>
-            <p className="text-xs text-slate-500 dark:text-[#6272a4] mt-1 max-w-sm mx-auto">
+            <p className="text-xs text-slate-500 dark:text-[#cbd5e1] mt-1 max-w-sm mx-auto">
               {busca || filtroStatus !== "todos"
                 ? "Tente ajustar os filtros de busca para encontrar o que procura."
                 : "Você ainda não criou nenhuma proposta comercial. Gere sua primeira proposta com IA!"}
@@ -211,7 +211,7 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-700 dark:text-[#f8f8f2]">
-              <thead className="bg-slate-50/80 dark:bg-[#21222c] text-slate-500 dark:text-[#6272a4] uppercase font-bold border-b border-slate-200 dark:border-[#44475a] text-[11px] tracking-wider">
+              <thead className="bg-slate-50/80 dark:bg-[#21222c] text-slate-500 dark:text-[#cbd5e1] uppercase font-bold border-b border-slate-200 dark:border-[#44475a] text-[11px] tracking-wider">
                 <tr>
                   <th className="p-4 pl-6">Número</th>
                   <th className="p-4">Cliente / Empresa</th>
@@ -232,19 +232,19 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                         href={`/propostas/${p.id}`}
                         className="hover:underline flex items-center gap-1.5"
                       >
-                        <FileText className="w-3.5 h-3.5 text-slate-400 dark:text-[#6272a4]" />
+                        <FileText className="w-3.5 h-3.5 text-slate-400 dark:text-[#94a3b8]" />
                         {p.numero}
                       </Link>
                     </td>
                     <td className="p-4">
                       <div className="font-bold text-slate-900 dark:text-[#f8f8f2]">{p.cliente_nome}</div>
                       {p.cliente_empresa && (
-                        <div className="text-[11px] text-slate-500 dark:text-[#6272a4]">
+                        <div className="text-[11px] text-slate-500 dark:text-[#cbd5e1]">
                           {p.cliente_empresa}
                         </div>
                       )}
                     </td>
-                    <td className="p-4 text-slate-500 dark:text-[#6272a4]">
+                    <td className="p-4 text-slate-500 dark:text-[#cbd5e1]">
                       {formatarData(p.criado_em)}
                     </td>
                     <td className="p-4 text-right font-bold text-slate-900 dark:text-[#f8f8f2]">
@@ -312,8 +312,8 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
           propostaParaExcluir ? (
             <span>
               Tem certeza que deseja excluir a proposta{" "}
-              <strong className="text-slate-900 font-semibold">{propostaParaExcluir.numero}</strong>{" "}
-              do cliente <strong className="text-slate-900 font-semibold">{propostaParaExcluir.cliente_nome}</strong>?
+              <strong className="text-slate-900 dark:text-[#f8f8f2] font-semibold">{propostaParaExcluir.numero}</strong>{" "}
+              do cliente <strong className="text-slate-900 dark:text-[#f8f8f2] font-semibold">{propostaParaExcluir.cliente_nome}</strong>?
               Esta ação removerá a proposta e não poderá ser desfeita.
             </span>
           ) : null

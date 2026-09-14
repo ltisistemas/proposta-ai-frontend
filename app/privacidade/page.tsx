@@ -35,31 +35,31 @@ export default function PoliticaDePrivacidadePage() {
       {/* Main Document Content */}
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
         {/* Title Header */}
-        <div className="space-y-3 pb-8 border-b border-slate-200">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+        <div className="space-y-3 pb-8 border-b border-slate-200 dark:border-[#44475a]">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
             <ShieldCheck className="w-3.5 h-3.5" />
             Conformidade LGPD (Lei Federal nº 13.709/2018)
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
             Política de Privacidade & Proteção de Dados
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-[#cbd5e1]">
             Última atualização: <strong>{ultimaAtualizacao}</strong> • Versão 2.1
           </p>
         </div>
 
         {/* Executive Summary */}
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-4 text-sm text-slate-700 leading-relaxed">
+        <div className="bg-white dark:bg-[#343746] border border-slate-200/90 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4 text-sm text-slate-700 dark:text-[#f8f8f2] leading-relaxed">
           <p>
             No <strong>ViraPropo AI! - Sua IA geradora de propostas</strong> (&quot;ViraPropo AI!&quot; ou &quot;nós&quot;), a privacidade, a segurança e a transparência no tratamento de dados pessoais são pilares fundamentais. Esta Política de Privacidade explica como coletamos, utilizamos, armazenamos, protegemos e compartilhamos suas informações em estrita observância à <strong>Lei Geral de Proteção de Dados Pessoais (LGPD - Lei nº 13.709/2018)</strong> e ao <strong>Marco Civil da Internet (Lei nº 12.965/2014)</strong>.
           </p>
         </div>
 
         {/* Detailed Sections */}
-        <div className="space-y-8 text-sm text-slate-700 leading-relaxed">
+        <div className="space-y-8 text-sm text-slate-700 dark:text-[#f8f8f2] leading-relaxed">
           {/* Section 1 */}
-          <section className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+          <section className="bg-white dark:bg-[#343746] border border-slate-200/90 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <h2 className="text-lg font-black text-slate-900 dark:text-[#f8f8f2] flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white text-xs flex items-center justify-center font-bold">
                 1
               </span>
@@ -74,14 +74,14 @@ export default function PoliticaDePrivacidadePage() {
           </section>
 
           {/* Section 2 */}
-          <section className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+          <section className="bg-white dark:bg-[#343746] border border-slate-200/90 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <h2 className="text-lg font-black text-slate-900 dark:text-[#f8f8f2] flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white text-xs flex items-center justify-center font-bold">
                 2
               </span>
               Dados Pessoais Coletados e Formas de Coleta
             </h2>
-            <ul className="list-disc pl-5 space-y-2 text-slate-600">
+            <ul className="list-disc pl-5 space-y-2 text-slate-600 dark:text-[#cbd5e1]">
               <li>
                 <strong>Dados Cadastrais do Usuário:</strong> Nome completo, endereço de email, senha criptografada (hash Bcrypt), dados da empresa emissora (Razão Social, CNPJ, telefone, logotipo corporativo em formato Base64).
               </li>
@@ -98,36 +98,36 @@ export default function PoliticaDePrivacidadePage() {
           </section>
 
           {/* Section 3 */}
-          <section className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+          <section className="bg-white dark:bg-[#343746] border border-slate-200/90 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <h2 className="text-lg font-black text-slate-900 dark:text-[#f8f8f2] flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white text-xs flex items-center justify-center font-bold">
                 3
               </span>
               Finalidade do Tratamento e Bases Legais
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                <p className="font-bold text-slate-900 text-xs">Execução de Contrato (Art. 7º, V)</p>
-                <p className="text-[11px] text-slate-600 mt-1">Gerar, armazenar, exportar propostas e autenticar o usuário na plataforma.</p>
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a]">
+                <p className="font-bold text-slate-900 dark:text-[#f8f8f2] text-xs">Execução de Contrato (Art. 7º, V)</p>
+                <p className="text-[11px] text-slate-600 dark:text-[#cbd5e1] mt-1">Gerar, armazenar, exportar propostas e autenticar o usuário na plataforma.</p>
               </div>
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                <p className="font-bold text-slate-900 text-xs">Cumprimento de Obrigação Legal (Art. 7º, II)</p>
-                <p className="text-[11px] text-slate-600 mt-1">Guarda de logs de acesso e manifestos de assinatura (Marco Civil da Internet).</p>
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a]">
+                <p className="font-bold text-slate-900 dark:text-[#f8f8f2] text-xs">Cumprimento de Obrigação Legal (Art. 7º, II)</p>
+                <p className="text-[11px] text-slate-600 dark:text-[#cbd5e1] mt-1">Guarda de logs de acesso e manifestos de assinatura (Marco Civil da Internet).</p>
               </div>
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                <p className="font-bold text-slate-900 text-xs">Consentimento Explícito (Art. 7º, I)</p>
-                <p className="text-[11px] text-slate-600 mt-1">Envio de comunicações comerciais e preferências de cookies analíticos.</p>
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a]">
+                <p className="font-bold text-slate-900 dark:text-[#f8f8f2] text-xs">Consentimento Explícito (Art. 7º, I)</p>
+                <p className="text-[11px] text-slate-600 dark:text-[#cbd5e1] mt-1">Envio de comunicações comerciais e preferências de cookies analíticos.</p>
               </div>
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                <p className="font-bold text-slate-900 text-xs">Legítimo Interesse (Art. 7º, IX)</p>
-                <p className="text-[11px] text-slate-600 mt-1">Melhoria contínua de performance, segurança contra fraudes e usabilidade da IA.</p>
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a]">
+                <p className="font-bold text-slate-900 dark:text-[#f8f8f2] text-xs">Legítimo Interesse (Art. 7º, IX)</p>
+                <p className="text-[11px] text-slate-600 dark:text-[#cbd5e1] mt-1">Melhoria contínua de performance, segurança contra fraudes e usabilidade da IA.</p>
               </div>
             </div>
           </section>
 
           {/* Section 4 */}
-          <section className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+          <section className="bg-white dark:bg-[#343746] border border-slate-200/90 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <h2 className="text-lg font-black text-slate-900 dark:text-[#f8f8f2] flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white text-xs flex items-center justify-center font-bold">
                 4
               </span>
@@ -142,8 +142,8 @@ export default function PoliticaDePrivacidadePage() {
           </section>
 
           {/* Section 5 */}
-          <section className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+          <section className="bg-white dark:bg-[#343746] border border-slate-200/90 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <h2 className="text-lg font-black text-slate-900 dark:text-[#f8f8f2] flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white text-xs flex items-center justify-center font-bold">
                 5
               </span>
@@ -152,7 +152,7 @@ export default function PoliticaDePrivacidadePage() {
             <p>
               Utilizamos cookies e chaves de armazenamento local (<em>localStorage</em>) para:
             </p>
-            <ul className="list-disc pl-5 space-y-1 text-slate-600">
+            <ul className="list-disc pl-5 space-y-1 text-slate-600 dark:text-[#cbd5e1]">
               <li><strong>Essenciais:</strong> Sessões de login JWT seguras, prevenção de CSRF e autenticação.</li>
               <li><strong>Preferências:</strong> Registro do consentimento de cookies (<code>virapropo_cookie_consent</code>) e estado da interface (sidebar colapsável).</li>
             </ul>
@@ -162,8 +162,8 @@ export default function PoliticaDePrivacidadePage() {
           </section>
 
           {/* Section 6 */}
-          <section className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+          <section className="bg-white dark:bg-[#343746] border border-slate-200/90 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <h2 className="text-lg font-black text-slate-900 dark:text-[#f8f8f2] flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white text-xs flex items-center justify-center font-bold">
                 6
               </span>
@@ -172,31 +172,31 @@ export default function PoliticaDePrivacidadePage() {
             <p>
               Você possui os seguintes direitos garantidos por lei, que podem ser solicitados a qualquer momento:
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 font-medium">✓ Confirmação da existência de tratamento</div>
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 font-medium">✓ Acesso e exportação aos seus dados</div>
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 font-medium">✓ Correção de dados incompletos ou inexatos</div>
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 font-medium">✓ Anonimização, bloqueio ou eliminação</div>
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 font-medium">✓ Portabilidade dos dados comerciais</div>
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 font-medium">✓ Revogação do consentimento</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 dark:text-[#f8f8f2]">
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a] font-medium">✓ Confirmação da existência de tratamento</div>
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a] font-medium">✓ Acesso e exportação aos seus dados</div>
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a] font-medium">✓ Correção de dados incompletos ou inexatos</div>
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a] font-medium">✓ Anonimização, bloqueio ou eliminação</div>
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a] font-medium">✓ Portabilidade dos dados comerciais</div>
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a] font-medium">✓ Revogação do consentimento</div>
             </div>
           </section>
         </div>
 
         {/* Contact DPO Card */}
-        <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
-          <p className="font-bold text-emerald-950 text-sm flex items-center justify-center gap-1.5">
-            <Mail className="w-4 h-4 text-emerald-700" />
+        <div className="p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 text-center space-y-2">
+          <p className="font-bold text-emerald-950 dark:text-emerald-300 text-sm flex items-center justify-center gap-1.5">
+            <Mail className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
             Canal de Atendimento de Privacidade & LGPD
           </p>
-          <p className="text-xs text-emerald-800">
+          <p className="text-xs text-emerald-800 dark:text-emerald-200">
             Para exercer seus direitos de privacidade ou contatar o Encarregado de Dados, envie um email para <strong>dpo@virapropo.ai</strong>. Respondemos todas as solicitações no prazo legal.
           </p>
         </div>
       </main>
 
       {/* Page Footer */}
-      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400 bg-white">
+      <footer className="border-t border-slate-200 dark:border-[#44475a] py-8 text-center text-xs text-slate-400 dark:text-[#cbd5e1] bg-white dark:bg-[#21222c]">
         © {new Date().getFullYear()} ViraPropo AI! - Sua IA geradora de propostas • Todos os direitos reservados.
       </footer>
     </div>

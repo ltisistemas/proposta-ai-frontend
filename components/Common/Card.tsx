@@ -50,7 +50,7 @@ export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
 export const CardDescription: React.FC<
   React.HTMLAttributes<HTMLParagraphElement>
 > = ({ children, className = "", ...props }) => (
-  <p className={`text-sm text-slate-500 dark:text-[#6272a4] mt-1 ${className}`} {...props}>
+  <p className={`text-sm text-slate-500 dark:text-[#cbd5e1] mt-1 ${className}`} {...props}>
     {children}
   </p>
 );

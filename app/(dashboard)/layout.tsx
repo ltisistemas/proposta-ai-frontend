@@ -150,7 +150,7 @@ export default function DashboardLayout({
               onClick={toggleSidebar}
               title={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
               aria-label={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
-              className="hidden md:flex p-1.5 rounded-lg text-slate-400 dark:text-[#6272a4] hover:text-slate-700 dark:hover:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#343746] transition-colors cursor-pointer shrink-0"
+              className="hidden md:flex p-1.5 rounded-lg text-slate-400 dark:text-[#94a3b8] hover:text-slate-700 dark:hover:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#343746] transition-colors cursor-pointer shrink-0"
             >
               {collapsed ? (
                 <PanelLeftOpen className="w-4 h-4" />
@@ -179,7 +179,7 @@ export default function DashboardLayout({
                       ? "bg-blue-600 dark:bg-[#bd93f9] text-white dark:text-[#282a36] hover:bg-blue-700 dark:hover:bg-[#a77bf3] font-bold shadow-md shadow-blue-600/20 dark:shadow-[#bd93f9]/20"
                       : active
                       ? "bg-blue-50 dark:bg-[#bd93f9]/15 text-blue-700 dark:text-[#bd93f9] font-bold border border-blue-200/70 dark:border-[#bd93f9]/30 shadow-xs"
-                      : "text-slate-600 dark:text-[#f8f8f2]/80 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-[#343746]/60 font-medium"
+                      : "text-slate-600 dark:text-[#f8f8f2]/90 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-[#343746]/60 font-medium"
                   }`}
                 >
                   <span
@@ -188,7 +188,7 @@ export default function DashboardLayout({
                         ? "text-white dark:text-[#282a36]"
                         : active
                         ? "text-blue-600 dark:text-[#bd93f9]"
-                        : "text-slate-500 dark:text-[#6272a4]"
+                        : "text-slate-500 dark:text-[#cbd5e1]"
                     }
                   >
                     {item.icon}
@@ -208,7 +208,7 @@ export default function DashboardLayout({
                 <span>Plano Free</span>
                 <Zap className="w-3.5 h-3.5 text-blue-600 dark:text-[#bd93f9]" />
               </div>
-              <p className="text-slate-600 dark:text-[#6272a4] text-[11px] leading-relaxed mb-2.5">
+              <p className="text-slate-600 dark:text-[#cbd5e1] text-[11px] leading-relaxed mb-2.5">
                 {user.propostas_mes_atual || 0}/3 propostas usadas este mês.
               </p>
               <Link href="/config">
@@ -248,7 +248,7 @@ export default function DashboardLayout({
                 }}
                 title="Sair da conta"
                 aria-label="Sair da conta"
-                className="p-1.5 text-slate-500 dark:text-[#6272a4] hover:text-rose-800 dark:hover:text-[#ff5555] hover:bg-rose-100/70 dark:hover:bg-[#ff5555]/15 rounded-lg transition-colors cursor-pointer"
+                className="p-1.5 text-slate-500 dark:text-[#94a3b8] hover:text-rose-800 dark:hover:text-[#ff5555] hover:bg-rose-100/70 dark:hover:bg-[#ff5555]/15 rounded-lg transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -263,7 +263,7 @@ export default function DashboardLayout({
                   <div className="text-xs font-bold text-slate-900 dark:text-[#f8f8f2] truncate">
                     {user?.nome || "Usuário"}
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-[#6272a4] truncate">
+                  <div className="text-[10px] text-slate-500 dark:text-[#cbd5e1] truncate">
                     <Badge variant={user?.plano === "pro" ? "pro" : "free"} size="sm">
                       {user?.plano?.toUpperCase() || "FREE"}
                     </Badge>
@@ -279,7 +279,7 @@ export default function DashboardLayout({
                   }}
                   title="Sair da conta"
                   aria-label="Sair da conta"
-                  className="p-1.5 text-slate-500 dark:text-[#6272a4] hover:text-rose-800 dark:hover:text-[#ff5555] hover:bg-rose-100/70 dark:hover:bg-[#ff5555]/15 rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-500 dark:text-[#94a3b8] hover:text-rose-800 dark:hover:text-[#ff5555] hover:bg-rose-100/70 dark:hover:bg-[#ff5555]/15 rounded-lg transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>

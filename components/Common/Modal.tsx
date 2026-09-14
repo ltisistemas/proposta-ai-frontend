@@ -76,7 +76,7 @@ export const Modal: React.FC<ModalProps> = ({
           <button
             onClick={onClose}
             title="Fechar modal"
-            className="absolute top-3.5 right-3.5 z-30 p-1.5 rounded-[4px] text-slate-400 dark:text-[#6272a4] hover:text-slate-700 dark:hover:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#44475a]/50 transition-colors cursor-pointer"
+            className="absolute top-3.5 right-3.5 z-30 p-1.5 rounded-[4px] text-slate-400 dark:text-[#94a3b8] hover:text-slate-700 dark:hover:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#44475a] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -94,7 +94,7 @@ export const Modal: React.FC<ModalProps> = ({
                   </h2>
                 )}
                 {description && (
-                  <p className="text-xs text-slate-500 dark:text-[#6272a4] mt-0.5 truncate hidden sm:block">
+                  <p className="text-xs text-slate-500 dark:text-[#cbd5e1] mt-0.5 truncate hidden sm:block">
                     {description}
                   </p>
                 )}
@@ -107,7 +107,7 @@ export const Modal: React.FC<ModalProps> = ({
                 <button
                   onClick={onClose}
                   title="Fechar modal"
-                  className="p-1.5 rounded-[4px] text-slate-400 dark:text-[#6272a4] hover:text-slate-800 dark:hover:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#44475a]/50 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-[4px] text-slate-400 dark:text-[#94a3b8] hover:text-slate-800 dark:hover:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#44475a] transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>

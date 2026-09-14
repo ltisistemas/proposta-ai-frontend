@@ -333,22 +333,22 @@ export default function LandingPage() {
       ========================================================================= */}
       <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center z-10">
         {/* Status Pill */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold mb-6 shadow-xs">
-          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-purple-950/40 border border-blue-200 dark:border-purple-800/40 text-blue-700 dark:text-[#bd93f9] text-xs font-semibold mb-6 shadow-xs">
+          <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-[#bd93f9]" />
           <span>IA Comercial treinada para prestadores de serviços brasileiros</span>
         </div>
 
         {/* Main Value Headline */}
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.12]">
+        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight leading-[1.12]">
           Propostas comerciais que{" "}
-          <span className="text-blue-600 underline decoration-blue-200 decoration-wavy underline-offset-8">
+          <span className="text-blue-600 dark:text-[#8be9fd] underline decoration-blue-200 dark:decoration-[#8be9fd]/30 decoration-wavy underline-offset-8">
             fecham contratos
           </span>{" "}
           antes do café esfriar.
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-6 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
+        <p className="mt-6 text-base sm:text-lg text-slate-600 dark:text-[#cbd5e1] max-w-2xl mx-auto leading-relaxed font-normal">
           Diga adeus a horas perdidas no Word ou Canva. Crie propostas
           estruturadas, persuasivas e com cálculos automáticos em Real em menos
           de 2 minutos. Prontas para WhatsApp e PDF.
@@ -370,7 +370,7 @@ export default function LandingPage() {
             <Button
               variant="secondary"
               size="lg"
-              className="w-full sm:w-auto bg-white text-slate-800 border-slate-300 hover:bg-slate-50 text-sm font-semibold shadow-xs"
+              className="w-full sm:w-auto bg-white dark:bg-[#343746] text-slate-800 dark:text-[#f8f8f2] border-slate-300 dark:border-[#44475a] hover:bg-slate-50 dark:hover:bg-[#44475a] text-sm font-semibold shadow-xs"
             >
               Ver Demonstração Interativa ↓
             </Button>
@@ -378,7 +378,7 @@ export default function LandingPage() {
         </div>
 
         {/* Social Proof & Trust Strip */}
-        <div className="mt-12 pt-8 border-t border-slate-200/80 flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-xs text-slate-600 font-medium">
+        <div className="mt-12 pt-8 border-t border-slate-200/80 dark:border-[#44475a] flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-xs text-slate-600 dark:text-[#cbd5e1] font-medium">
           <div className="flex items-center gap-1.5 text-amber-500">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
@@ -388,17 +388,17 @@ export default function LandingPage() {
                 />
               ))}
             </div>
-            <span className="font-bold text-slate-900 ml-1">4.9/5</span>
-            <span className="text-slate-500">(+1.200 profissionais no Brasil)</span>
+            <span className="font-bold text-slate-900 dark:text-[#f8f8f2] ml-1">4.9/5</span>
+            <span className="text-slate-500 dark:text-[#cbd5e1]">(+1.200 profissionais no Brasil)</span>
           </div>
-          <div className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-slate-300" />
-          <div className="flex items-center gap-1.5 text-slate-700">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <div className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-[#6272a4]" />
+          <div className="flex items-center gap-1.5 text-slate-700 dark:text-[#cbd5e1]">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-[#50fa7b]" />
             <span>Sem necessidade de cartão de crédito</span>
           </div>
-          <div className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-slate-300" />
-          <div className="flex items-center gap-1.5 text-slate-700">
-            <Clock className="w-4 h-4 text-blue-600" />
+          <div className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-[#6272a4]" />
+          <div className="flex items-center gap-1.5 text-slate-700 dark:text-[#cbd5e1]">
+            <Clock className="w-4 h-4 text-blue-600 dark:text-[#8be9fd]" />
             <span>Pronta em menos de 120 segundos</span>
           </div>
         </div>
@@ -412,10 +412,10 @@ export default function LandingPage() {
         className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto z-10 scroll-mt-20"
       >
         <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
             Veja como sua proposta ganha vida em tempo real
           </h2>
-          <p className="text-slate-600 text-sm mt-2 max-w-lg mx-auto">
+          <p className="text-slate-600 dark:text-[#cbd5e1] text-sm mt-2 max-w-lg mx-auto">
             Selecione uma área de atuação abaixo para ver o documento adaptado
             com cálculos e termos comerciais instantâneos.
           </p>
@@ -432,7 +432,7 @@ export default function LandingPage() {
                 className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
                   active
                     ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 ring-2 ring-blue-400/40"
-                    : "bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                    : "bg-white dark:bg-[#343746] text-slate-700 dark:text-[#f8f8f2] border border-slate-200 dark:border-[#44475a] hover:border-slate-300 dark:hover:border-[#bd93f9]/50 hover:bg-slate-50 dark:hover:bg-[#44475a]"
                 }`}
               >
                 {preset.label}
@@ -444,40 +444,40 @@ export default function LandingPage() {
         {/* Interactive Workspace Stage */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
           {/* Left: Input Summary Card */}
-          <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+          <div className="lg:col-span-4 bg-white dark:bg-[#21222c] border border-slate-200 dark:border-[#44475a] rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#44475a]">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#cbd5e1]">
                 Briefing do Projeto
               </span>
-              <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-200/60 dark:border-emerald-800/40">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 Pronto para envio
               </span>
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-semibold text-slate-500 dark:text-[#cbd5e1] uppercase tracking-wider block mb-1">
                 Cliente
               </label>
-              <div className="text-sm font-bold text-slate-900 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+              <div className="text-sm font-bold text-slate-900 dark:text-[#f8f8f2] bg-slate-50 dark:bg-[#343746] p-3 rounded-xl border border-slate-200/80 dark:border-[#44475a]">
                 {selectedPreset.client}
               </div>
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-semibold text-slate-500 dark:text-[#cbd5e1] uppercase tracking-wider block mb-1">
                 Serviço Selecionado
               </label>
-              <div className="text-sm font-medium text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+              <div className="text-sm font-medium text-slate-800 dark:text-[#f8f8f2] bg-slate-50 dark:bg-[#343746] p-3 rounded-xl border border-slate-200/80 dark:border-[#44475a]">
                 {selectedPreset.service}
               </div>
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-semibold text-slate-500 dark:text-[#cbd5e1] uppercase tracking-wider block mb-1">
                 Investimento Total
               </label>
-              <div className="text-2xl font-black text-blue-600 bg-blue-50/60 p-3.5 rounded-xl border border-blue-200/80">
+              <div className="text-2xl font-black text-blue-600 dark:text-[#bd93f9] bg-blue-50/60 dark:bg-purple-950/40 p-3.5 rounded-xl border border-blue-200/80 dark:border-purple-800/40">
                 R$ {selectedPreset.price}
               </div>
             </div>
@@ -496,26 +496,26 @@ export default function LandingPage() {
           </div>
 
           {/* Right: Clean A4 Proposal Sheet */}
-          <div className="lg:col-span-8 bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-lg relative overflow-hidden">
+          <div className="lg:col-span-8 bg-white dark:bg-[#21222c] border border-slate-200/90 dark:border-[#44475a] rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-lg relative overflow-hidden">
             {/* Sheet Control Bar */}
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 text-xs text-slate-500">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-[#44475a] text-xs text-slate-500 dark:text-[#cbd5e1]">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                <span className="ml-1 font-mono text-[11px] text-slate-400">
+                <span className="ml-1 font-mono text-[11px] text-slate-400 dark:text-[#cbd5e1]">
                   proposta_comercial.pdf
                 </span>
               </div>
-              <span className="bg-blue-50 text-blue-700 font-bold px-2.5 py-1 rounded-md text-[10px]">
+              <span className="bg-blue-50 dark:bg-purple-950/50 text-blue-700 dark:text-[#bd93f9] font-bold px-2.5 py-1 rounded-md text-[10px] border border-blue-200/60 dark:border-purple-800/40">
                 ⚡ Gerada com Gemini IA
               </span>
             </div>
 
             {/* Document Body */}
-            <div className="border border-slate-200 rounded-xl overflow-hidden bg-white text-left">
+            <div className="border border-slate-200 dark:border-[#44475a] rounded-xl overflow-hidden bg-white dark:bg-[#282a36] text-left">
               {/* Proposal Header Banner */}
-              <div className="bg-slate-900 p-5 sm:p-6 text-white flex flex-wrap items-center justify-between gap-4">
+              <div className="bg-slate-900 dark:bg-[#1e1f29] p-5 sm:p-6 text-white flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-widest bg-blue-600 text-white px-2.5 py-0.5 rounded-full">
                     Proposta Comercial
@@ -529,7 +529,7 @@ export default function LandingPage() {
                 </div>
                 <div className="text-right">
                   <div className="text-[11px] text-slate-400">Número</div>
-                  <div className="text-sm font-bold font-mono text-blue-400">
+                  <div className="text-sm font-bold font-mono text-blue-400 dark:text-[#8be9fd]">
                     PROP-2026-9842
                   </div>
                   <div className="text-[10px] text-slate-400 mt-0.5">
@@ -541,20 +541,20 @@ export default function LandingPage() {
               {/* Proposal Main Section */}
               <div className="p-5 sm:p-6 space-y-5">
                 {/* Client Box */}
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 flex flex-wrap justify-between gap-4">
+                <div className="bg-slate-50 dark:bg-[#343746] p-4 rounded-xl border border-slate-200/80 dark:border-[#44475a] flex flex-wrap justify-between gap-4">
                   <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <div className="text-[10px] font-bold text-slate-400 dark:text-[#cbd5e1] uppercase tracking-wider">
                       Preparado Para
                     </div>
-                    <div className="text-sm font-bold text-slate-900">
+                    <div className="text-sm font-bold text-slate-900 dark:text-[#f8f8f2]">
                       {selectedPreset.client}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <div className="text-[10px] font-bold text-slate-400 dark:text-[#cbd5e1] uppercase tracking-wider">
                       Condições Comerciais
                     </div>
-                    <div className="text-xs font-semibold text-slate-800">
+                    <div className="text-xs font-semibold text-slate-800 dark:text-[#f8f8f2]">
                       {selectedPreset.terms}
                     </div>
                   </div>
@@ -562,37 +562,37 @@ export default function LandingPage() {
 
                 {/* Scope */}
                 <div>
-                  <h4 className="text-xs font-bold text-blue-900 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                  <h4 className="text-xs font-bold text-blue-900 dark:text-[#bd93f9] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-[#bd93f9]" />
                     1. Escopo & Diagnóstico da Solução
                   </h4>
-                  <p className="text-xs text-slate-600 leading-relaxed bg-slate-50/70 p-3 rounded-lg border border-slate-100">
+                  <p className="text-xs text-slate-600 dark:text-[#cbd5e1] leading-relaxed bg-slate-50/70 dark:bg-[#343746]/60 p-3 rounded-lg border border-slate-100 dark:border-[#44475a]">
                     {selectedPreset.scope}
                   </p>
                 </div>
 
                 {/* Financial Line Items Table */}
                 <div>
-                  <h4 className="text-xs font-bold text-blue-900 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                  <h4 className="text-xs font-bold text-blue-900 dark:text-[#bd93f9] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-[#bd93f9]" />
                     2. Entregáveis & Investimento
                   </h4>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left border border-slate-200 rounded-lg overflow-hidden">
-                      <thead className="bg-slate-100 text-slate-700 font-bold">
+                    <table className="w-full text-xs text-left border border-slate-200 dark:border-[#44475a] rounded-lg overflow-hidden">
+                      <thead className="bg-slate-100 dark:bg-[#343746] text-slate-700 dark:text-[#f8f8f2] font-bold">
                         <tr>
                           <th className="p-2.5">Descrição do Entregável</th>
                           <th className="p-2.5 text-center w-16">Qtd</th>
                           <th className="p-2.5 text-right w-28">Total</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-200">
+                      <tbody className="divide-y divide-slate-200 dark:divide-[#44475a]">
                         <tr>
-                          <td className="p-2.5 font-medium text-slate-800">
+                          <td className="p-2.5 font-medium text-slate-800 dark:text-[#f8f8f2]">
                             {selectedPreset.service}
                           </td>
-                          <td className="p-2.5 text-center text-slate-600">1</td>
-                          <td className="p-2.5 text-right font-bold text-slate-900">
+                          <td className="p-2.5 text-center text-slate-600 dark:text-[#cbd5e1]">1</td>
+                          <td className="p-2.5 text-right font-bold text-slate-900 dark:text-[#f8f8f2]">
                             R$ {selectedPreset.price}
                           </td>
                         </tr>
@@ -602,11 +602,11 @@ export default function LandingPage() {
 
                   {/* Subtotal Total Box */}
                   <div className="mt-3 flex justify-end">
-                    <div className="bg-blue-50/80 border border-blue-100 px-4 py-2.5 rounded-xl text-right min-w-[200px]">
-                      <span className="text-[10px] text-blue-700 font-bold uppercase tracking-wider block">
+                    <div className="bg-blue-50/80 dark:bg-purple-950/50 border border-blue-100 dark:border-purple-800/40 px-4 py-2.5 rounded-xl text-right min-w-[200px]">
+                      <span className="text-[10px] text-blue-700 dark:text-[#bd93f9] font-bold uppercase tracking-wider block">
                         Investimento Total
                       </span>
-                      <span className="text-base font-black text-blue-950">
+                      <span className="text-base font-black text-blue-950 dark:text-[#50fa7b]">
                         R$ {selectedPreset.price}
                       </span>
                     </div>
@@ -614,7 +614,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Document Footer */}
-                <div className="pt-3 border-t border-slate-100 text-center text-[10px] text-slate-400">
+                <div className="pt-3 border-t border-slate-100 dark:border-[#44475a] text-center text-[10px] text-slate-400 dark:text-[#cbd5e1]">
                   Proposta gerada via ViraPropo AI! • Documento confidencial destinado exclusivamente ao cliente.
                 </div>
               </div>
@@ -628,55 +628,55 @@ export default function LandingPage() {
       ========================================================================= */}
       <section
         id="como-funciona"
-        className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto z-10 scroll-mt-20 border-t border-slate-200/80"
+        className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto z-10 scroll-mt-20 border-t border-slate-200/80 dark:border-[#44475a]"
       >
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
             Como criar propostas vencedoras em 3 passos simples
           </h2>
-          <p className="text-slate-600 text-sm mt-2 max-w-lg mx-auto">
+          <p className="text-slate-600 dark:text-[#cbd5e1] text-sm mt-2 max-w-lg mx-auto">
             Sem templates quebrados ou retrabalho. Da ideia ao contrato assinado.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {/* Step 1 */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm relative hover:border-blue-300 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 font-black text-base flex items-center justify-center mb-4">
+          <div className="bg-white dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] rounded-2xl p-6 sm:p-7 shadow-sm relative hover:border-blue-300 dark:hover:border-[#bd93f9] transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-purple-950/40 border border-blue-200 dark:border-purple-800/40 text-blue-600 dark:text-[#bd93f9] font-black text-base flex items-center justify-center mb-4">
               01
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#f8f8f2] mb-2">
               Preencha os dados básicos
             </h3>
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+            <p className="text-slate-600 dark:text-[#cbd5e1] text-xs sm:text-sm leading-relaxed">
               Insira o nome do cliente, o serviço solicitado e adicione os itens
               com nossa calculadora financeira automática.
             </p>
           </div>
 
           {/* Step 2 */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm relative hover:border-blue-300 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 font-black text-base flex items-center justify-center mb-4">
+          <div className="bg-white dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] rounded-2xl p-6 sm:p-7 shadow-sm relative hover:border-blue-300 dark:hover:border-[#bd93f9] transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-purple-950/40 border border-blue-200 dark:border-purple-800/40 text-blue-600 dark:text-[#bd93f9] font-black text-base flex items-center justify-center mb-4">
               02
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#f8f8f2] mb-2">
               A IA estrutura o documento
             </h3>
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+            <p className="text-slate-600 dark:text-[#cbd5e1] text-xs sm:text-sm leading-relaxed">
               O motor de IA sintetiza um escopo persuasivo, argumentos
               estratégicos, condições de pagamento e prazos detalhados.
             </p>
           </div>
 
           {/* Step 3 */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm relative hover:border-blue-300 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-black text-base flex items-center justify-center mb-4">
+          <div className="bg-white dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] rounded-2xl p-6 sm:p-7 shadow-sm relative hover:border-blue-300 dark:hover:border-[#bd93f9] transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 font-black text-base flex items-center justify-center mb-4">
               03
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#f8f8f2] mb-2">
               Envie e feche o contrato
             </h3>
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+            <p className="text-slate-600 dark:text-[#cbd5e1] text-xs sm:text-sm leading-relaxed">
               Compartilhe o link direto no WhatsApp do cliente ou faça download
               do PDF impecável pronto para impressão ou assinatura.
             </p>
@@ -689,27 +689,27 @@ export default function LandingPage() {
       ========================================================================= */}
       <section
         id="recursos"
-        className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto z-10 scroll-mt-20 border-t border-slate-200/80"
+        className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto z-10 scroll-mt-20 border-t border-slate-200/80 dark:border-[#44475a]"
       >
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
             Construído para quem valoriza tempo e autoridade
           </h2>
-          <p className="text-slate-600 text-sm mt-2 max-w-lg mx-auto">
+          <p className="text-slate-600 dark:text-[#cbd5e1] text-sm mt-2 max-w-lg mx-auto">
             Cada recurso foi projetado para elevar a percepção de valor dos seus serviços.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Bento 1: Copywriting com IA (Span 2) */}
-          <div className="md:col-span-2 bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-md">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-300 flex items-center justify-center mb-4">
+          <div className="md:col-span-2 bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 dark:from-[#21222c] dark:via-[#282a36] dark:to-[#1e1f29] dark:border dark:border-[#44475a] text-white rounded-3xl p-6 sm:p-8 shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-300 dark:text-[#8be9fd] flex items-center justify-center mb-4">
               <Sparkles className="w-5 h-5" />
             </div>
             <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
               Copywriting Comercial de Alta Conversão com IA
             </h3>
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl">
+            <p className="text-slate-300 dark:text-[#cbd5e1] text-xs sm:text-sm leading-relaxed max-w-xl">
               Nossa inteligência artificial analisa a necessidade do cliente e
               redige um diagnóstico claro, destacando a metodologia de trabalho,
               os benefícios estratégicos e as garantias da entrega.
@@ -717,42 +717,42 @@ export default function LandingPage() {
           </div>
 
           {/* Bento 2: Cálculo em Real */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4">
+          <div className="bg-white dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-4">
               <TrendingUp className="w-5 h-5" />
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#f8f8f2] mb-2">
               Cálculo Automático & BRL
             </h3>
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+            <p className="text-slate-600 dark:text-[#cbd5e1] text-xs sm:text-sm leading-relaxed">
               Tabela financeira com soma automática de itens, quantidades e
               formatação contábil padrão brasileira em Real (R$).
             </p>
           </div>
 
           {/* Bento 3: WhatsApp & PDF */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+          <div className="bg-white dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-purple-950/40 text-blue-600 dark:text-[#bd93f9] flex items-center justify-center mb-4">
               <Smartphone className="w-5 h-5" />
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#f8f8f2] mb-2">
               Envio WhatsApp & PDF
             </h3>
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+            <p className="text-slate-600 dark:text-[#cbd5e1] text-xs sm:text-sm leading-relaxed">
               Envie mensagens formatadas diretamente pelo WhatsApp ou faça download
               do PDF de alta fidelidade diagramado para impressão.
             </p>
           </div>
 
           {/* Bento 4: Gestão de Propostas (Span 2) */}
-          <div className="md:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
+          <div className="md:col-span-2 bg-white dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-[#8be9fd] flex items-center justify-center mb-4">
               <FileCheck className="w-5 h-5" />
             </div>
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-[#f8f8f2] mb-2">
               Gestão de Propostas em Tempo Real
             </h3>
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl">
+            <p className="text-slate-600 dark:text-[#cbd5e1] text-xs sm:text-sm leading-relaxed max-w-xl">
               Acompanhe todo o ciclo de vida dos seus orçamentos através de status
               claros (Rascunho, Enviada, Aprovada e Recusada) e métricas de taxa de
               conversão.
@@ -766,13 +766,13 @@ export default function LandingPage() {
       ========================================================================= */}
       <section
         id="precos"
-        className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto z-10 scroll-mt-20 border-t border-slate-200/80"
+        className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto z-10 scroll-mt-20 border-t border-slate-200/80 dark:border-[#44475a]"
       >
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
             Planos simples e transparentes
           </h2>
-          <p className="text-slate-600 text-sm mt-2 max-w-md mx-auto">
+          <p className="text-slate-600 dark:text-[#cbd5e1] text-sm mt-2 max-w-md mx-auto">
             Comece no plano gratuito e faça upgrade quando seu volume de propostas
             crescer.
           </p>
@@ -780,51 +780,51 @@ export default function LandingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch">
           {/* Free Plan */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-sm">
+          <div className="bg-white dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-sm">
             <div>
               <div className="flex justify-between items-center mb-3">
-                <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#f8f8f2]">
                   Plano Gratuito
                 </h3>
-                <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
+                <span className="text-[11px] font-bold text-slate-600 dark:text-[#cbd5e1] bg-slate-100 dark:bg-[#282a36] px-2.5 py-1 rounded-full border border-slate-200/60 dark:border-[#44475a]">
                   Sem Cartão
                 </span>
               </div>
-              <p className="text-slate-500 text-xs mb-6">
+              <p className="text-slate-500 dark:text-[#cbd5e1] text-xs mb-6">
                 Para quem está começando e precisa de propostas pontuais.
               </p>
 
-              <div className="text-3xl font-black text-slate-900 mb-6">
+              <div className="text-3xl font-black text-slate-900 dark:text-[#f8f8f2] mb-6">
                 R$ 0{" "}
-                <span className="text-xs text-slate-400 font-normal">/ mês</span>
+                <span className="text-xs text-slate-400 dark:text-[#cbd5e1] font-normal">/ mês</span>
               </div>
 
-              <ul className="space-y-2.5 text-xs text-slate-700">
+              <ul className="space-y-2.5 text-xs text-slate-700 dark:text-[#f8f8f2]">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#50fa7b] shrink-0" />
                   <span>3 propostas com IA por mês</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#50fa7b] shrink-0" />
                   <span>Cálculos financeiros automáticos</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#50fa7b] shrink-0" />
                   <span>Visualização online e link público</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#50fa7b] shrink-0" />
                   <span>Exportação para PDF</span>
                 </li>
               </ul>
             </div>
 
-            <div className="pt-6 mt-6 border-t border-slate-100">
+            <div className="pt-6 mt-6 border-t border-slate-100 dark:border-[#44475a]">
               <Link href="/signup" className="block w-full">
                 <Button
                   variant="outline"
                   size="md"
-                  className="w-full justify-center text-slate-900 font-bold text-xs"
+                  className="w-full justify-center text-slate-900 dark:text-[#f8f8f2] font-bold text-xs"
                 >
                   Criar Conta Gratuita
                 </Button>
@@ -833,54 +833,54 @@ export default function LandingPage() {
           </div>
 
           {/* Pro Plan (Highlighted Blue) */}
-          <div className="bg-white border-2 border-blue-600 rounded-3xl p-6 sm:p-8 flex flex-col justify-between relative shadow-xl shadow-blue-600/10">
-            <div className="absolute -top-3 right-6 bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
+          <div className="bg-white dark:bg-[#343746] border-2 border-blue-600 dark:border-[#bd93f9] rounded-3xl p-6 sm:p-8 flex flex-col justify-between relative shadow-xl shadow-blue-600/10 dark:shadow-[#bd93f9]/10">
+            <div className="absolute -top-3 right-6 bg-blue-600 dark:bg-[#bd93f9] text-white dark:text-[#282a36] text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
               Mais Escolhido
             </div>
 
             <div>
               <div className="flex justify-between items-center mb-3">
-                <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#f8f8f2]">
                   Plano Pro
                 </h3>
-                <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+                <span className="text-[11px] font-bold text-blue-700 dark:text-[#bd93f9] bg-blue-50 dark:bg-purple-950/40 px-2.5 py-1 rounded-full border border-blue-200 dark:border-purple-800/40">
                   Acesso Total
                 </span>
               </div>
-              <p className="text-slate-500 text-xs mb-6">
+              <p className="text-slate-500 dark:text-[#cbd5e1] text-xs mb-6">
                 Para profissionais e agências que fecham negócios diariamente.
               </p>
 
-              <div className="text-3xl font-black text-slate-900 mb-6">
+              <div className="text-3xl font-black text-slate-900 dark:text-[#f8f8f2] mb-6">
                 R$ 45,90{" "}
-                <span className="text-xs text-slate-400 font-normal">/ mês</span>
+                <span className="text-xs text-slate-400 dark:text-[#cbd5e1] font-normal">/ mês</span>
               </div>
 
-              <ul className="space-y-2.5 text-xs text-slate-800">
-                <li className="flex items-center gap-2 font-bold text-blue-900">
-                  <Check className="w-4 h-4 text-blue-600 shrink-0" />
+              <ul className="space-y-2.5 text-xs text-slate-800 dark:text-[#f8f8f2]">
+                <li className="flex items-center gap-2 font-bold text-blue-900 dark:text-[#bd93f9]">
+                  <Check className="w-4 h-4 text-blue-600 dark:text-[#bd93f9] shrink-0" />
                   <span>Propostas ILIMITADAS com IA</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                  <Check className="w-4 h-4 text-blue-600 dark:text-[#bd93f9] shrink-0" />
                   <span>Logotipo e identidade personalizada</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                  <Check className="w-4 h-4 text-blue-600 dark:text-[#bd93f9] shrink-0" />
                   <span>Sem marca d'água nos PDFs</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                  <Check className="w-4 h-4 text-blue-600 dark:text-[#bd93f9] shrink-0" />
                   <span>Métricas completas de conversão</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                  <Check className="w-4 h-4 text-blue-600 dark:text-[#bd93f9] shrink-0" />
                   <span>Suporte prioritário via WhatsApp</span>
                 </li>
               </ul>
             </div>
 
-            <div className="pt-6 mt-6 border-t border-slate-100">
+            <div className="pt-6 mt-6 border-t border-slate-100 dark:border-[#44475a]">
               <Link href="/signup" className="block w-full">
                 <Button
                   variant="primary"
@@ -890,7 +890,7 @@ export default function LandingPage() {
                   Assinar Plano Pro (R$ 45,90)
                 </Button>
               </Link>
-              <div className="text-center text-[10px] text-slate-500 mt-2">
+              <div className="text-center text-[10px] text-slate-500 dark:text-[#cbd5e1] mt-2">
                 Pagamento instantâneo e seguro via PIX (Asaas)
               </div>
             </div>
@@ -903,13 +903,13 @@ export default function LandingPage() {
       ========================================================================= */}
       <section
         id="faq"
-        className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto z-10 scroll-mt-20 border-t border-slate-200/80"
+        className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto z-10 scroll-mt-20 border-t border-slate-200/80 dark:border-[#44475a]"
       >
         <div className="text-center mb-10 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
             Perguntas Frequentes
           </h2>
-          <p className="text-slate-500 text-xs sm:text-sm mt-1">
+          <p className="text-slate-500 dark:text-[#cbd5e1] text-xs sm:text-sm mt-1">
             Tire suas dúvidas antes de começar
           </p>
         </div>
@@ -920,21 +920,21 @@ export default function LandingPage() {
             return (
               <div
                 key={idx}
-                className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs transition-colors"
+                className="bg-white dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] rounded-2xl overflow-hidden shadow-xs transition-colors"
               >
                 <button
                   onClick={() => setOpenFaq(isOpen ? null : idx)}
-                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 font-bold text-xs sm:text-sm text-slate-900 hover:text-blue-600 transition-colors cursor-pointer"
+                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 font-bold text-xs sm:text-sm text-slate-900 dark:text-[#f8f8f2] hover:text-blue-600 dark:hover:text-[#bd93f9] transition-colors cursor-pointer"
                 >
                   <span>{faq.question}</span>
                   {isOpen ? (
-                    <ChevronUp className="w-4 h-4 text-slate-500 shrink-0" />
+                    <ChevronUp className="w-4 h-4 text-slate-500 dark:text-[#cbd5e1] shrink-0" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-slate-500 shrink-0" />
+                    <ChevronDown className="w-4 h-4 text-slate-500 dark:text-[#cbd5e1] shrink-0" />
                   )}
                 </button>
                 {isOpen && (
-                  <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                  <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-600 dark:text-[#cbd5e1] leading-relaxed border-t border-slate-100 dark:border-[#44475a] pt-3">
                     {faq.answer}
                   </div>
                 )}
@@ -948,11 +948,11 @@ export default function LandingPage() {
           8. FINAL CALL TO ACTION (Warm Card with Royal Blue Button)
       ========================================================================= */}
       <section className="py-14 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto z-10 text-center">
-        <div className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
+        <div className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 dark:from-[#21222c] dark:via-[#282a36] dark:to-[#1e1f29] dark:border dark:border-[#44475a] text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
           <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
             Comece a fechar mais propostas hoje mesmo
           </h2>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-lg mx-auto mt-3">
+          <p className="text-slate-300 dark:text-[#cbd5e1] text-xs sm:text-sm max-w-lg mx-auto mt-3">
             Crie sua conta gratuita em menos de 1 minuto e encante seus clientes
             com propostas de alto padrão comercial.
           </p>
@@ -974,16 +974,16 @@ export default function LandingPage() {
       {/* =========================================================================
           9. FOOTER (Clean Light Footer with Legal Links)
       ========================================================================= */}
-      <footer className="border-t border-slate-200/80 py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
+      <footer className="border-t border-slate-200/80 dark:border-[#44475a] py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500 dark:text-[#cbd5e1]">
         <Logo size="sm" variant="light" showSubtitle={false} />
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
           <span>© {new Date().getFullYear()} ViraPropo AI!. Todos os direitos reservados.</span>
           <div className="flex items-center gap-4">
-            <Link href="/termos" className="hover:text-blue-600 transition-colors underline-offset-2 hover:underline">
+            <Link href="/termos" className="hover:text-blue-600 dark:hover:text-[#bd93f9] transition-colors underline-offset-2 hover:underline">
               Termos de Uso
             </Link>
-            <span className="text-slate-300">•</span>
-            <Link href="/privacidade" className="hover:text-blue-600 transition-colors underline-offset-2 hover:underline">
+            <span className="text-slate-300 dark:text-[#6272a4]">•</span>
+            <Link href="/privacidade" className="hover:text-blue-600 dark:hover:text-[#bd93f9] transition-colors underline-offset-2 hover:underline">
               Privacidade (LGPD)
             </Link>
           </div>

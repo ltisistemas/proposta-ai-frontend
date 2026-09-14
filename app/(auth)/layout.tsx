@@ -25,7 +25,7 @@ export default function AuthLayout({
       </main>
 
       {/* Footer */}
-      <footer className="p-6 text-center text-xs text-slate-500 dark:text-[#6272a4] z-10 border-t border-slate-200/80 dark:border-[#44475a] flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+      <footer className="p-6 text-center text-xs text-slate-500 dark:text-[#cbd5e1] z-10 border-t border-slate-200/80 dark:border-[#44475a] flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
         <span>© {new Date().getFullYear()} ViraPropo AI!. Todos os direitos reservados.</span>
         <span className="hidden sm:inline text-slate-300 dark:text-[#44475a]">•</span>
         <div className="flex items-center gap-3">

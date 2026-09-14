@@ -69,10 +69,10 @@ export default function PropostasListPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
             Minhas Propostas Comerciais
           </h1>
-          <p className="text-slate-600 text-sm mt-1">
+          <p className="text-slate-600 dark:text-[#cbd5e1] text-sm mt-1">
             Gerencie, compartilhe e acompanhe o status de todas as suas propostas
           </p>
         </div>
@@ -80,7 +80,7 @@ export default function PropostasListPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => carregarPropostas()}
-            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
+            className="p-2.5 rounded-xl bg-white dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] text-slate-600 dark:text-[#f8f8f2] hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#44475a] transition-colors shadow-xs cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
           </button>

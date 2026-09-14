@@ -95,7 +95,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         </h3>
 
         {description && (
-          <div className="text-sm text-slate-500 dark:text-[#6272a4] leading-relaxed mb-6 max-w-sm">
+          <div className="text-sm text-slate-500 dark:text-[#cbd5e1] leading-relaxed mb-6 max-w-sm">
             {description}
           </div>
         )}

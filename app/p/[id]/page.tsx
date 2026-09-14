@@ -98,10 +98,10 @@ export default function PublicProposalPage({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#FBFBFA] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#FBFBFA] dark:bg-[#282a36] flex items-center justify-center p-4">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-xs font-semibold text-slate-500">
+          <div className="w-10 h-10 border-3 border-blue-600 dark:border-[#bd93f9] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-xs font-semibold text-slate-500 dark:text-[#cbd5e1]">
             Carregando proposta comercial segura...
           </p>
         </div>
@@ -111,33 +111,33 @@ export default function PublicProposalPage({
 
   if (isBlockedFree) {
     return (
-      <div className="min-h-screen bg-[#FBFBFA] flex flex-col items-center justify-center p-4 text-slate-900">
+      <div className="min-h-screen bg-[#FBFBFA] dark:bg-[#282a36] flex flex-col items-center justify-center p-4 text-slate-900 dark:text-[#f8f8f2]">
         <ToastContainer />
-        <div className="max-w-md w-full bg-white border border-slate-200/90 rounded-3xl p-8 text-center shadow-xl space-y-6">
-          <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto shadow-xs">
+        <div className="max-w-md w-full bg-white dark:bg-[#343746] border border-slate-200/90 dark:border-[#44475a] rounded-3xl p-8 text-center shadow-xl space-y-6">
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-[#ffb86c]/15 border border-amber-200 dark:border-[#ffb86c]/30 text-amber-600 dark:text-[#ffb86c] flex items-center justify-center mx-auto shadow-xs">
             <Lock className="w-7 h-7" />
           </div>
 
           <div className="space-y-2">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-100/70 text-amber-800 border border-amber-200">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-100/70 dark:bg-[#ffb86c]/20 text-amber-800 dark:text-[#ffb86c] border border-amber-200 dark:border-[#ffb86c]/40">
               Recurso Exclusivo Plano Pro
             </span>
-            <h2 className="text-xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
               Visualização Pública Bloqueada
             </h2>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-[#cbd5e1] leading-relaxed">
               Esta proposta foi gerada no plano gratuito do ViraPropo AI!. O compartilhamento público via link e assinatura eletrônica são exclusivos para assinantes do <strong>Plano Pro</strong>.
             </p>
           </div>
 
-          <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+          <div className="pt-2 border-t border-slate-100 dark:border-[#44475a] flex flex-col gap-2">
             <Link href="/login">
               <Button variant="primary" size="md" className="w-full justify-center font-bold">
                 Acessar Minha Conta / Fazer Upgrade
               </Button>
             </Link>
             <Link href="/">
-              <Button variant="ghost" size="sm" className="w-full justify-center text-xs text-slate-500">
+              <Button variant="ghost" size="sm" className="w-full justify-center text-xs text-slate-500 dark:text-[#cbd5e1]">
                 Conhecer o ViraPropo AI!
               </Button>
             </Link>
@@ -149,9 +149,9 @@ export default function PublicProposalPage({
 
   if (!proposta) {
     return (
-      <div className="min-h-screen bg-[#FBFBFA] flex flex-col items-center justify-center p-4 text-center">
-        <h2 className="text-lg font-bold text-slate-800">Proposta não encontrada</h2>
-        <p className="text-xs text-slate-500 mt-1">Este documento pode ter sido removido ou expirado.</p>
+      <div className="min-h-screen bg-[#FBFBFA] dark:bg-[#282a36] flex flex-col items-center justify-center p-4 text-center">
+        <h2 className="text-lg font-bold text-slate-800 dark:text-[#f8f8f2]">Proposta não encontrada</h2>
+        <p className="text-xs text-slate-500 dark:text-[#cbd5e1] mt-1">Este documento pode ter sido removido ou expirado.</p>
         <Link href="/" className="mt-4">
           <Button variant="outline" size="sm">Página Inicial</Button>
         </Link>
@@ -162,7 +162,7 @@ export default function PublicProposalPage({
   const isAssinada = proposta.status === "aceita" && proposta.assinante_nome;
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-slate-900 flex flex-col antialiased">
+    <div className="min-h-screen bg-[#FBFBFA] dark:bg-[#282a36] text-slate-900 dark:text-[#f8f8f2] flex flex-col antialiased">
       <ToastContainer />
 
       <SignatureModal
@@ -180,17 +180,17 @@ export default function PublicProposalPage({
       />
 
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 py-3.5 px-4 sm:px-8 shadow-xs">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#21222c]/95 backdrop-blur-md border-b border-slate-200/90 dark:border-[#44475a] py-3.5 px-4 sm:px-8 shadow-xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Logo size="sm" variant="light" href="/" />
-            <span className="hidden sm:inline-block text-slate-300">|</span>
-            <div className="hidden sm:flex items-center gap-2 text-xs text-slate-600 font-medium">
-              <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-700 font-bold">
+            <span className="hidden sm:inline-block text-slate-300 dark:text-[#44475a]">|</span>
+            <div className="hidden sm:flex items-center gap-2 text-xs text-slate-600 dark:text-[#cbd5e1] font-medium">
+              <span className="font-mono bg-slate-100 dark:bg-[#343746] px-2 py-0.5 rounded text-slate-700 dark:text-[#f8f8f2] font-bold border border-slate-200 dark:border-[#44475a]">
                 {proposta.numero}
               </span>
               <span>•</span>
-              <span className="font-semibold text-slate-900">{proposta.cliente_nome}</span>
+              <span className="font-semibold text-slate-900 dark:text-[#f8f8f2]">{proposta.cliente_nome}</span>
             </div>
           </div>
 
@@ -208,8 +208,8 @@ export default function PublicProposalPage({
                 Aceitar & Assinar
               </Button>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Assinada
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 px-3 py-1 rounded-lg">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Assinada
               </span>
             )}
 
@@ -241,16 +241,16 @@ export default function PublicProposalPage({
 
         {/* Action callout if awaiting signature */}
         {!isAssinada && (
-          <div className="bg-gradient-to-r from-blue-900 via-blue-950 to-slate-900 text-white p-5 sm:p-6 rounded-3xl shadow-lg border border-blue-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="bg-gradient-to-r from-blue-900 via-blue-950 to-slate-900 dark:from-[#21222c] dark:via-[#282a36] dark:to-[#1e1f29] text-white p-5 sm:p-6 rounded-3xl shadow-lg border border-blue-500/30 dark:border-[#44475a] flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-left">
-              <div className="w-11 h-11 rounded-2xl bg-blue-600/30 border border-blue-400/40 text-blue-300 flex items-center justify-center shrink-0">
+              <div className="w-11 h-11 rounded-2xl bg-blue-600/30 border border-blue-400/40 dark:border-[#bd93f9]/40 text-blue-300 dark:text-[#bd93f9] flex items-center justify-center shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-white">
                   Esta proposta comercial aguarda sua aprovação
                 </h3>
-                <p className="text-xs text-blue-200 mt-0.5">
+                <p className="text-xs text-blue-200 dark:text-[#cbd5e1] mt-0.5">
                   Você pode formalizar o aceite eletronicamente com validade jurídica em menos de 1 minuto.
                 </p>
               </div>
@@ -269,7 +269,7 @@ export default function PublicProposalPage({
         )}
 
         {/* Document Viewer Container */}
-        <div className="bg-[#F1F5F9] border border-slate-200/90 rounded-2xl sm:rounded-3xl p-1.5 sm:p-6 md:p-10 shadow-sm flex flex-col items-center overflow-x-hidden w-full">
+        <div className="bg-[#F1F5F9] dark:bg-[#1e1f29] border border-slate-200/90 dark:border-[#44475a] rounded-2xl sm:rounded-3xl p-1.5 sm:p-6 md:p-10 shadow-sm flex flex-col items-center overflow-x-hidden w-full">
           <div className="w-full max-w-4xl bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-slate-200/80 min-h-[85vh]">
             <iframe
               srcDoc={ajustarHtmlResponsivoProposta(proposta.conteudo_html)}
@@ -285,7 +285,7 @@ export default function PublicProposalPage({
       </main>
 
       {/* Footer */}
-      <footer className="py-6 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
+      <footer className="py-6 text-center text-xs text-slate-400 dark:text-[#cbd5e1] border-t border-slate-200 dark:border-[#44475a] bg-white dark:bg-[#21222c]">
         Proposta gerada via <strong>ViraPropo AI!</strong> • Plataforma de Inteligência Comercial
       </footer>
     </div>
