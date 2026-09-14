@@ -145,23 +145,19 @@ export default function DashboardLayout({
               <Logo href="/dashboard" size="md" variant="light" />
             )}
 
-            {/* Desktop Actions (ThemeToggle & Sidebar Toggle) */}
-            <div className={`flex items-center ${collapsed ? "flex-col gap-2" : "gap-1.5"}`}>
-              <div className="hidden md:flex">
-                <ThemeToggle size="sm" />
-              </div>
-              <button
-                onClick={toggleSidebar}
-                title={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
-                className="hidden md:flex p-1.5 rounded-lg text-slate-400 dark:text-[#6272a4] hover:text-slate-700 dark:hover:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#343746] transition-colors cursor-pointer shrink-0"
-              >
-                {collapsed ? (
-                  <PanelLeftOpen className="w-4 h-4" />
-                ) : (
-                  <PanelLeftClose className="w-4 h-4" />
-                )}
-              </button>
-            </div>
+            {/* Desktop Sidebar Collapse Toggle */}
+            <button
+              onClick={toggleSidebar}
+              title={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
+              aria-label={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
+              className="hidden md:flex p-1.5 rounded-lg text-slate-400 dark:text-[#6272a4] hover:text-slate-700 dark:hover:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#343746] transition-colors cursor-pointer shrink-0"
+            >
+              {collapsed ? (
+                <PanelLeftOpen className="w-4 h-4" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4" />
+              )}
+            </button>
           </div>
 
           {/* Navigation Links */}
@@ -233,7 +229,7 @@ export default function DashboardLayout({
             </div>
           )}
 
-          {/* User Profile */}
+          {/* User Profile & Theme Action */}
           {collapsed ? (
             <div className="flex flex-col items-center gap-2 p-1.5 rounded-xl bg-slate-50 dark:bg-[#343746]/60 border border-slate-200/80 dark:border-[#44475a]">
               <div
@@ -242,12 +238,16 @@ export default function DashboardLayout({
               >
                 {user?.nome ? user.nome.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
               </div>
+              <div className="py-0.5">
+                <ThemeToggle size="sm" />
+              </div>
               <button
                 onClick={() => {
                   logout();
                   router.push("/login");
                 }}
                 title="Sair da conta"
+                aria-label="Sair da conta"
                 className="p-1.5 text-slate-500 dark:text-[#6272a4] hover:text-rose-800 dark:hover:text-[#ff5555] hover:bg-rose-100/70 dark:hover:bg-[#ff5555]/15 rounded-lg transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
@@ -255,7 +255,7 @@ export default function DashboardLayout({
             </div>
           ) : (
             <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-[#343746]/60 border border-slate-200/80 dark:border-[#44475a]">
-              <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0 pr-1">
                 <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-[#bd93f9]/20 border border-blue-200 dark:border-[#bd93f9]/30 text-blue-700 dark:text-[#bd93f9] flex items-center justify-center shrink-0 font-bold text-xs">
                   {user?.nome ? user.nome.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
                 </div>
@@ -270,16 +270,20 @@ export default function DashboardLayout({
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  logout();
-                  router.push("/login");
-                }}
-                title="Sair da conta"
-                className="p-1.5 text-slate-500 dark:text-[#6272a4] hover:text-rose-800 dark:hover:text-[#ff5555] hover:bg-rose-100/70 dark:hover:bg-[#ff5555]/15 rounded-lg transition-colors cursor-pointer"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <ThemeToggle size="sm" />
+                <button
+                  onClick={() => {
+                    logout();
+                    router.push("/login");
+                  }}
+                  title="Sair da conta"
+                  aria-label="Sair da conta"
+                  className="p-1.5 text-slate-500 dark:text-[#6272a4] hover:text-rose-800 dark:hover:text-[#ff5555] hover:bg-rose-100/70 dark:hover:bg-[#ff5555]/15 rounded-lg transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </div>
