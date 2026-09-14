@@ -9,10 +9,12 @@ vi.mock("@/lib/auth/useAuthStore", () => ({
   useAuthStore: vi.fn(),
 }));
 
+const mockAddToast = vi.fn();
+
 // Mock toast
 vi.mock("@/components/Common/Toast", () => ({
   useToast: () => ({
-    addToast: vi.fn(),
+    addToast: mockAddToast,
   }),
 }));
 
@@ -30,7 +32,7 @@ describe("AdminExecutiveDashboard Component", () => {
     });
   });
 
-  it("should render compact executive cockpit cards with financial and user metrics", async () => {
+  it("should render compact executive cockpit cards with financial and user metrics and handle refresh button", async () => {
     const mockMetricas = {
       financeiro: {
         totalHoje: 137.70,
@@ -125,5 +127,19 @@ describe("AdminExecutiveDashboard Component", () => {
     expect(screen.getByText(/Novos Usuários & Ações Rápidas/i)).toBeInTheDocument();
     expect(screen.getByText("Maria Oliveira")).toBeInTheDocument();
     expect(screen.getByText(/maria@empresa.com/i)).toBeInTheDocument();
+
+    // Test refresh button click
+    const refreshBtn = screen.getByRole("button", { name: /Atualizar/i });
+    expect(refreshBtn).toBeInTheDocument();
+    fireEvent.click(refreshBtn);
+
+    await waitFor(() => {
+      expect(mockAddToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "success",
+          title: "Métricas atualizadas!",
+        })
+      );
+    });
   });
 });

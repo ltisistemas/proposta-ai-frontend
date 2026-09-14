@@ -68,7 +68,7 @@ export function AdminExecutiveDashboard() {
   const [selectedUserForDueDate, setSelectedUserForDueDate] = useState<UserRow | null>(null);
   const [selectedUserForSuspend, setSelectedUserForSuspend] = useState<UserRow | null>(null);
 
-  const carregarDados = useCallback(async () => {
+  const carregarDados = useCallback(async (isManual: boolean = false) => {
     if (!token) return;
     setIsLoading(true);
 
@@ -82,6 +82,13 @@ export function AdminExecutiveDashboard() {
       const data = await res.json();
       if (data.sucesso && data.metricas) {
         setMetricas(data.metricas);
+        if (isManual) {
+          addToast({
+            type: "success",
+            title: "Métricas atualizadas!",
+            message: "Os dados do painel foram recarregados com sucesso.",
+          });
+        }
       } else {
         addToast({
           type: "error",
@@ -161,14 +168,17 @@ export function AdminExecutiveDashboard() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => carregarDados()}
-            title="Atualizar dados agora"
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => carregarDados(true)}
+            title="Atualizar métricas agora"
             disabled={isLoading}
-            className="p-2 rounded-xl bg-slate-100 dark:bg-[#343746] hover:bg-slate-200 dark:hover:bg-[#44475a] text-slate-700 dark:text-[#f8f8f2] transition-colors cursor-pointer"
+            className="font-bold border-slate-200 dark:border-[#44475a] text-slate-700 dark:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#343746] text-xs py-1.5 px-3 flex items-center gap-1.5 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-blue-600 dark:text-[#8be9fd]" : ""}`} />
-          </button>
+            <span>Atualizar</span>
+          </Button>
 
           <Button
             variant="outline"
