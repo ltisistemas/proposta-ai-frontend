@@ -172,7 +172,7 @@ export default function AdminPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs text-slate-500 font-medium">
+          <span className="text-xs text-slate-500 dark:text-[#cbd5e1] font-medium">
             Verificando permissões administrativas...
           </span>
         </div>
@@ -183,15 +183,15 @@ export default function AdminPage() {
   if (!isAuthenticated || user?.role !== "admin") {
     return (
       <div className="flex items-center justify-center min-h-[70vh] p-4">
-        <div className="bg-white p-8 rounded-3xl border border-slate-200/90 shadow-lg max-w-md w-full text-center space-y-5">
-          <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center mx-auto">
+        <div className="bg-white dark:bg-[#282a36] p-8 rounded-3xl border border-slate-200/90 dark:border-[#44475a] shadow-lg max-w-md w-full text-center space-y-5">
+          <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/50 flex items-center justify-center mx-auto">
             <Lock className="w-7 h-7" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-[#f8f8f2]">
               Acesso Não Autorizado
             </h2>
-            <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-[#cbd5e1] mt-2 leading-relaxed">
               Esta área é restrita a administradores do sistema. Seu usuário atual não
               possui privilégios de administrador.
             </p>
@@ -211,14 +211,14 @@ export default function AdminPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-700">
+          <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 text-indigo-700 dark:text-indigo-400">
             <Shield className="w-7 h-7" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-[#f8f8f2]">
               Painel Administrativo
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-[#cbd5e1] mt-0.5">
               Gestão de usuários, auditoria e observabilidade de webhooks em tempo real.
             </p>
           </div>
@@ -249,13 +249,13 @@ export default function AdminPage() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex border-b border-slate-200">
+      <div className="flex border-b border-slate-200 dark:border-[#44475a]">
         <button
           onClick={() => setActiveTab("usuarios")}
           className={`flex items-center gap-2 py-3 px-4 font-bold text-xs border-b-2 transition-colors cursor-pointer ${
             activeTab === "usuarios"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+              ? "border-blue-600 dark:border-[#bd93f9] text-blue-600 dark:text-[#bd93f9]"
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300 dark:text-[#6272a4] dark:hover:text-[#f8f8f2] dark:hover:border-[#6272a4]"
           }`}
         >
           <Users className="w-4 h-4" />
@@ -266,8 +266,8 @@ export default function AdminPage() {
           onClick={() => setActiveTab("webhooks")}
           className={`flex items-center gap-2 py-3 px-4 font-bold text-xs border-b-2 transition-colors cursor-pointer ${
             activeTab === "webhooks"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+              ? "border-blue-600 dark:border-[#bd93f9] text-blue-600 dark:text-[#bd93f9]"
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300 dark:text-[#6272a4] dark:hover:text-[#f8f8f2] dark:hover:border-[#6272a4]"
           }`}
         >
           <Activity className="w-4 h-4" />

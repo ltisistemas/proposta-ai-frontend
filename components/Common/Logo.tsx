@@ -101,7 +101,7 @@ export function Logo({
           <div className="flex items-center gap-1.5">
             <span
               className={`font-black tracking-tight ${
-                isLight ? "text-slate-900" : "text-white"
+                isLight ? "text-slate-900 dark:text-[#f8f8f2]" : "text-white"
               } ${current.text}`}
             >
               ViraPropo
@@ -109,7 +109,7 @@ export function Logo({
             <span
               className={`font-extrabold rounded-md ${
                 isLight
-                  ? "bg-blue-600 text-white shadow-xs shadow-blue-600/20"
+                  ? "bg-blue-600 dark:bg-[#bd93f9] text-white dark:text-[#282a36] shadow-xs shadow-blue-600/20 dark:shadow-[#bd93f9]/20"
                   : "bg-blue-500 text-white shadow-xs shadow-blue-500/20"
               } tracking-tight uppercase ${current.badge}`}
             >
@@ -119,7 +119,7 @@ export function Logo({
           {showSubtitle && (
             <span
               className={`font-medium tracking-wide -mt-0.5 ${current.subtitle} ${
-                isLight ? "text-slate-500" : "text-slate-400"
+                isLight ? "text-slate-500 dark:text-[#cbd5e1]" : "text-slate-300"
               }`}
             >
               Sua IA geradora de propostas
