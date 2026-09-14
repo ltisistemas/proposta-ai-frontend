@@ -47,8 +47,8 @@ describe("DashboardPage Role Switcher", () => {
 
     render(<DashboardPage />);
 
-    expect(screen.getByText(/Visão Geral Gerencial/i)).toBeInTheDocument();
-    expect(screen.getByText(/Painel Executivo/i)).toBeInTheDocument();
+    expect(screen.getByText(/Cockpit Gerencial/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ao Vivo/i)).toBeInTheDocument();
     expect(screen.queryByText(/Minhas Propostas/i)).not.toBeInTheDocument();
   });
 

@@ -30,7 +30,7 @@ describe("AdminExecutiveDashboard Component", () => {
     });
   });
 
-  it("should render executive dashboard cards with financial and user metrics", async () => {
+  it("should render compact executive cockpit cards with financial and user metrics", async () => {
     const mockMetricas = {
       financeiro: {
         totalHoje: 137.70,
@@ -99,41 +99,31 @@ describe("AdminExecutiveDashboard Component", () => {
 
     render(<AdminExecutiveDashboard />);
 
-    // Check header
-    expect(screen.getByText(/Visão Geral Gerencial/i)).toBeInTheDocument();
-    expect(screen.getByText(/Painel Executivo/i)).toBeInTheDocument();
+    // Check compact cockpit header
+    expect(screen.getByText(/Cockpit Gerencial/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ao Vivo/i)).toBeInTheDocument();
 
-    // Check financial section
+    // Check primary financial section
     await waitFor(() => {
       expect(screen.getByText(/Faturamento Hoje/i)).toBeInTheDocument();
       expect(screen.getByText(/Faturamento no Mês/i)).toBeInTheDocument();
       expect(screen.getByText(/MRR Estimado/i)).toBeInTheDocument();
-      expect(screen.getByText(/Total Histórico/i)).toBeInTheDocument();
+      expect(screen.getByText(/Usuários Ativos/i)).toBeInTheDocument();
     });
 
-    // Check user health section
-    expect(screen.getByText(/Usuários Ativos/i)).toBeInTheDocument();
+    // Check operational strip
     expect(screen.getAllByText(/Assinantes PRO/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Usuários Free/i)).toBeInTheDocument();
     expect(screen.getByText(/Contas Suspensas/i)).toBeInTheDocument();
-    expect(screen.getByText(/Novos Cadastros/i)).toBeInTheDocument();
+    expect(screen.getByText(/Novos no Mês/i)).toBeInTheDocument();
 
-    // Check platform volume
-    expect(screen.getByText(/Propostas Geradas no Sistema/i)).toBeInTheDocument();
-    expect(screen.getByText(/Pipeline Global dos Usuários/i)).toBeInTheDocument();
-    expect(screen.getByText(/Volume Fechado & Assinado/i)).toBeInTheDocument();
-
-    // Check transactions table
+    // Check side-by-side recent activity lists
+    expect(screen.getByText(/Últimos Pagamentos Confirmados/i)).toBeInTheDocument();
     expect(screen.getByText("João Silva")).toBeInTheDocument();
-    expect(screen.getByText("joao@email.com")).toBeInTheDocument();
+    expect(screen.getByText(/joao@email.com/i)).toBeInTheDocument();
 
-    // Switch tab to Novos Usuários
-    const tabUsuarios = screen.getByRole("button", { name: /Novos Usuários/i });
-    fireEvent.click(tabUsuarios);
-
-    await waitFor(() => {
-      expect(screen.getByText("Maria Oliveira")).toBeInTheDocument();
-      expect(screen.getByText("Oliveira Tech")).toBeInTheDocument();
-    });
+    expect(screen.getByText(/Novos Usuários & Ações Rápidas/i)).toBeInTheDocument();
+    expect(screen.getByText("Maria Oliveira")).toBeInTheDocument();
+    expect(screen.getByText(/maria@empresa.com/i)).toBeInTheDocument();
   });
 });
