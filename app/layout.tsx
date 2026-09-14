@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { CookieConsentBanner } from "@/components/Common/CookieConsentBanner";
+import { ThemeProvider, ThemeScript } from "@/components/Common/ThemeProvider";
 import { PixelTracker } from "@/components/Analytics/PixelTracker";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -96,14 +97,20 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
+      suppressHydrationWarning
       className={`${inter.variable} ${plusJakarta.variable} h-full antialiased font-sans`}
     >
-      <body className="min-h-full flex flex-col bg-[#FBFBFA] text-slate-900 selection:bg-blue-500 selection:text-white">
-        <PixelTracker />
-        {children}
-        <CookieConsentBanner />
-        <Analytics />
-        <SpeedInsights />
+      <head>
+        <ThemeScript />
+      </head>
+      <body className="min-h-full flex flex-col bg-[#FBFBFA] dark:bg-[#282a36] text-slate-900 dark:text-[#f8f8f2] transition-colors duration-200">
+        <ThemeProvider>
+          <PixelTracker />
+          {children}
+          <CookieConsentBanner />
+          <Analytics />
+          <SpeedInsights />
+        </ThemeProvider>
       </body>
     </html>
   );

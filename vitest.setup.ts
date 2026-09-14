@@ -21,3 +21,20 @@ process.env.ABACATE_API_KEY = "test_abacate_api_key";
 process.env.ABACATE_WEBHOOK_SECRET = "test_webhook_secret";
 process.env.GEMINI_API_KEY = "test_gemini_key";
 process.env.DATABASE_URL = "postgres://postgres:postgres@localhost:5432/test";
+
+// Mock matchMedia for jsdom tests
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}

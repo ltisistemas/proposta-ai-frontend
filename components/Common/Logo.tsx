@@ -5,6 +5,7 @@ interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl";
   variant?: "light" | "dark";
   showSubtitle?: boolean;
+  iconOnly?: boolean;
   href?: string;
   className?: string;
 }
@@ -13,6 +14,7 @@ export function Logo({
   size = "md",
   variant = "light",
   showSubtitle = false,
+  iconOnly = false,
   href,
   className = "",
 }: LogoProps) {
@@ -51,7 +53,11 @@ export function Logo({
   const isLight = variant === "light";
 
   const content = (
-    <div className={`inline-flex items-center gap-2.5 select-none group ${className}`}>
+    <div
+      className={`inline-flex items-center ${
+        iconOnly ? "justify-center" : "gap-2.5"
+      } select-none group ${className}`}
+    >
       {/* Brand Icon - Vibrant Modern Geometric 'Vira' Conversion Mark */}
       <div
         className={`${current.icon} bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border border-blue-400/30 shadow-md shadow-blue-600/25 group-hover:shadow-blue-600/40 group-hover:border-blue-300/50 transition-all duration-300 group-hover:scale-105 shrink-0 flex items-center justify-center relative overflow-hidden`}
@@ -90,41 +96,48 @@ export function Logo({
       </div>
 
       {/* Brand Text */}
-      <div className="flex flex-col">
-        <div className="flex items-center gap-1.5">
-          <span
-            className={`font-black tracking-tight ${
-              isLight ? "text-slate-900" : "text-white"
-            } ${current.text}`}
-          >
-            ViraPropo
-          </span>
-          <span
-            className={`font-extrabold rounded-md ${
-              isLight
-                ? "bg-blue-600 text-white shadow-xs shadow-blue-600/20"
-                : "bg-blue-500 text-white shadow-xs shadow-blue-500/20"
-            } tracking-tight uppercase ${current.badge}`}
-          >
-            AI!
-          </span>
+      {!iconOnly && (
+        <div className="flex flex-col">
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`font-black tracking-tight ${
+                isLight ? "text-slate-900" : "text-white"
+              } ${current.text}`}
+            >
+              ViraPropo
+            </span>
+            <span
+              className={`font-extrabold rounded-md ${
+                isLight
+                  ? "bg-blue-600 text-white shadow-xs shadow-blue-600/20"
+                  : "bg-blue-500 text-white shadow-xs shadow-blue-500/20"
+              } tracking-tight uppercase ${current.badge}`}
+            >
+              AI!
+            </span>
+          </div>
+          {showSubtitle && (
+            <span
+              className={`font-medium tracking-wide -mt-0.5 ${current.subtitle} ${
+                isLight ? "text-slate-500" : "text-slate-400"
+              }`}
+            >
+              Sua IA geradora de propostas
+            </span>
+          )}
         </div>
-        {showSubtitle && (
-          <span
-            className={`font-medium tracking-wide -mt-0.5 ${current.subtitle} ${
-              isLight ? "text-slate-500" : "text-slate-400"
-            }`}
-          >
-            Sua IA geradora de propostas
-          </span>
-        )}
-      </div>
+      )}
     </div>
   );
 
   if (href) {
     return (
-      <Link href={href} className="inline-flex focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded-lg">
+      <Link
+        href={href}
+        title="ViraPropo AI!"
+        aria-label="ViraPropo AI!"
+        className="inline-flex focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded-lg"
+      >
         {content}
       </Link>
     );

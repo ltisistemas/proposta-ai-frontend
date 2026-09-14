@@ -28,7 +28,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex items-center justify-center font-medium rounded-[4px] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-[0.98]";
+    "inline-flex items-center justify-center font-medium rounded-[4px] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#282a36] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-[0.98]";
 
   const sizeStyles = {
     sm: "px-3 py-1.5 text-xs gap-1.5",
@@ -38,17 +38,17 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary:
-      "bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-600/20 focus:ring-blue-500 border border-transparent",
+      "bg-blue-600 dark:bg-[#bd93f9] text-white dark:text-[#282a36] hover:bg-blue-700 dark:hover:bg-[#a77bf3] font-semibold shadow-md shadow-blue-600/20 dark:shadow-[#bd93f9]/20 focus:ring-blue-500 dark:focus:ring-[#bd93f9] border border-transparent",
     gradient:
-      "bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white hover:opacity-95 shadow-md shadow-blue-600/20 focus:ring-blue-500 border border-transparent",
+      "bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 dark:from-[#bd93f9] dark:via-[#ff79c6] dark:to-[#8be9fd] text-white dark:text-[#282a36] font-semibold hover:opacity-95 shadow-md shadow-blue-600/20 dark:shadow-[#bd93f9]/20 focus:ring-blue-500 dark:focus:ring-[#bd93f9] border border-transparent",
     secondary:
-      "bg-slate-100 text-slate-800 hover:bg-slate-200 focus:ring-slate-400 border border-slate-200/80",
+      "bg-slate-100 dark:bg-[#44475a] text-slate-800 dark:text-[#f8f8f2] hover:bg-slate-200 dark:hover:bg-[#44475a]/80 focus:ring-slate-400 dark:focus:ring-[#6272a4] border border-slate-200/80 dark:border-[#44475a]",
     outline:
-      "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 focus:ring-blue-500 shadow-xs",
+      "bg-white dark:bg-[#282a36] text-slate-700 dark:text-[#f8f8f2] hover:bg-slate-50 dark:hover:bg-[#343746] border border-slate-200 dark:border-[#44475a] hover:border-slate-300 dark:hover:border-[#6272a4] focus:ring-blue-500 dark:focus:ring-[#bd93f9] shadow-xs",
     ghost:
-      "bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:ring-slate-400",
+      "bg-transparent text-slate-600 dark:text-[#f8f8f2] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#44475a]/50 focus:ring-slate-400 dark:focus:ring-[#6272a4]",
     danger:
-      "bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500 shadow-sm",
+      "bg-rose-600 dark:bg-[#ff5555] text-white hover:bg-rose-700 dark:hover:bg-[#ff4444] focus:ring-rose-500 dark:focus:ring-[#ff5555] shadow-sm",
   };
 
   return (

@@ -65,6 +65,7 @@ export async function garantirColunasDualSignature(): Promise<void> {
       ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_assinado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
       ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_assinatura_ip VARCHAR(50);
       ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_assinatura_hash VARCHAR(64);
+      ALTER TABLE propostas ALTER COLUMN prazo_pagamento TYPE VARCHAR(255);
     `);
     isColumnsInitialized = true;
   } catch (err) {

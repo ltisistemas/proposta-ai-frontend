@@ -277,17 +277,17 @@ export default function NovaPropostaPage() {
         <div>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                <Sparkles className="w-7 h-7 text-blue-600" />
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight flex items-center gap-3">
+                <Sparkles className="w-7 h-7 text-blue-600 dark:text-[#bd93f9]" />
                 Gerador de Proposta com IA
               </h1>
-              <p className="text-slate-600 text-sm mt-1">
+              <p className="text-slate-600 dark:text-[#6272a4] text-sm mt-1">
                 Preencha os dados do cliente e escopo. O motor de IA formatará a proposta comercial ideal.
               </p>
             </div>
 
             {!isPro && (
-              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-2xl text-xs text-amber-900">
+              <div className="flex items-center gap-2 bg-amber-50 dark:bg-[#ffb86c]/15 border border-amber-200 dark:border-[#ffb86c]/30 px-3.5 py-1.5 rounded-2xl text-xs text-amber-900 dark:text-[#ffb86c]">
                 <span className="font-bold">Modo Free:</span> Estilo Notepad Monocromático.
                 <button
                   type="button"
@@ -295,7 +295,7 @@ export default function NovaPropostaPage() {
                     setUpgradeFeature("general");
                     setUpgradeModalOpen(true);
                   }}
-                  className="font-bold text-blue-700 hover:underline ml-1 cursor-pointer"
+                  className="font-bold text-blue-700 dark:text-[#8be9fd] hover:underline ml-1 cursor-pointer"
                 >
                   Fazer Upgrade Pro
                 </button>
@@ -306,9 +306,9 @@ export default function NovaPropostaPage() {
 
       <form onSubmit={handleGerarProposta} className="space-y-6">
         {/* Step 1: Dados do Cliente */}
-        <Card className="bg-white border-slate-200/90 p-6 sm:p-8 rounded-3xl shadow-xs">
-          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
-            <User className="w-5 h-5 text-blue-600" />
+        <Card className="bg-white dark:bg-[#343746] border-slate-200/90 dark:border-[#44475a] p-6 sm:p-8 rounded-3xl shadow-xs">
+          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-100 dark:border-[#44475a] text-slate-900 dark:text-[#f8f8f2] font-bold text-base">
+            <User className="w-5 h-5 text-blue-600 dark:text-[#bd93f9]" />
             <span>1. Informações do Cliente</span>
           </div>
 
@@ -346,9 +346,9 @@ export default function NovaPropostaPage() {
         </Card>
 
         {/* Step 2: Escopo e Descrição */}
-        <Card className="bg-white border-slate-200/90 p-6 sm:p-8 rounded-3xl shadow-xs">
-          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
-            <FileText className="w-5 h-5 text-sky-600" />
+        <Card className="bg-white dark:bg-[#343746] border-slate-200/90 dark:border-[#44475a] p-6 sm:p-8 rounded-3xl shadow-xs">
+          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-100 dark:border-[#44475a] text-slate-900 dark:text-[#f8f8f2] font-bold text-base">
+            <FileText className="w-5 h-5 text-sky-600 dark:text-[#8be9fd]" />
             <span>2. Escopo do Projeto & Necessidade do Cliente</span>
           </div>
 
@@ -364,16 +364,16 @@ export default function NovaPropostaPage() {
         </Card>
 
         {/* Step 3: Itens e Investimento */}
-        <Card className="bg-white border-slate-200/90 p-6 sm:p-8 rounded-3xl shadow-xs">
-          <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
+        <Card className="bg-white dark:bg-[#343746] border-slate-200/90 dark:border-[#44475a] p-6 sm:p-8 rounded-3xl shadow-xs">
+          <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-[#44475a] text-slate-900 dark:text-[#f8f8f2] font-bold text-base">
             <div className="flex items-center gap-2.5">
-              <DollarSign className="w-5 h-5 text-emerald-600" />
+              <DollarSign className="w-5 h-5 text-emerald-600 dark:text-[#50fa7b]" />
               <span>3. Entregáveis & Valores (R$)</span>
             </div>
             <button
               type="button"
               onClick={handleAddItem}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 text-xs font-bold cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-[#bd93f9]/20 text-blue-700 dark:text-[#bd93f9] border border-blue-200 dark:border-[#bd93f9]/40 hover:bg-blue-100 dark:hover:bg-[#bd93f9]/30 text-xs font-bold cursor-pointer transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Adicionar Item</span>
@@ -384,7 +384,7 @@ export default function NovaPropostaPage() {
             {itens.map((item, idx) => (
               <div
                 key={idx}
-                className="grid grid-cols-12 gap-3 items-end bg-slate-50/70 p-3.5 rounded-2xl border border-slate-200/80"
+                className="grid grid-cols-12 gap-3 items-end bg-slate-50/70 dark:bg-[#282a36]/60 p-3.5 rounded-2xl border border-slate-200/80 dark:border-[#44475a]"
               >
                 <div className="col-span-12 sm:col-span-6">
                   <Input
@@ -432,7 +432,7 @@ export default function NovaPropostaPage() {
                     type="button"
                     onClick={() => handleRemoveItem(idx)}
                     title="Remover Item"
-                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                    className="p-2 text-slate-500 dark:text-[#6272a4] hover:text-rose-700 dark:hover:text-[#ff5555] hover:bg-rose-100/70 dark:hover:bg-[#ff5555]/15 rounded-xl transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -442,20 +442,20 @@ export default function NovaPropostaPage() {
           </div>
 
           {/* Subtotal Banner */}
-          <div className="mt-6 p-4 rounded-2xl bg-blue-50/80 border border-blue-200 flex items-center justify-between">
-            <span className="text-sm font-bold text-blue-900">
+          <div className="mt-6 p-4 rounded-2xl bg-blue-50/80 dark:bg-[#bd93f9]/15 border border-blue-200 dark:border-[#bd93f9]/30 flex items-center justify-between">
+            <span className="text-sm font-bold text-blue-900 dark:text-[#f8f8f2]">
               Valor Total Calculado:
             </span>
-            <span className="text-2xl font-black text-blue-700 font-mono">
+            <span className="text-2xl font-black text-blue-700 dark:text-[#bd93f9] font-mono">
               {formatarMoeda(calcularTotal())}
             </span>
           </div>
         </Card>
 
         {/* Step 4: Prazos e Condições */}
-        <Card className="bg-white border-slate-200/90 p-6 sm:p-8 rounded-3xl shadow-xs">
-          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
-            <Clock className="w-5 h-5 text-amber-600" />
+        <Card className="bg-white dark:bg-[#343746] border-slate-200/90 dark:border-[#44475a] p-6 sm:p-8 rounded-3xl shadow-xs">
+          <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-slate-100 dark:border-[#44475a] text-slate-900 dark:text-[#f8f8f2] font-bold text-base">
+            <Clock className="w-5 h-5 text-amber-600 dark:text-[#ffb86c]" />
             <span>4. Condições Comerciais</span>
           </div>
 
@@ -493,7 +493,7 @@ export default function NovaPropostaPage() {
             type="submit"
             variant="primary"
             size="lg"
-            className="w-full justify-center text-base py-4 font-bold shadow-xl shadow-blue-600/25 bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full justify-center text-base py-4 font-bold shadow-xl shadow-blue-600/25 dark:shadow-[#bd93f9]/25 bg-blue-600 dark:bg-[#bd93f9] hover:bg-blue-700 dark:hover:bg-[#a77bf3] text-white dark:text-[#282a36]"
             isLoading={isGenerating}
             rightIcon={<Sparkles className="w-5 h-5" />}
           >

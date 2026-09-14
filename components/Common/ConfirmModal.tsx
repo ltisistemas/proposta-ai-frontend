@@ -53,19 +53,19 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     switch (variant) {
       case "danger":
         return {
-          iconBg: "bg-rose-50 border-rose-100 text-rose-600",
+          iconBg: "bg-rose-50 dark:bg-[#ff5555]/15 border-rose-100 dark:border-[#ff5555]/30 text-rose-600 dark:text-[#ff5555]",
           icon: <Trash2 className="w-6 h-6" />,
           buttonVariant: "danger" as const,
         };
       case "warning":
         return {
-          iconBg: "bg-amber-50 border-amber-100 text-amber-600",
+          iconBg: "bg-amber-50 dark:bg-[#ffb86c]/15 border-amber-100 dark:border-[#ffb86c]/30 text-amber-600 dark:text-[#ffb86c]",
           icon: <AlertTriangle className="w-6 h-6" />,
           buttonVariant: "primary" as const,
         };
       default:
         return {
-          iconBg: "bg-blue-50 border-blue-100 text-blue-600",
+          iconBg: "bg-blue-50 dark:bg-[#8be9fd]/15 border-blue-100 dark:border-[#8be9fd]/30 text-blue-600 dark:text-[#8be9fd]",
           icon: <Info className="w-6 h-6" />,
           buttonVariant: "primary" as const,
         };
@@ -90,12 +90,12 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         </div>
 
         {/* Title & Description */}
-        <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">
+        <h3 className="text-lg font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight mb-2">
           {title}
         </h3>
 
         {description && (
-          <div className="text-sm text-slate-500 leading-relaxed mb-6 max-w-sm">
+          <div className="text-sm text-slate-500 dark:text-[#6272a4] leading-relaxed mb-6 max-w-sm">
             {description}
           </div>
         )}

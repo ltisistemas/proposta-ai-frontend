@@ -27,10 +27,13 @@ import { ConfirmModal } from "@/components/Common/ConfirmModal";
 import { UpgradeModal } from "@/components/Billing/UpgradeModal";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
+import { useTheme, Theme } from "@/components/Common/ThemeProvider";
+import { Sun, Moon, Laptop, Palette } from "lucide-react";
 
 export default function ConfigPage() {
   const { user, token, updateUser } = useAuthStore();
   const { addToast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [confirmDowngradeOpen, setConfirmDowngradeOpen] = useState(false);
@@ -49,6 +52,44 @@ export default function ConfigPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isPro = user?.plano === "pro";
+
+  const themeOptions: {
+    id: Theme;
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+    previewBg: string;
+    previewCard: string;
+    previewAccent: string;
+  }[] = [
+    {
+      id: "light",
+      title: "Modo Claro",
+      description: "Superfícies limpas e nítidas para ambientes claros.",
+      icon: <Sun className="w-5 h-5 text-amber-500" />,
+      previewBg: "bg-[#FBFBFA]",
+      previewCard: "bg-white border-slate-200",
+      previewAccent: "bg-blue-600",
+    },
+    {
+      id: "dark",
+      title: "Modo Dracula",
+      description: "O clássico tema dark para desenvolvedores (#282a36 & #bd93f9).",
+      icon: <Moon className="w-5 h-5 text-[#bd93f9]" />,
+      previewBg: "bg-[#282a36]",
+      previewCard: "bg-[#343746] border-[#44475a]",
+      previewAccent: "bg-[#bd93f9]",
+    },
+    {
+      id: "system",
+      title: "Automático (Sistema)",
+      description: "Sincroniza automaticamente com a preferência do seu SO.",
+      icon: <Laptop className="w-5 h-5 text-slate-500 dark:text-[#8be9fd]" />,
+      previewBg: "bg-gradient-to-r from-[#FBFBFA] to-[#282a36]",
+      previewCard: "bg-white/90 dark:bg-[#343746]/90 border-slate-300 dark:border-[#44475a]",
+      previewAccent: "bg-gradient-to-r from-blue-600 to-[#bd93f9]",
+    },
+  ];
 
   useEffect(() => {
     if (user) {
@@ -289,20 +330,88 @@ export default function ConfigPage() {
     <div className="max-w-5xl mx-auto space-y-8 pb-16">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
           Configurações da Conta & Plano
         </h1>
-        <p className="text-slate-600 text-sm mt-1">
-          Personalize os dados da sua empresa, logotipo e gerencie sua assinatura do ViraPropo AI!.
+        <p className="text-slate-600 dark:text-[#6272a4] text-sm mt-1">
+          Personalize a aparência do sistema, os dados da sua empresa, logotipo e gerencie sua assinatura do ViraPropo AI!.
         </p>
       </div>
+
+      {/* Theme & Appearance Section */}
+      <Card className="bg-white dark:bg-[#343746] border-slate-200/90 dark:border-[#44475a] p-6 sm:p-8 rounded-3xl shadow-xs">
+        <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100 dark:border-[#44475a]">
+          <div className="flex items-center gap-2.5 text-slate-900 dark:text-[#f8f8f2] font-bold text-base">
+            <Palette className="w-5 h-5 text-blue-600 dark:text-[#bd93f9]" />
+            <span>Aparência & Tema Visual</span>
+          </div>
+          <Badge variant="info" size="sm">
+            {theme === "dark" ? "Dracula Theme" : theme === "light" ? "Light Mode" : "Auto (Sistema)"}
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {themeOptions.map((opt) => {
+            const isSelected = theme === opt.id;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setTheme(opt.id)}
+                className={`flex flex-col text-left p-4 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden group ${
+                  isSelected
+                    ? "border-blue-600 dark:border-[#bd93f9] bg-blue-50/40 dark:bg-[#bd93f9]/10 shadow-sm shadow-blue-600/10 dark:shadow-[#bd93f9]/15"
+                    : "border-slate-200 dark:border-[#44475a] bg-slate-50/50 dark:bg-[#282a36]/50 hover:border-slate-300 dark:hover:border-[#6272a4]"
+                }`}
+              >
+                {/* Visual miniature mockup */}
+                <div className={`w-full h-16 rounded-xl ${opt.previewBg} p-2 flex flex-col justify-between mb-3.5 border border-slate-200/60 dark:border-[#44475a]/80 shadow-inner`}>
+                  <div className="flex items-center justify-between">
+                    <div className={`w-6 h-2 rounded-full ${opt.previewAccent}`} />
+                    <div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-[#6272a4]" />
+                  </div>
+                  <div className={`w-full h-6 rounded-lg ${opt.previewCard} border p-1 flex items-center gap-1.5 shadow-2xs`}>
+                    <div className="w-2 h-2 rounded-xs bg-slate-300 dark:bg-[#6272a4]" />
+                    <div className="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#44475a]" />
+                  </div>
+                </div>
+
+                {/* Info & Radio */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1 rounded-lg bg-white dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] shadow-2xs">
+                      {opt.icon}
+                    </div>
+                    <span className="font-bold text-sm text-slate-900 dark:text-[#f8f8f2]">
+                      {opt.title}
+                    </span>
+                  </div>
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
+                      isSelected
+                        ? "border-blue-600 dark:border-[#bd93f9] bg-blue-600 dark:bg-[#bd93f9] text-white dark:text-[#282a36]"
+                        : "border-slate-300 dark:border-[#44475a]"
+                    }`}
+                  >
+                    {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-500 dark:text-[#6272a4] mt-2 leading-relaxed">
+                  {opt.description}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left: Profile Form */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="bg-white border-slate-200/90 p-6 sm:p-8 rounded-3xl shadow-xs">
-            <div className="flex items-center gap-2.5 pb-4 mb-6 border-b border-slate-100 text-slate-900 font-bold text-base">
-              <Building2 className="w-5 h-5 text-blue-600" />
+          <Card className="bg-white dark:bg-[#343746] border-slate-200/90 dark:border-[#44475a] p-6 sm:p-8 rounded-3xl shadow-xs">
+            <div className="flex items-center gap-2.5 pb-4 mb-6 border-b border-slate-100 dark:border-[#44475a] text-slate-900 dark:text-[#f8f8f2] font-bold text-base">
+              <Building2 className="w-5 h-5 text-blue-600 dark:text-[#bd93f9]" />
               <span>Dados da Empresa Emissora</span>
             </div>
 
@@ -354,20 +463,20 @@ export default function ConfigPage() {
 
               {/* Logo Section (Pro feature) */}
               <div className="pt-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center justify-between">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#f8f8f2] mb-2 flex items-center justify-between">
                   <span>Logotipo da Empresa (Base64)</span>
                   {!isPro && (
-                    <span className="flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                    <span className="flex items-center gap-1 text-[11px] text-amber-700 dark:text-[#ffb86c] bg-amber-50 dark:bg-[#ffb86c]/15 px-2 py-0.5 rounded-full border border-amber-200 dark:border-[#ffb86c]/30">
                       <Lock className="w-3 h-3" /> Exclusivo Plano Pro
                     </span>
                   )}
                 </label>
 
                 {isPro ? (
-                  <div className="p-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-blue-300 transition-all bg-slate-50/60">
+                  <div className="p-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-[#44475a] hover:border-blue-300 dark:hover:border-[#bd93f9] transition-all bg-slate-50/60 dark:bg-[#282a36]/60">
                     {empresaLogoUrl ? (
                       <div className="flex items-center gap-4">
-                        <div className="w-20 h-20 bg-white rounded-xl border border-slate-200 flex items-center justify-center p-2 shrink-0 overflow-hidden shadow-xs">
+                        <div className="w-20 h-20 bg-white dark:bg-[#21222c] rounded-xl border border-slate-200 dark:border-[#44475a] flex items-center justify-center p-2 shrink-0 overflow-hidden shadow-xs">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={empresaLogoUrl}
@@ -376,11 +485,11 @@ export default function ConfigPage() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <p className="text-xs font-bold text-slate-800 dark:text-[#f8f8f2] flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-[#50fa7b]" />
                             Logotipo carregada em Base64
                           </p>
-                          <p className="text-[11px] text-slate-500 mt-0.5">
+                          <p className="text-[11px] text-slate-500 dark:text-[#6272a4] mt-0.5">
                             A logo será renderizada no topo de todas as propostas executivas Pro.
                           </p>
                           <div className="flex items-center gap-2 mt-2">
@@ -388,7 +497,7 @@ export default function ConfigPage() {
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="text-xs text-rose-600 border-rose-200 hover:bg-rose-50"
+                              className="text-xs text-rose-600 dark:text-[#ff5555] border-rose-200 dark:border-[#ff5555]/30 hover:bg-rose-50 dark:hover:bg-[#ff5555]/10"
                               onClick={handleRemoveLogo}
                               leftIcon={<Trash2 className="w-3 h-3" />}
                             >
@@ -402,13 +511,13 @@ export default function ConfigPage() {
                         onClick={() => fileInputRef.current?.click()}
                         className="cursor-pointer flex flex-col items-center justify-center py-4 text-center"
                       >
-                        <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-[#bd93f9]/20 text-blue-600 dark:text-[#bd93f9] flex items-center justify-center mb-2">
                           <Upload className="w-5 h-5" />
                         </div>
-                        <p className="text-xs font-bold text-slate-800">
+                        <p className="text-xs font-bold text-slate-800 dark:text-[#f8f8f2]">
                           Clique para fazer upload da sua logo
                         </p>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
+                        <p className="text-[11px] text-slate-500 dark:text-[#6272a4] mt-0.5">
                           PNG, JPG ou SVG (salvo diretamente em Base64)
                         </p>
                       </div>
@@ -422,16 +531,16 @@ export default function ConfigPage() {
                     />
                   </div>
                 ) : (
-                  <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex items-center justify-between gap-4">
+                  <div className="p-4 rounded-2xl border border-slate-200 dark:border-[#44475a] bg-slate-50/70 dark:bg-[#282a36]/60 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#343746] border border-slate-200 dark:border-[#44475a] flex items-center justify-center text-slate-400 dark:text-[#6272a4]">
                         <ImageIcon className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-slate-700">
+                        <p className="text-xs font-bold text-slate-700 dark:text-[#f8f8f2]">
                           Personalização de Logo em Base64
                         </p>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-[11px] text-slate-500 dark:text-[#6272a4]">
                           Faça upgrade para o Pro para adicionar sua marca oficial nas propostas.
                         </p>
                       </div>
@@ -441,7 +550,7 @@ export default function ConfigPage() {
                       variant="outline"
                       size="sm"
                       onClick={handleUpgradeCheckout}
-                      className="text-xs font-bold text-blue-700 border-blue-200 hover:bg-blue-50 shrink-0"
+                      className="text-xs font-bold text-blue-700 dark:text-[#bd93f9] border-blue-200 dark:border-[#bd93f9]/40 hover:bg-blue-50 dark:hover:bg-[#bd93f9]/15 shrink-0"
                     >
                       Desbloquear Logo
                     </Button>
@@ -454,7 +563,7 @@ export default function ConfigPage() {
                   type="submit"
                   variant="primary"
                   isLoading={isSaving}
-                  className="shadow-md shadow-blue-600/20 font-bold"
+                  className="shadow-md shadow-blue-600/20 dark:shadow-[#bd93f9]/20 font-bold"
                 >
                   Salvar Alterações
                 </Button>
@@ -465,7 +574,7 @@ export default function ConfigPage() {
 
         {/* Right: Plan Status & Billing */}
         <div className="space-y-6">
-          <Card className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 border-2 border-blue-600/40 p-6 rounded-3xl text-white relative overflow-hidden shadow-xl">
+          <Card className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 dark:from-[#21222c] dark:via-[#282a36] dark:to-[#1e1f29] border-2 border-blue-600/40 dark:border-[#bd93f9]/40 p-6 rounded-3xl text-white relative overflow-hidden shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-blue-300" />

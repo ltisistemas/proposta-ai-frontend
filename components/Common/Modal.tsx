@@ -69,14 +69,14 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Modal Dialog */}
       <div
-        className={`relative ${sizeClasses[size]} bg-white rounded-[4px] shadow-2xl border border-slate-200/90 overflow-hidden z-10 transition-all transform animate-in zoom-in-95 duration-200 flex flex-col my-auto`}
+        className={`relative ${sizeClasses[size]} bg-white dark:bg-[#282a36] text-slate-900 dark:text-[#f8f8f2] rounded-[4px] shadow-2xl border border-slate-200/90 dark:border-[#44475a] overflow-hidden z-10 transition-all transform animate-in zoom-in-95 duration-200 flex flex-col my-auto`}
       >
         {/* Floating Close Button for Headerless Modals */}
         {!hasHeader && !hideDefaultCloseButton && (
           <button
             onClick={onClose}
             title="Fechar modal"
-            className="absolute top-3.5 right-3.5 z-30 p-1.5 rounded-[4px] text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="absolute top-3.5 right-3.5 z-30 p-1.5 rounded-[4px] text-slate-400 dark:text-[#6272a4] hover:text-slate-700 dark:hover:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#44475a]/50 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -84,17 +84,17 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Modal Header */}
         {hasHeader && (
-          <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-200/80 bg-white shrink-0 z-20">
+          <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-200/80 dark:border-[#44475a] bg-white dark:bg-[#21222c] shrink-0 z-20">
             <div className="flex items-center gap-3.5 min-w-0">
               {icon && <div className="shrink-0">{icon}</div>}
               <div className="min-w-0">
                 {title && (
-                  <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight truncate">
                     {title}
                   </h2>
                 )}
                 {description && (
-                  <p className="text-xs text-slate-500 mt-0.5 truncate hidden sm:block">
+                  <p className="text-xs text-slate-500 dark:text-[#6272a4] mt-0.5 truncate hidden sm:block">
                     {description}
                   </p>
                 )}
@@ -107,7 +107,7 @@ export const Modal: React.FC<ModalProps> = ({
                 <button
                   onClick={onClose}
                   title="Fechar modal"
-                  className="p-1.5 rounded-[4px] text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-[4px] text-slate-400 dark:text-[#6272a4] hover:text-slate-800 dark:hover:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#44475a]/50 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -127,7 +127,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Modal Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-slate-200/80 bg-white shrink-0 z-20">
+          <div className="px-6 py-4 border-t border-slate-200/80 dark:border-[#44475a] bg-white dark:bg-[#21222c] shrink-0 z-20">
             {footer}
           </div>
         )}

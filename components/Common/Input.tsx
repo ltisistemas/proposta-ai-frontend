@@ -33,14 +33,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const isLight = variant === "light";
 
     const baseStyles = isLight
-      ? "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-600 focus:ring-blue-600/20"
-      : "bg-slate-950 border-slate-800 text-white placeholder:text-slate-500 hover:border-slate-700 focus:border-blue-500 focus:ring-blue-500/25";
+      ? "bg-white dark:bg-[#21222c] border-slate-200 dark:border-[#44475a] text-slate-900 dark:text-[#f8f8f2] placeholder:text-slate-400 dark:placeholder:text-[#6272a4] hover:border-slate-300 dark:hover:border-[#6272a4] focus:border-blue-600 dark:focus:border-[#bd93f9] focus:ring-blue-600/20 dark:focus:ring-[#bd93f9]/20"
+      : "bg-[#21222c] border-[#44475a] text-[#f8f8f2] placeholder:text-[#6272a4] hover:border-[#6272a4] focus:border-[#bd93f9] focus:ring-[#bd93f9]/25";
 
     const errorStyles = isLight
-      ? "border-rose-400 text-slate-900 focus:border-rose-500 focus:ring-rose-500/20"
-      : "border-rose-500 text-white focus:border-rose-500 focus:ring-rose-500/30";
+      ? "border-rose-400 dark:border-[#ff5555] text-slate-900 dark:text-[#f8f8f2] focus:border-rose-500 dark:focus:border-[#ff5555] focus:ring-rose-500/20 dark:focus:ring-[#ff5555]/20"
+      : "border-[#ff5555] text-[#f8f8f2] focus:border-[#ff5555] focus:ring-[#ff5555]/30";
 
-    const labelStyles = isLight ? "text-slate-800" : "text-slate-200";
+    const labelStyles = isLight ? "text-slate-800 dark:text-[#f8f8f2]" : "text-[#f8f8f2]";
 
     return (
       <div className="w-full space-y-1.5">
@@ -54,7 +54,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative flex items-center">
           {leftIcon && (
-            <div className="absolute left-3.5 text-slate-400 pointer-events-none flex items-center z-10">
+            <div className="absolute left-3.5 text-slate-400 dark:text-[#6272a4] pointer-events-none flex items-center z-10">
               {leftIcon}
             </div>
           )}
@@ -69,17 +69,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3.5 text-slate-400 pointer-events-none flex items-center z-10">
+            <div className="absolute right-3.5 text-slate-400 dark:text-[#6272a4] pointer-events-none flex items-center z-10">
               {rightIcon}
             </div>
           )}
         </div>
         {error ? (
-          <p className="text-xs text-rose-500 font-medium mt-1">{error}</p>
+          <p className="text-xs text-rose-500 dark:text-[#ff5555] font-medium mt-1">{error}</p>
         ) : helperText ? (
           <p
             className={`text-xs mt-1 ${
-              isLight ? "text-slate-500" : "text-slate-400"
+              isLight ? "text-slate-500 dark:text-[#6272a4]" : "text-[#6272a4]"
             }`}
           >
             {helperText}
@@ -120,14 +120,14 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const isLight = variant === "light";
 
     const baseStyles = isLight
-      ? "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-600 focus:ring-blue-600/20"
-      : "bg-slate-950 border-slate-800 text-white placeholder:text-slate-500 hover:border-slate-700 focus:border-blue-500 focus:ring-blue-500/25";
+      ? "bg-white dark:bg-[#21222c] border-slate-200 dark:border-[#44475a] text-slate-900 dark:text-[#f8f8f2] placeholder:text-slate-400 dark:placeholder:text-[#6272a4] hover:border-slate-300 dark:hover:border-[#6272a4] focus:border-blue-600 dark:focus:border-[#bd93f9] focus:ring-blue-600/20 dark:focus:ring-[#bd93f9]/20"
+      : "bg-[#21222c] border-[#44475a] text-[#f8f8f2] placeholder:text-[#6272a4] hover:border-[#6272a4] focus:border-[#bd93f9] focus:ring-[#bd93f9]/25";
 
     const errorStyles = isLight
-      ? "border-rose-400 text-slate-900 focus:border-rose-500 focus:ring-rose-500/20"
-      : "border-rose-500 text-white focus:border-rose-500 focus:ring-rose-500/30";
+      ? "border-rose-400 dark:border-[#ff5555] text-slate-900 dark:text-[#f8f8f2] focus:border-rose-500 dark:focus:border-[#ff5555] focus:ring-rose-500/20 dark:focus:ring-[#ff5555]/20"
+      : "border-[#ff5555] text-[#f8f8f2] focus:border-[#ff5555] focus:ring-[#ff5555]/30";
 
-    const labelStyles = isLight ? "text-slate-800" : "text-slate-200";
+    const labelStyles = isLight ? "text-slate-800 dark:text-[#f8f8f2]" : "text-[#f8f8f2]";
 
     return (
       <div className="w-full space-y-1.5">
@@ -148,11 +148,11 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           {...props}
         />
         {error ? (
-          <p className="text-xs text-rose-500 font-medium mt-1">{error}</p>
+          <p className="text-xs text-rose-500 dark:text-[#ff5555] font-medium mt-1">{error}</p>
         ) : helperText ? (
           <p
             className={`text-xs mt-1 ${
-              isLight ? "text-slate-500" : "text-slate-400"
+              isLight ? "text-slate-500 dark:text-[#6272a4]" : "text-[#6272a4]"
             }`}
           >
             {helperText}

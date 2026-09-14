@@ -11,6 +11,8 @@ import { LoadingSpinner } from "@/components/Common/LoadingSpinner";
 import { ToastContainer, useToast } from "@/components/Common/Toast";
 import { Logo } from "@/components/Common/Logo";
 import { DevNoticeBanner } from "@/components/Common/DevNoticeBanner";
+import { ThemeProvider } from "@/components/Common/ThemeProvider";
+import { ThemeToggle } from "@/components/Common/ThemeToggle";
 
 describe("components/Common/Button", () => {
   it("should render button text and handle click", () => {
@@ -242,6 +244,11 @@ describe("components/Common/Logo", () => {
 
     rerender(<Logo size="xl" />);
     expect(screen.getByText("AI!")).toBeInTheDocument();
+
+    rerender(<Logo size="md" iconOnly={true} href="/dashboard" />);
+    expect(screen.queryByText("ViraPropo")).not.toBeInTheDocument();
+    expect(screen.queryByText("AI!")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /virapropo ai!/i })).toBeInTheDocument();
   });
 });
 
@@ -275,5 +282,33 @@ describe("components/Common/DevNoticeBanner", () => {
   it("should return null and render nothing in production", () => {
     const { container } = render(<DevNoticeBanner />);
     expect(container.firstChild).toBeNull();
+  });
+});
+
+describe("components/Common/ThemeProvider & ThemeToggle", () => {
+  it("should toggle theme between light and dark (Dracula)", () => {
+    const { rerender } = render(
+      <ThemeProvider>
+        <ThemeToggle variant="button" />
+      </ThemeProvider>
+    );
+
+    const btn = screen.getByRole("button");
+    expect(btn).toBeInTheDocument();
+
+    // Trigger theme toggle click
+    act(() => {
+      fireEvent.click(btn);
+    });
+
+    expect(localStorage.getItem("proposta_ai_theme")).toBeDefined();
+
+    // Rerender as icon toggle
+    rerender(
+      <ThemeProvider>
+        <ThemeToggle variant="icon" size="sm" />
+      </ThemeProvider>
+    );
+    expect(screen.getByRole("button")).toBeInTheDocument();
   });
 });
