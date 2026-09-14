@@ -82,19 +82,19 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-3xl p-8 shadow-xl shadow-slate-200/50">
+    <div className="bg-white dark:bg-[#21222c] border border-slate-200/90 dark:border-[#44475a] rounded-3xl p-8 shadow-xl shadow-slate-200/50 dark:shadow-black/40 transition-colors">
       <ToastContainer />
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-2xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
           Crie sua conta no ViraPropo AI!
         </h1>
-        <p className="text-slate-500 text-sm mt-1.5">
+        <p className="text-slate-500 dark:text-[#6272a4] text-sm mt-1.5">
           Comece a gerar propostas comerciais profissionais com IA hoje
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-2.5">
+        <div className="mb-6 p-4 rounded-xl bg-rose-50 dark:bg-[#ff5555]/15 border border-rose-200 dark:border-[#ff5555]/30 text-rose-700 dark:text-[#ff5555] text-sm flex items-start gap-2.5">
           <span>{error}</span>
         </div>
       )}
@@ -150,27 +150,27 @@ export default function SignupPage() {
           />
         </div>
 
-        <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-100 flex items-center gap-2 text-xs text-blue-900">
-          <Check className="w-4 h-4 text-blue-600 shrink-0" />
+        <div className="p-3 bg-blue-50/70 dark:bg-[#bd93f9]/15 rounded-xl border border-blue-100 dark:border-[#bd93f9]/30 flex items-center gap-2 text-xs text-blue-900 dark:text-[#f8f8f2]">
+          <Check className="w-4 h-4 text-blue-600 dark:text-[#50fa7b] shrink-0" />
           <span>Plano Grátis incluso: 3 propostas completas com IA todo mês.</span>
         </div>
 
         {/* LGPD Agreement Checkbox */}
         <div className="pt-1">
-          <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer select-none">
+          <label className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-[#f8f8f2]/80 cursor-pointer select-none">
             <input
               type="checkbox"
               required
               checked={aceitouTermos}
               onChange={(e) => setAceitouTermos(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 shrink-0 cursor-pointer"
+              className="mt-0.5 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-[#44475a] dark:bg-[#343746] shrink-0 cursor-pointer"
             />
             <span className="leading-relaxed">
               Li e concordo com os{" "}
               <Link
                 href="/termos"
                 target="_blank"
-                className="text-blue-600 font-bold hover:underline"
+                className="text-blue-600 dark:text-[#8be9fd] font-bold hover:underline"
               >
                 Termos de Uso
               </Link>{" "}
@@ -178,7 +178,7 @@ export default function SignupPage() {
               <Link
                 href="/privacidade"
                 target="_blank"
-                className="text-blue-600 font-bold hover:underline"
+                className="text-blue-600 dark:text-[#8be9fd] font-bold hover:underline"
               >
                 Política de Privacidade (LGPD)
               </Link>
@@ -201,12 +201,12 @@ export default function SignupPage() {
         </div>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-        <p className="text-sm text-slate-600">
+      <div className="mt-8 pt-6 border-t border-slate-100 dark:border-[#44475a] text-center">
+        <p className="text-sm text-slate-600 dark:text-[#f8f8f2]/80">
           Já possui cadastro?{" "}
           <Link
             href="/login"
-            className="text-blue-600 font-bold hover:text-blue-700 underline underline-offset-4"
+            className="text-blue-600 dark:text-[#8be9fd] font-bold hover:text-blue-700 dark:hover:text-[#bd93f9] underline underline-offset-4"
           >
             Fazer login
           </Link>

@@ -5,17 +5,19 @@ import Link from "next/link";
 import { ArrowLeft, Shield, FileText, CheckCircle2, Scale, Lock, Sparkles, Building2 } from "lucide-react";
 import { Logo } from "@/components/Common/Logo";
 import { Button } from "@/components/Common/Button";
+import { ThemeToggle } from "@/components/Common/ThemeToggle";
 
 export default function TermosDeUsoPage() {
   const ultimaAtualizacao = "10 de setembro de 2026";
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-slate-900 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-[#FBFBFA] dark:bg-[#282a36] text-slate-900 dark:text-[#f8f8f2] flex flex-col font-sans selection:bg-blue-500 selection:text-white dark:selection:bg-[#bd93f9] dark:selection:text-[#282a36] transition-colors duration-200">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 py-4 px-4 sm:px-8 shadow-xs">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#21222c]/95 backdrop-blur-md border-b border-slate-200/90 dark:border-[#44475a] py-4 px-4 sm:px-8 shadow-xs transition-colors">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           <Logo href="/" size="md" variant="light" showSubtitle />
           <div className="flex items-center gap-3">
+            <ThemeToggle size="sm" />
             <Link href="/">
               <Button variant="ghost" size="sm" leftIcon={<ArrowLeft className="w-4 h-4" />}>
                 Voltar ao Início

@@ -61,19 +61,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-3xl p-8 shadow-xl shadow-slate-200/50">
+    <div className="bg-white dark:bg-[#21222c] border border-slate-200/90 dark:border-[#44475a] rounded-3xl p-8 shadow-xl shadow-slate-200/50 dark:shadow-black/40 transition-colors">
       <ToastContainer />
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-2xl font-black text-slate-900 dark:text-[#f8f8f2] tracking-tight">
           Acesse sua conta
         </h1>
-        <p className="text-slate-500 text-sm mt-1.5">
+        <p className="text-slate-500 dark:text-[#6272a4] text-sm mt-1.5">
           Entre para gerenciar suas propostas e fechar negócios
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-2.5">
+        <div className="mb-6 p-4 rounded-xl bg-rose-50 dark:bg-[#ff5555]/15 border border-rose-200 dark:border-[#ff5555]/30 text-rose-700 dark:text-[#ff5555] text-sm flex items-start gap-2.5">
           <span>{error}</span>
         </div>
       )}
@@ -113,12 +113,12 @@ export default function LoginPage() {
         </div>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-        <p className="text-sm text-slate-600">
+      <div className="mt-8 pt-6 border-t border-slate-100 dark:border-[#44475a] text-center">
+        <p className="text-sm text-slate-600 dark:text-[#f8f8f2]/80">
           Ainda não tem uma conta?{" "}
           <Link
             href="/signup"
-            className="text-blue-600 font-bold hover:text-blue-700 underline underline-offset-4"
+            className="text-blue-600 dark:text-[#8be9fd] font-bold hover:text-blue-700 dark:hover:text-[#bd93f9] underline underline-offset-4"
           >
             Cadastre-se grátis
           </Link>

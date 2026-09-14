@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/Common/Button";
 import { Logo } from "@/components/Common/Logo";
+import { ThemeToggle } from "@/components/Common/ThemeToggle";
 
 interface DemoPreset {
   id: string;
@@ -172,53 +173,53 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-slate-900 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#FBFBFA] dark:bg-[#282a36] text-slate-900 dark:text-[#f8f8f2] relative overflow-hidden font-sans transition-colors duration-200">
       {/* Schema.org Structured Data (JSON-LD) for SEO */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
       />
 
-      {/* Subtle Warm Light Background Accents */}
-      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none -z-0 opacity-60" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[450px] bg-gradient-to-b from-blue-100/50 via-sky-50/30 to-transparent blur-3xl pointer-events-none -z-0" />
+      {/* Subtle Background Accents */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] dark:bg-[radial-gradient(#44475a_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none -z-0 opacity-60" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[450px] bg-gradient-to-b from-blue-100/50 via-sky-50/30 to-transparent dark:from-blue-900/20 dark:via-[#bd93f9]/10 dark:to-transparent blur-3xl pointer-events-none -z-0" />
 
       {/* =========================================================================
-          1. HEADER / NAVBAR (Light Theme)
+          1. HEADER / NAVBAR
       ========================================================================= */}
-      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-[#FBFBFA]/90 border-b border-slate-200/80 transition-colors">
+      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-[#FBFBFA]/90 dark:bg-[#21222c]/90 border-b border-slate-200/80 dark:border-[#44475a] transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Logo href="/" size="md" variant="light" />
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+          <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600 dark:text-[#f8f8f2]/80">
             <a
               href="#demonstracao"
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-blue-600 dark:hover:text-[#bd93f9] transition-colors"
             >
               Demonstração
             </a>
             <a
               href="#como-funciona"
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-blue-600 dark:hover:text-[#bd93f9] transition-colors"
             >
               Como Funciona
             </a>
             <a
               href="#recursos"
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-blue-600 dark:hover:text-[#bd93f9] transition-colors"
             >
               Recursos
             </a>
             <a
               href="#precos"
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-blue-600 dark:hover:text-[#bd93f9] transition-colors"
             >
               Planos & Preços
             </a>
             <a
               href="#faq"
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-blue-600 dark:hover:text-[#bd93f9] transition-colors"
             >
               Dúvidas
             </a>
@@ -226,11 +227,12 @@ export default function LandingPage() {
 
           {/* Action CTAs */}
           <div className="hidden sm:flex items-center gap-3">
+            <ThemeToggle size="sm" />
             <Link href="/login">
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-slate-700 hover:text-slate-900 hover:bg-slate-100 font-semibold text-xs"
+                className="text-slate-700 dark:text-[#f8f8f2] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#343746] font-semibold text-xs"
               >
                 Entrar
               </Button>
@@ -248,63 +250,66 @@ export default function LandingPage() {
           </div>
 
           {/* Mobile Menu Toggle Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 border border-slate-200 cursor-pointer"
-            aria-label="Abrir menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle size="sm" />
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl text-slate-700 dark:text-[#f8f8f2] hover:bg-slate-100 dark:hover:bg-[#343746] border border-slate-200 dark:border-[#44475a] cursor-pointer"
+              aria-label="Abrir menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-b border-slate-200 bg-white/95 backdrop-blur-xl px-4 pt-3 pb-6 space-y-3 shadow-xl">
+          <div className="md:hidden border-b border-slate-200 dark:border-[#44475a] bg-white/95 dark:bg-[#21222c]/95 backdrop-blur-xl px-4 pt-3 pb-6 space-y-3 shadow-xl">
             <a
               href="#demonstracao"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold text-slate-700 hover:text-blue-600"
+              className="block py-2 text-sm font-semibold text-slate-700 dark:text-[#f8f8f2] hover:text-blue-600 dark:hover:text-[#bd93f9]"
             >
               Demonstração Interativa
             </a>
             <a
               href="#como-funciona"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold text-slate-700 hover:text-blue-600"
+              className="block py-2 text-sm font-semibold text-slate-700 dark:text-[#f8f8f2] hover:text-blue-600 dark:hover:text-[#bd93f9]"
             >
               Como Funciona
             </a>
             <a
               href="#recursos"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold text-slate-700 hover:text-blue-600"
+              className="block py-2 text-sm font-semibold text-slate-700 dark:text-[#f8f8f2] hover:text-blue-600 dark:hover:text-[#bd93f9]"
             >
               Recursos
             </a>
             <a
               href="#precos"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold text-slate-700 hover:text-blue-600"
+              className="block py-2 text-sm font-semibold text-slate-700 dark:text-[#f8f8f2] hover:text-blue-600 dark:hover:text-[#bd93f9]"
             >
               Planos & Preços
             </a>
             <a
               href="#faq"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold text-slate-700 hover:text-blue-600"
+              className="block py-2 text-sm font-semibold text-slate-700 dark:text-[#f8f8f2] hover:text-blue-600 dark:hover:text-[#bd93f9]"
             >
               Perguntas Frequentes
             </a>
-            <div className="pt-4 border-t border-slate-100 flex flex-col gap-2">
+            <div className="pt-4 border-t border-slate-100 dark:border-[#44475a] flex flex-col gap-2">
               <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                 <Button
                   variant="outline"
                   size="md"
-                  className="w-full justify-center text-slate-800"
+                  className="w-full justify-center text-slate-800 dark:text-[#f8f8f2]"
                 >
                   Entrar na Conta
                 </Button>

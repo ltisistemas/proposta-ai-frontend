@@ -18,7 +18,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const STORAGE_KEY = "proposta_ai_theme";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("system");
+  const [theme, setThemeState] = useState<Theme>("light");
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
   const [isMounted, setIsMounted] = useState(false);
 
@@ -55,10 +55,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setThemeState(savedTheme);
         applyTheme(savedTheme);
       } else {
-        applyTheme("system");
+        setThemeState("light");
+        applyTheme("light");
       }
     } catch {
-      applyTheme("system");
+      setThemeState("light");
+      applyTheme("light");
     }
   }, [applyTheme]);
 
@@ -114,7 +116,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    return {
+      theme: "light" as Theme,
+      resolvedTheme: "light" as ResolvedTheme,
+      setTheme: () => {},
+      toggleTheme: () => {},
+      isMounted: true,
+    };
   }
   return context;
 }
@@ -125,9 +133,15 @@ export const ThemeScript = () => {
       try {
         var key = '${STORAGE_KEY}';
         var theme = localStorage.getItem(key);
-        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (theme === 'dark' || (!theme && prefersDark) || (theme === 'system' && prefersDark)) {
+        if (theme === 'dark') {
           document.documentElement.classList.add('dark');
+        } else if (theme === 'system') {
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (prefersDark) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
         } else {
           document.documentElement.classList.remove('dark');
         }
