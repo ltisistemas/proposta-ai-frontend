@@ -6,6 +6,7 @@ import { PlusCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/Common/Button";
 import { StatsCards, MetricasDashboard } from "@/components/Dashboard/StatsCards";
 import { PropostasTable, PropostaItem } from "@/components/Dashboard/PropostasTable";
+import { AdminExecutiveDashboard } from "@/components/Dashboard/AdminExecutiveDashboard";
 import { useAuthStore } from "@/lib/auth/useAuthStore";
 import { useToast } from "@/components/Common/Toast";
 
@@ -18,7 +19,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const carregarDados = useCallback(async () => {
-    if (!token) return;
+    if (!token || user?.role === "admin") return;
     setIsLoading(true);
 
     try {
@@ -44,7 +45,7 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [token]);
+  }, [token, user?.role]);
 
   useEffect(() => {
     carregarDados();
@@ -77,6 +78,12 @@ export default function DashboardPage() {
     }
   };
 
+  // 1. If Admin user: Render the Managerial Executive Dashboard
+  if (user?.role === "admin") {
+    return <AdminExecutiveDashboard />;
+  }
+
+  // 2. Otherwise (regular user / client): Render the Proposal Management Dashboard exactly as before
   return (
     <div className="space-y-8">
       {/* Page Header */}
@@ -139,3 +146,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
