@@ -150,21 +150,26 @@ export async function POST(request: NextRequest) {
     let executedAction = "IGNORED";
 
     if (isActivationEvent) {
+      const paymentValue = payment.value || 0;
+      const isAnnualPayment = paymentValue >= 300 || subscription.cycle === "YEARLY";
+      const intervalStr = isAnnualPayment ? "365 days" : "30 days";
+
       if (targetUserId) {
         await query(
           `UPDATE users 
            SET plano = 'pro', 
+               ciclo_plano = CASE WHEN $4 = TRUE THEN 'anual' ELSE 'mensal' END,
                data_assinatura = CURRENT_TIMESTAMP, 
-               data_proxima_cobranca = CURRENT_TIMESTAMP + INTERVAL '30 days',
+               data_proxima_cobranca = CURRENT_TIMESTAMP + ($5 || ' days')::INTERVAL,
                cancelamento_agendado = FALSE,
                asaas_customer_id = COALESCE(NULLIF($2, ''), asaas_customer_id),
                asaas_subscription_id = COALESCE(NULLIF($3, ''), asaas_subscription_id),
                atualizado_em = CURRENT_TIMESTAMP 
            WHERE id = $1`,
-          [targetUserId, customerId, subscriptionId]
+          [targetUserId, customerId, subscriptionId, isAnnualPayment, isAnnualPayment ? "365" : "30"]
         );
         executedAction = "PLAN_ACTIVATED";
-        console.log(`✨ Plano PRO ativado/renovado para o usuário ${targetUserId} via [${eventName}].`);
+        console.log(`✨ Plano PRO (${isAnnualPayment ? "ANUAL" : "MENSAL"}) ativado/renovado para o usuário ${targetUserId} via [${eventName}].`);
       } else {
         executedAction = "UNMATCHED_USER";
         console.warn(`⚠️ Webhook [${eventName}] não encontrou usuário para ativar PRO:`, {

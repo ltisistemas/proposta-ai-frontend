@@ -156,4 +156,54 @@ export const tracker = {
       console.warn(`Aviso ao rastrear evento customizado ${eventName}:`, err);
     }
   },
+
+  /**
+   * Captura parâmetros de UTM da URL e persiste no localStorage
+   */
+  captureAndStoreUTMs: (): void => {
+    if (typeof window === "undefined") return;
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const utmSource = urlParams.get("utm_source");
+      const utmMedium = urlParams.get("utm_medium");
+      const utmCampaign = urlParams.get("utm_campaign");
+      const utmTerm = urlParams.get("utm_term");
+      const utmContent = urlParams.get("utm_content");
+
+      if (utmSource || utmMedium || utmCampaign || utmTerm || utmContent) {
+        const utmData = {
+          utm_source: utmSource || undefined,
+          utm_medium: utmMedium || undefined,
+          utm_campaign: utmCampaign || undefined,
+          utm_term: utmTerm || undefined,
+          utm_content: utmContent || undefined,
+          captured_at: new Date().toISOString(),
+        };
+        localStorage.setItem("virapropo_utms", JSON.stringify(utmData));
+      }
+    } catch (err) {
+      console.warn("Aviso ao salvar UTMs:", err);
+    }
+  },
+
+  /**
+   * Retorna os dados de UTM armazenados
+   */
+  getStoredUTMs: (): {
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_term?: string;
+    utm_content?: string;
+  } => {
+    if (typeof window === "undefined") return {};
+    try {
+      const raw = localStorage.getItem("virapropo_utms");
+      if (!raw) return {};
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
+  },
 };
+

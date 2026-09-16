@@ -9,8 +9,9 @@ export function PixelTracker() {
   const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   useEffect(() => {
-    // Dispara PageView inicial
+    // Dispara PageView inicial e captura UTMs da URL
     tracker.pageView();
+    tracker.captureAndStoreUTMs();
   }, []);
 
   return (

@@ -41,6 +41,8 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
+      const storedUtms = tracker.getStoredUTMs();
+
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -50,6 +52,11 @@ export default function SignupPage() {
           password,
           empresaNome: empresaNome || undefined,
           empresaCnpj: empresaCnpj || undefined,
+          utmSource: storedUtms.utm_source,
+          utmMedium: storedUtms.utm_medium,
+          utmCampaign: storedUtms.utm_campaign,
+          utmTerm: storedUtms.utm_term,
+          utmContent: storedUtms.utm_content,
         }),
       });
 

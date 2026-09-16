@@ -39,12 +39,19 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'cliente';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS suspenso BOOLEAN DEFAULT FALSE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS pro_tipo_concessao VARCHAR(50);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS ciclo_plano VARCHAR(20) DEFAULT 'mensal';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS utm_source VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS utm_medium VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS utm_campaign VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS utm_term VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS utm_content VARCHAR(255);
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_plano ON users(plano);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_users_suspenso ON users(suspenso);
 CREATE INDEX IF NOT EXISTS idx_users_asaas_customer ON users(asaas_customer_id);
+CREATE INDEX IF NOT EXISTS idx_users_utm_source ON users(utm_source);
 
 -- Propostas Table
 CREATE TABLE IF NOT EXISTS propostas (
@@ -66,6 +73,9 @@ CREATE TABLE IF NOT EXISTS propostas (
   observacoes TEXT,
   status VARCHAR(50) DEFAULT 'rascunho',
   data_envio TIMESTAMP,
+  visualizada_em TIMESTAMP,
+  primeira_visualizacao_em TIMESTAMP,
+  visualizacoes_count INT DEFAULT 0,
   assinante_nome VARCHAR(255),
   assinante_documento VARCHAR(50),
   assinado_em TIMESTAMP,
@@ -83,6 +93,9 @@ ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinado_em TIMESTAMP;
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinatura_ip VARCHAR(50);
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS assinatura_hash VARCHAR(255);
 ALTER TABLE propostas ADD COLUMN IF NOT EXISTS regeneracoes_ia INT DEFAULT 0;
+ALTER TABLE propostas ADD COLUMN IF NOT EXISTS visualizada_em TIMESTAMP;
+ALTER TABLE propostas ADD COLUMN IF NOT EXISTS primeira_visualizacao_em TIMESTAMP;
+ALTER TABLE propostas ADD COLUMN IF NOT EXISTS visualizacoes_count INT DEFAULT 0;
 
 CREATE INDEX IF NOT EXISTS idx_propostas_usuario ON propostas(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_propostas_status ON propostas(status);

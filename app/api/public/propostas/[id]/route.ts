@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { obterPropostaPorId } from "@/lib/db/propostas";
+import { obterPropostaPorId, registrarVisualizacaoProposta } from "@/lib/db/propostas";
 import { obterUserPorId } from "@/lib/db/users";
 import { injetarOuAtualizarLogoHtml } from "@/lib/gemini/client";
 
@@ -32,20 +32,33 @@ export async function GET(
       );
     }
 
+    // Registra visualização em tempo real para inteligência de vendas
+    let propostaEfetiva = proposta;
+    try {
+      if (typeof registrarVisualizacaoProposta === "function") {
+        const propostaAtualizadaView = await registrarVisualizacaoProposta(id);
+        if (propostaAtualizadaView) {
+          propostaEfetiva = propostaAtualizadaView;
+        }
+      }
+    } catch (viewErr) {
+      console.warn("Aviso ao registrar visualização:", viewErr);
+    }
+
     const conteudoHtml = injetarOuAtualizarLogoHtml(
-      proposta.conteudo_html,
+      propostaEfetiva.conteudo_html,
       criador.empresa_logo_url,
       criador.empresa_nome || criador.nome
     );
 
     const propostaCompleta = {
-      ...proposta,
+      ...propostaEfetiva,
       conteudo_html: conteudoHtml,
-      emissor_nome: proposta.emissor_nome || criador.nome || criador.empresa_nome || "Emissor Autorizado",
-      emissor_email: proposta.emissor_email || criador.email || criador.empresa_email || "",
-      emissor_documento: proposta.emissor_documento || criador.empresa_cnpj || null,
-      emissor_assinado_em: proposta.emissor_assinado_em || proposta.criado_em,
-      emissor_assinatura_ip: proposta.emissor_assinatura_ip || "127.0.0.1",
+      emissor_nome: propostaEfetiva.emissor_nome || criador.nome || criador.empresa_nome || "Emissor Autorizado",
+      emissor_email: propostaEfetiva.emissor_email || criador.email || criador.empresa_email || "",
+      emissor_documento: propostaEfetiva.emissor_documento || criador.empresa_cnpj || null,
+      emissor_assinado_em: propostaEfetiva.emissor_assinado_em || propostaEfetiva.criado_em,
+      emissor_assinatura_ip: propostaEfetiva.emissor_assinatura_ip || "127.0.0.1",
     };
 
     return NextResponse.json({

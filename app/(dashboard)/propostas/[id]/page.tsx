@@ -12,6 +12,7 @@ import {
   Calendar,
   Lock,
   Sparkles,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/Common/Button";
 import { Badge, BadgeVariant } from "@/components/Common/Badge";
@@ -376,6 +377,15 @@ export default function VisualizarPropostaPage({
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-[#50fa7b] bg-emerald-50 dark:bg-[#50fa7b]/15 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-[#50fa7b]/30">
                     <CheckCircle className="w-3 h-3 text-emerald-600 dark:text-[#50fa7b]" />
                     <span>Assinada Digitalmente</span>
+                  </span>
+                )}
+                {typeof proposta.visualizacoes_count === "number" && proposta.visualizacoes_count > 0 && (
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-700 dark:text-[#8be9fd] bg-blue-50 dark:bg-[#8be9fd]/15 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-[#8be9fd]/30">
+                    <Eye className="w-3 h-3 text-blue-600 dark:text-[#8be9fd]" />
+                    <span>
+                      Visualizada {proposta.visualizacoes_count}x
+                      {proposta.visualizada_em && ` (última em ${new Date(proposta.visualizada_em).toLocaleDateString("pt-BR")} às ${new Date(proposta.visualizada_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })})`}
+                    </span>
                   </span>
                 )}
               </div>

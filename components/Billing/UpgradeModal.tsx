@@ -100,6 +100,7 @@ export function UpgradeModal({
   const { addToast } = useToast();
 
   const [step, setStep] = useState<"DETAILS" | "PIX" | "SUCCESS">("DETAILS");
+  const [billingCycle, setBillingCycle] = useState<"mensal" | "anual">("mensal");
   const [isLoading, setIsLoading] = useState(false);
   const [pixData, setPixData] = useState<PixChargeData | null>(null);
   const [hasCopied, setHasCopied] = useState(false);
@@ -160,9 +161,9 @@ export function UpgradeModal({
             try {
               tracker.purchase({
                 transaction_id: pixData.chargeId,
-                value: pixData.amount || 45.9,
+                value: pixData.amount || (billingCycle === "anual" ? 397.0 : 45.9),
                 currency: "BRL",
-                content_name: "Assinatura ViraPropo AI! Pro",
+                content_name: `Assinatura ViraPropo AI! Pro (${billingCycle === "anual" ? "Anual" : "Mensal"})`,
               });
             } catch (trackErr) {
               console.warn("Aviso ao rastrear Purchase:", trackErr);
@@ -184,7 +185,7 @@ export function UpgradeModal({
         if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
       };
     }
-  }, [step, pixData?.chargeId, token, updateUser, fetchMe, addToast]);
+  }, [step, pixData?.chargeId, token, updateUser, fetchMe, addToast, billingCycle]);
 
   const handleGerarPix = async () => {
     if (!token) {
@@ -205,6 +206,9 @@ export function UpgradeModal({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          ciclo: billingCycle,
+        }),
       });
 
       const data = await res.json();
@@ -212,7 +216,7 @@ export function UpgradeModal({
       if (data.sucesso && data.brCode) {
         setPixData({
           chargeId: data.chargeId,
-          amount: data.amount || 45.9,
+          amount: data.amount || (billingCycle === "anual" ? 397.0 : 45.9),
           brCode: data.brCode,
           brCodeBase64: data.brCodeBase64,
           invoiceUrl: data.invoiceUrl,
@@ -222,9 +226,9 @@ export function UpgradeModal({
         setStep("PIX");
         try {
           tracker.initiateCheckout({
-            value: data.amount || 45.9,
+            value: data.amount || (billingCycle === "anual" ? 397.0 : 45.9),
             currency: "BRL",
-            content_name: "Assinatura ViraPropo AI! Pro",
+            content_name: `Assinatura ViraPropo AI! Pro (${billingCycle === "anual" ? "Anual" : "Mensal"})`,
           });
         } catch (trackErr) {
           console.warn("Aviso ao rastrear InitiateCheckout:", trackErr);
@@ -310,16 +314,63 @@ export function UpgradeModal({
               </div>
             </div>
 
+            {/* Billing Cycle Switcher */}
+            <div className="flex items-center justify-center p-1 bg-slate-100 dark:bg-[#1e1f29] rounded-xl border border-slate-200/90 dark:border-[#44475a] max-w-xs mx-auto">
+              <button
+                type="button"
+                onClick={() => setBillingCycle("anual")}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  billingCycle === "anual"
+                    ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
+                    : "text-slate-600 dark:text-[#cbd5e1] hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                <span>Anual</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500 text-white font-black">
+                  -28%
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setBillingCycle("mensal")}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  billingCycle === "mensal"
+                    ? "bg-white dark:bg-[#343746] text-blue-600 dark:text-[#bd93f9] shadow-xs"
+                    : "text-slate-600 dark:text-[#cbd5e1] hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                Mensal
+              </button>
+            </div>
+
             {/* Pricing Box */}
-            <div className="p-4 sm:p-5 rounded-[4px] bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 dark:from-[#21222c] dark:via-[#282a36] dark:to-[#1e1f29] text-white shadow-sm border border-slate-700 dark:border-[#44475a]">
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 dark:from-[#21222c] dark:via-[#282a36] dark:to-[#1e1f29] text-white shadow-sm border border-slate-700 dark:border-[#44475a]">
               <div className="flex items-baseline justify-between mb-4 pb-3 border-b border-white/10">
                 <div>
-                  <div className="text-[11px] text-blue-200 dark:text-[#bd93f9] font-bold uppercase tracking-wider">
-                    Assinatura Mensal
+                  <div className="text-[11px] text-blue-200 dark:text-[#bd93f9] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <span>{billingCycle === "anual" ? "Assinatura Anual (12 Meses)" : "Assinatura Mensal"}</span>
+                    {billingCycle === "anual" && (
+                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-1.5 py-0.5 rounded font-black">
+                        Economia de R$ 153,80/ano
+                      </span>
+                    )}
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-white mt-0.5">
-                    R$ 45,90{" "}
-                    <span className="text-xs text-blue-200 dark:text-[#cbd5e1] font-normal">/ mês</span>
+                    {billingCycle === "anual" ? (
+                      <>
+                        R$ 397,00{" "}
+                        <span className="text-xs text-blue-200 dark:text-[#cbd5e1] font-normal">
+                          / ano (R$ 33,08/mês)
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        R$ 45,90{" "}
+                        <span className="text-xs text-blue-200 dark:text-[#cbd5e1] font-normal">
+                          / mês
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <span className="text-[11px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2.5 py-1 rounded-[4px] font-bold">
@@ -330,7 +381,7 @@ export function UpgradeModal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-200">
                 <div className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-blue-400 dark:text-[#50fa7b] shrink-0" />
-                  <span>Assinatura Eletrônica</span>
+                  <span>Assinatura Eletrônica com Hash</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-blue-400 dark:text-[#50fa7b] shrink-0" />
@@ -358,11 +409,11 @@ export function UpgradeModal({
                 isLoading={isLoading}
                 variant="primary"
                 size="lg"
-                className="w-full justify-center font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 rounded-[4px]"
+                className="w-full justify-center font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 rounded-xl"
                 leftIcon={<QrCode className="w-5 h-5" />}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
-                Pagar com PIX (R$ 45,90/mês)
+                Pagar com PIX ({billingCycle === "anual" ? "R$ 397,00/ano" : "R$ 45,90/mês"})
               </Button>
 
               <Button

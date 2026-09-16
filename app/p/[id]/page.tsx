@@ -21,6 +21,8 @@ import { DigitalCertificate } from "@/components/Proposta/DigitalCertificate";
 import { SignatureManifesto, gerarManifestoHTML } from "@/components/Proposta/SignatureManifesto";
 import { ajustarHtmlResponsivoProposta } from "@/lib/utils/proposal-html";
 
+import { ViralGrowthBadge } from "@/components/Common/ViralGrowthBadge";
+
 export default function PublicProposalPage({
   params,
 }: {
@@ -282,7 +284,15 @@ export default function PublicProposalPage({
 
         {/* Dedicated Signature Manifesto (Printed on final page) */}
         <SignatureManifesto proposta={proposta} emissor={emissor} />
+
+        {/* Viral Growth Callout Banner */}
+        <div className="pt-4 pb-2">
+          <ViralGrowthBadge variant="inline" />
+        </div>
       </main>
+
+      {/* Floating Viral Badge on Desktop */}
+      <ViralGrowthBadge variant="floating" />
 
       {/* Footer */}
       <footer className="py-6 text-center text-xs text-slate-400 dark:text-[#cbd5e1] border-t border-slate-200 dark:border-[#44475a] bg-white dark:bg-[#21222c]">

@@ -28,6 +28,8 @@ export interface PropostaItem {
   cliente_empresa?: string | null;
   total: number;
   status: "rascunho" | "enviada" | "aceita" | "recusada";
+  visualizada_em?: string | Date | null;
+  visualizacoes_count?: number;
   criado_em: string | Date;
 }
 
@@ -251,7 +253,17 @@ export const PropostasTable: React.FC<PropostasTableProps> = ({
                       {formatarMoeda(p.total)}
                     </td>
                     <td className="p-4 text-center">
-                      <Badge variant={p.status as BadgeVariant} size="sm" />
+                      <div className="flex flex-col items-center gap-1">
+                        <Badge variant={p.status as BadgeVariant} size="sm" />
+                        {typeof p.visualizacoes_count === "number" && p.visualizacoes_count > 0 && (
+                          <span
+                            title={p.visualizada_em ? `Última abertura: ${new Date(p.visualizada_em).toLocaleString("pt-BR")}` : "Proposta visualizada pelo cliente"}
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-700 dark:text-[#8be9fd] bg-blue-50 dark:bg-[#8be9fd]/15 px-1.5 py-0.5 rounded border border-blue-200/60 dark:border-[#8be9fd]/30"
+                          >
+                            <Eye className="w-2.5 h-2.5" /> {p.visualizacoes_count}x
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4 pr-6 text-right">
                       <div className="flex items-center justify-end gap-1.5">

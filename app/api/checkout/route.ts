@@ -56,20 +56,45 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. Cria Assinatura Mensal no Asaas (R$ 45,90)
+    // 2. Lê parâmetro de ciclo (mensal vs anual)
+    let ciclo: "mensal" | "anual" = "mensal";
+    try {
+      const body = await request.json();
+      if (body?.ciclo === "anual" || body?.ciclo === "YEARLY") {
+        ciclo = "anual";
+      }
+    } catch {
+      // Body vazio ou não JSON, assume mensal
+    }
+
+    const isAnual = ciclo === "anual";
+    const valorPlano = isAnual ? 397.0 : 45.9;
+    const cicloAsaas = isAnual ? "YEARLY" : "MONTHLY";
+    const descricaoPlano = isAnual
+      ? "Assinatura ViraPropo AI! Pro (Anual - 28% OFF)"
+      : "Assinatura ViraPropo AI! Pro (Mensal)";
+
+    // Atualiza preferência de ciclo no usuário
+    try {
+      await query("UPDATE users SET ciclo_plano = $1 WHERE id = $2", [ciclo, userId]);
+    } catch (err) {
+      console.warn("Aviso ao atualizar ciclo_plano:", err);
+    }
+
+    // 3. Cria Assinatura no Asaas
     const hojeStr = new Date().toISOString().split("T")[0];
     const subscription = await criarAssinaturaAsaas({
       customer: asaasCustomerId,
       billingType: "PIX",
-      cycle: "MONTHLY",
-      value: 45.9,
+      cycle: cicloAsaas as any,
+      value: valorPlano,
       nextDueDate: hojeStr,
-      description: "Assinatura ViraPropo AI! Pro (Mensal)",
+      description: descricaoPlano,
       externalReference: usuario.id,
-      maxPayments: 24,
+      maxPayments: isAnual ? 5 : 24,
     });
 
-    // 3. Recupera a cobrança gerada para a assinatura no Asaas (com retry com backoff)
+    // 4. Recupera a cobrança gerada para a assinatura no Asaas (com retry com backoff)
     let paymentId = "";
     let invoiceUrl = "";
     let payments = await obterPagamentosAssinaturaAsaas(subscription.id);
@@ -90,16 +115,24 @@ export async function POST(request: NextRequest) {
       paymentId = subscription.id;
     }
 
-    // 4. Obtém o QR Code PIX (Base64 + Copia e Cola)
+    // 5. Obtém o QR Code PIX (Base64 + Copia e Cola)
     const pixQr = await obterPixQrCodeAsaas(paymentId);
 
-    // 5. Salva ou atualiza registro de pagamento pendente
+    // 6. Salva ou atualiza registro de pagamento pendente
     try {
       await query(
         `INSERT INTO pagamentos (usuario_id, asaas_payment_id, asaas_subscription_id, invoice_url, abacate_transaction_id, valor, status, tipo)
-         VALUES ($1, $2, $3, $4, $5, 45.90, 'pendente', 'assinatura_pro')
+         VALUES ($1, $2, $3, $4, $5, $6, 'pendente', $7)
          ON CONFLICT (id) DO NOTHING`,
-        [userId, paymentId, subscription.id, invoiceUrl, paymentId]
+        [
+          userId,
+          paymentId,
+          subscription.id,
+          invoiceUrl,
+          paymentId,
+          valorPlano,
+          isAnual ? "assinatura_pro_anual" : "assinatura_pro",
+        ]
       );
     } catch (dbErr) {
       console.warn("Aviso ao salvar pagamento no banco:", dbErr);
@@ -115,8 +148,9 @@ export async function POST(request: NextRequest) {
       sucesso: true,
       chargeId: paymentId,
       subscriptionId: subscription.id,
-      amount: 45.9,
-      amountCents: 4590,
+      ciclo,
+      amount: valorPlano,
+      amountCents: Math.round(valorPlano * 100),
       brCode: pixQr.payload,
       brCodeBase64: brCodeBase64Formatted,
       invoiceUrl: invoiceUrl || undefined,

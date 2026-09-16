@@ -111,15 +111,15 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || "https://virapropoai.com";
+
   const handleCopyWhatsApp = () => {
-    const text = `Olá, ${selectedPreset.client}! Segue a nossa proposta comercial para ${selectedPreset.service} no valor de R$ ${selectedPreset.price}. Condições: ${selectedPreset.terms}. Acesse a proposta completa: https://proposta-ai-pra-mim.vercel.app/propostas/demo`;
+    const text = `Olá, ${selectedPreset.client}! Segue a nossa proposta comercial para ${selectedPreset.service} no valor de R$ ${selectedPreset.price}. Condições: ${selectedPreset.terms}. Acesse a proposta completa: ${baseUrl}/propostas/demo`;
     navigator.clipboard.writeText(text);
     setCopiedNotification(true);
     setTimeout(() => setCopiedNotification(false), 2500);
   };
-
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://virapropoai.com";
 
   const jsonLdData = {
     "@context": "https://schema.org",

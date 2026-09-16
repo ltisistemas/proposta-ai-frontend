@@ -9,6 +9,11 @@ const signupSchema = z.object({
   nome: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
   empresaNome: z.string().optional(),
   empresaCnpj: z.string().optional(),
+  utmSource: z.string().optional(),
+  utmMedium: z.string().optional(),
+  utmCampaign: z.string().optional(),
+  utmTerm: z.string().optional(),
+  utmContent: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -26,7 +31,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, password, nome, empresaNome, empresaCnpj } = validation.data;
+    const {
+      email,
+      password,
+      nome,
+      empresaNome,
+      empresaCnpj,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmTerm,
+      utmContent,
+    } = validation.data;
 
     // Check if user already exists
     const existing = await obterUserPorEmail(email);
@@ -46,6 +62,11 @@ export async function POST(request: NextRequest) {
       nome,
       empresaNome,
       empresaCnpj,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmTerm,
+      utmContent,
     });
 
     const token = gerarToken({

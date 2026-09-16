@@ -263,10 +263,25 @@ export function AdminUsersTable({
                     {/* Plan & Grant */}
                     <td className="py-3 px-4">
                       <div className="flex flex-col gap-1 items-start">
-                        <Badge variant={isPro ? "pro" : "free"} size="sm">
-                          {isPro ? "PRO" : "FREE"}
-                        </Badge>
+                        <div className="flex items-center gap-1.5">
+                          <Badge variant={isPro ? "pro" : "free"} size="sm">
+                            {isPro ? "PRO" : "FREE"}
+                          </Badge>
+                          {isPro && u.ciclo_plano && (
+                            <span className="text-[10px] font-bold text-blue-700 dark:text-[#bd93f9] bg-blue-50 dark:bg-[#bd93f9]/20 px-1.5 py-0.5 rounded border border-blue-200/60 dark:border-[#bd93f9]/30">
+                              {u.ciclo_plano === "anual" ? "Anual" : "Mensal"}
+                            </span>
+                          )}
+                        </div>
                         {formatConcessao(u)}
+                        {u.utm_source && (
+                          <span
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold text-indigo-700 dark:text-[#8be9fd] bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded border border-indigo-200/60 dark:border-indigo-900/50"
+                            title={`Campanha: ${u.utm_campaign || "-"} | Medium: ${u.utm_medium || "-"} | Term: ${u.utm_term || "-"}`}
+                          >
+                            🎯 {u.utm_source}
+                          </span>
+                        )}
                       </div>
                     </td>
 

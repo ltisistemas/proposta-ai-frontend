@@ -18,6 +18,12 @@ export interface UserRow {
   role?: "admin" | "cliente";
   suspenso?: boolean;
   pro_tipo_concessao?: "manual_vitalicio" | "manual_temporario" | "asaas" | string | null;
+  ciclo_plano?: "mensal" | "anual" | string | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_term?: string | null;
+  utm_content?: string | null;
   propostas_mes_atual?: number;
   data_assinatura?: Date | null;
   data_proxima_cobranca?: Date | null;
@@ -55,6 +61,12 @@ export async function garantirColunaVerificacaoAssinatura(): Promise<void> {
         BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'cliente'; EXCEPTION WHEN OTHERS THEN NULL; END;
         BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS suspenso BOOLEAN DEFAULT FALSE; EXCEPTION WHEN OTHERS THEN NULL; END;
         BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS pro_tipo_concessao VARCHAR(50); EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS ciclo_plano VARCHAR(20) DEFAULT 'mensal'; EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS utm_source VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS utm_medium VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS utm_campaign VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS utm_term VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
+        BEGIN ALTER TABLE users ADD COLUMN IF NOT EXISTS utm_content VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
         BEGIN ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_payment_id VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
         BEGIN ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS asaas_subscription_id VARCHAR(255); EXCEPTION WHEN OTHERS THEN NULL; END;
         BEGIN ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS invoice_url TEXT; EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -287,16 +299,28 @@ export async function criarUser(dados: {
   empresaCnpj?: string;
   role?: "admin" | "cliente";
   plano?: "free" | "pro";
+  cicloPlano?: "mensal" | "anual" | string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmTerm?: string;
+  utmContent?: string;
 }): Promise<Omit<UserRow, "password_hash">> {
   const senhaHash = await bcrypt.hash(dados.password, 10);
   const userRole = dados.role || "cliente";
   const userPlano = userRole === "admin" ? "pro" : (dados.plano || "free");
   const proConcessao = userRole === "admin" ? "manual_vitalicio" : (userPlano === "pro" ? "manual_vitalicio" : null);
+  const cicloPlano = dados.cicloPlano || "mensal";
 
   const result = await query(
-    `INSERT INTO users (email, password_hash, nome, empresa_nome, empresa_cnpj, plano, role, pro_tipo_concessao, suspenso, propostas_mes_atual, criado_em)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE, 0, CURRENT_TIMESTAMP)
-     RETURNING id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, role, suspenso, pro_tipo_concessao, propostas_mes_atual, criado_em, atualizado_em`,
+    `INSERT INTO users (
+      email, password_hash, nome, empresa_nome, empresa_cnpj, plano, role, 
+      pro_tipo_concessao, ciclo_plano, utm_source, utm_medium, utm_campaign, utm_term, utm_content, 
+      suspenso, propostas_mes_atual, criado_em
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, FALSE, 0, CURRENT_TIMESTAMP)
+     RETURNING id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, 
+               tema, idioma, notificacoes_email, plano, role, suspenso, pro_tipo_concessao, ciclo_plano, 
+               utm_source, utm_medium, utm_campaign, utm_term, utm_content, propostas_mes_atual, criado_em, atualizado_em`,
     [
       dados.email.toLowerCase().trim(),
       senhaHash,
@@ -306,6 +330,12 @@ export async function criarUser(dados: {
       userPlano,
       userRole,
       proConcessao,
+      cicloPlano,
+      dados.utmSource || null,
+      dados.utmMedium || null,
+      dados.utmCampaign || null,
+      dados.utmTerm || null,
+      dados.utmContent || null,
     ]
   );
 
@@ -577,7 +607,7 @@ export async function listarUsuariosAdmin(filtros: FiltrosListagemUsuariosAdmin 
   const offsetIndex = paramIndex++;
 
   const usersRes = await query<UserRow>(
-    `SELECT id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, role, suspenso, pro_tipo_concessao, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, criado_em, atualizado_em
+    `SELECT id, email, nome, empresa_nome, empresa_cnpj, empresa_email, empresa_telefone, empresa_logo_url, tema, idioma, notificacoes_email, plano, role, suspenso, pro_tipo_concessao, ciclo_plano, utm_source, utm_medium, utm_campaign, utm_term, utm_content, propostas_mes_atual, data_assinatura, data_proxima_cobranca, data_ultima_verificacao_pagamento, cancelamento_agendado, criado_em, atualizado_em
      FROM users 
      ${whereClause}
      ORDER BY criado_em DESC

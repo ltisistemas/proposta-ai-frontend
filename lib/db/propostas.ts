@@ -27,6 +27,9 @@ export interface PropostaRow {
   observacoes?: string | null;
   status: "rascunho" | "enviada" | "aceita" | "recusada";
   data_envio?: Date | null;
+  visualizada_em?: Date | null;
+  primeira_visualizacao_em?: Date | null;
+  visualizacoes_count?: number;
   // Creator / Issuer signature fields
   documento_hash?: string | null;
   emissor_nome?: string | null;
@@ -65,11 +68,14 @@ export async function garantirColunasDualSignature(): Promise<void> {
       ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_assinado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
       ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_assinatura_ip VARCHAR(50);
       ALTER TABLE propostas ADD COLUMN IF NOT EXISTS emissor_assinatura_hash VARCHAR(64);
+      ALTER TABLE propostas ADD COLUMN IF NOT EXISTS visualizada_em TIMESTAMP;
+      ALTER TABLE propostas ADD COLUMN IF NOT EXISTS primeira_visualizacao_em TIMESTAMP;
+      ALTER TABLE propostas ADD COLUMN IF NOT EXISTS visualizacoes_count INT DEFAULT 0;
       ALTER TABLE propostas ALTER COLUMN prazo_pagamento TYPE VARCHAR(255);
     `);
     isColumnsInitialized = true;
   } catch (err) {
-    console.warn("Aviso ao inicializar colunas de dual signature:", err);
+    console.warn("Aviso ao inicializar colunas de dual signature e visualizacoes:", err);
   }
 }
 
@@ -380,5 +386,31 @@ export async function regenerarConteudoIA(
 
   return { sucesso: true, proposta: result.rows[0] };
 }
+
+export async function registrarVisualizacaoProposta(
+  propostaId: string
+): Promise<PropostaRow | null> {
+  await garantirColunasDualSignature();
+  try {
+    const result = await query<PropostaRow>(
+      `UPDATE propostas
+       SET visualizada_em = CURRENT_TIMESTAMP,
+           primeira_visualizacao_em = COALESCE(primeira_visualizacao_em, CURRENT_TIMESTAMP),
+           visualizacoes_count = COALESCE(visualizacoes_count, 0) + 1,
+           status = CASE WHEN status = 'rascunho' THEN 'enviada' ELSE status END,
+           data_envio = CASE WHEN status = 'rascunho' AND data_envio IS NULL THEN CURRENT_TIMESTAMP ELSE data_envio END,
+           atualizado_em = CURRENT_TIMESTAMP
+       WHERE id = $1 AND deletado_em IS NULL
+       RETURNING *`,
+      [propostaId]
+    );
+
+    return result.rows[0] || null;
+  } catch (err) {
+    console.warn("Aviso ao registrar visualização da proposta:", err);
+    return null;
+  }
+}
+
 
 
