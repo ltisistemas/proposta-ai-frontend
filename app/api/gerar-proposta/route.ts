@@ -13,6 +13,7 @@ import {
   incrementarContadorPropostas,
   obterUserPorId,
 } from "@/lib/db/users";
+import { checkRateLimit, createRateLimitResponse, getClientIp } from "@/lib/security/rateLimiter";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -59,6 +60,16 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Rate limit per user (15 requests per 5 minutes)
+    const rateLimit = checkRateLimit(`gen-proposal:${usuarioId}`, 15, 5 * 60 * 1000);
+    if (!rateLimit.success) {
+      return createRateLimitResponse(
+        rateLimit,
+        "Limite de requisições de geração atingido temporariamente. Aguarde alguns instantes."
+      );
+    }
+
 
     // 2. Validate user & limits
     const user = await obterUserPorId(usuarioId);

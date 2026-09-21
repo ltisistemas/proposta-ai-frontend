@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { obterUserPorEmail, validarAssinaturaUsuario, UserRow } from "@/lib/db/users";
 import { comparePassword } from "@/lib/auth/password";
 import { gerarToken } from "@/lib/auth/jwt";
+import { checkRateLimit, createRateLimitResponse, getClientIp } from "@/lib/security/rateLimiter";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -11,6 +12,15 @@ const loginSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(`login:${clientIp}`, 10, 60 * 1000);
+    if (!rateLimit.success) {
+      return createRateLimitResponse(
+        rateLimit,
+        "Muitas tentativas de login. Por favor, aguarde antes de tentar novamente."
+      );
+    }
+
     const body = await request.json();
     const validation = loginSchema.safeParse(body);
 

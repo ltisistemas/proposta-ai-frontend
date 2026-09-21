@@ -12,6 +12,7 @@ import {
   obterPixQrCodeAsaas,
   getAsaasBaseUrl,
 } from "@/lib/asaas/client";
+import { checkRateLimit, createRateLimitResponse } from "@/lib/security/rateLimiter";
 import { query } from "@/lib/db/client";
 
 export async function POST(request: NextRequest) {
@@ -26,6 +27,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ erro: "Token inválido" }, { status: 401 });
     }
 
+    const rateLimit = checkRateLimit(`checkout:${userId}`, 10, 60 * 1000);
+    if (!rateLimit.success) {
+      return createRateLimitResponse(
+        rateLimit,
+        "Muitas requisições de checkout. Por favor, aguarde alguns instantes."
+      );
+    }
+
     const usuario = await obterUserPorId(userId);
     if (!usuario) {
       return NextResponse.json(
@@ -35,6 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     await garantirColunaVerificacaoAssinatura();
+
 
     // 1. Obtém, valida ou cria cliente no Asaas
     const clienteAsaas = await criarOuBuscarClienteAsaas({

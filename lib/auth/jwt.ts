@@ -3,6 +3,16 @@ import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret_change_in_production";
 const JWT_EXPIRY = process.env.JWT_EXPIRY || "7d";
 
+if (
+  process.env.NODE_ENV === "production" &&
+  (!process.env.JWT_SECRET || process.env.JWT_SECRET === "default_jwt_secret_change_in_production")
+) {
+  console.error(
+    "🚨 [CRITICAL SECURITY WARNING] JWT_SECRET não está devidamente configurado nas variáveis de ambiente em produção! Configure JWT_SECRET para garantir a segurança dos tokens de sessão."
+  );
+}
+
+
 export interface JWTPayload {
   userId: string;
   email: string;
